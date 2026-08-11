@@ -1,0 +1,137 @@
+{
+  "rope": {
+    "id": "rope",
+    "name": "Rope",
+    "output_id": "rope",
+    "output_count": 1,
+    "craft_seconds": 5,
+    "requirements": { "fiber": 3 },
+    "description": "Braid fiber into sturdy rope."
+  },
+  "torch": {
+    "id": "torch",
+    "name": "Torch",
+    "output_id": "torch",
+    "output_count": 2,
+    "craft_seconds": 4,
+    "requirements": { "wood": 1, "fiber": 1 },
+    "description": "Simple light source."
+  },
+  "bread": {
+    "id": "bread",
+    "name": "Bread",
+    "output_id": "bread",
+    "output_count": 1,
+    "craft_seconds": 8,
+    "requirements": { "wheat": 3 },
+    "description": "Bake wheat into bread."
+  },
+  "wooden_axe": {
+    "id": "wooden_axe",
+    "name": "Wooden Axe",
+    "output_id": "wooden_axe",
+    "output_count": 1,
+    "craft_seconds": 12,
+    "requirements": { "wood": 5, "fiber": 2 },
+    "description": "Craft a basic woodcutting axe."
+  },
+  "stone_pick": {
+    "id": "stone_pick",
+    "name": "Stone Pick",
+    "output_id": "stone_pick",
+    "output_count": 1,
+    "craft_seconds": 12,
+    "requirements": { "wood": 3, "stone": 5 },
+    "description": "Craft a basic mining pick."
+  },
+  "orange_juice": {
+    "id": "orange_juice",
+    "name": "Orange Juice",
+    "output_id": "orange_juice",
+    "output_count": 1,
+    "craft_seconds": 5,
+    "requirements": { "orange": 3 },
+    "description": "Freshly squeeze oranges into a cup."
+  },
+  "strawberry_cake": {
+    "id": "strawberry_cake",
+    "name": "Strawberry Cake",
+    "output_id": "strawberry_cake",
+    "output_count": 1,
+    "craft_seconds": 10,
+    "requirements": { "strawberry": 2, "wheat": 2 },
+    "description": "Bake fresh strawberries into a delicious cake."
+  },
+  "cherry_cake": {
+    "id": "cherry_cake",
+    "name": "Cherry Cake",
+    "output_id": "cherry_cake",
+    "output_count": 1,
+    "craft_seconds": 10,
+    "requirements": { "cherry": 2, "wheat": 2 },
+    "description": "Glazed cherry cake."
+  },
+  "cake": {
+    "id": "cake",
+    "name": "Classic Cake",
+    "output_id": "cake",
+    "output_count": 1,
+    "craft_seconds": 8,
+    "requirements": { "wheat": 3, "orange": 1 },
+    "description": "Classic sweet cake."
+  },
+  "wine": {
+    "id": "wine",
+    "name": "Fine Wine",
+    "output_id": "wine",
+    "output_count": 1,
+    "craft_seconds": 15,
+    "requirements": { "grapes": 3 },
+    "description": "Ferment grapes into fine red wine."
+  },
+  "pizza": {
+    "id": "pizza",
+    "name": "Rustic Pizza",
+    "output_id": "pizza",
+    "output_count": 1,
+    "craft_seconds": 12,
+    "requirements": { "wheat": 2, "mushroom": 1, "corn": 1 },
+    "description": "Bake pizza with earthy mushrooms and corn."
+  },
+  "burger": {
+    "id": "burger",
+    "name": "Veggie Burger",
+    "output_id": "burger",
+    "output_count": 1,
+    "craft_seconds": 8,
+    "requirements": { "bread": 1, "mushroom": 1, "tomato_ketch": 1 },
+    "description": "Mushroom veggie burger with savory ketchup."
+  },
+  "cherry_jam": {
+    "id": "cherry_jam",
+    "name": "Cherry Jam",
+    "output_id": "cherry_jam",
+    "output_count": 1,
+    "craft_seconds": 6,
+    "requirements": { "cherry": 3 },
+    "description": "Boil sweet cherries into jam."
+  },
+  "chess": {
+    "id": "chess",
+    "name": "Artisan Cheese",
+    "output_id": "chess",
+    "output_count": 1,
+    "craft_seconds": 8,
+    "requirements": { "wheat": 2, "fiber": 1 },
+    "description": "Press curds into block cheese."
+  },
+  "tomato_ketch": {
+    "id": "tomato_ketch",
+    "name": "Ketchup",
+    "output_id": "tomato_ketch",
+    "output_count": 1,
+    "craft_seconds": 5,
+    "requirements": { "chilly": 2, "reddies": 1 },
+    "description": "Mix chili peppers and radishes into red sauce."
+  }
+}

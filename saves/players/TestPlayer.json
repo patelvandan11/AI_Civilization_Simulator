@@ -1,0 +1,75 @@
+{
+  "user_id": "TestPlayer",
+  "money": 100,
+  "inventory": {
+    "wood": 26,
+    "stone": 18,
+    "fiber": 14,
+    "apple_seed": 4,
+    "wheat_seed": 5
+  },
+  "clock": {
+    "total_seconds": 480,
+    "speed": 1,
+    "weather": "Clear"
+  },
+  "plots": [
+    {
+      "index": 0,
+      "crop_id": "apple",
+      "planted_at": "2026-08-04T14:17:24.281598+00:00"
+    },
+    {
+      "index": 1,
+      "crop_id": null,
+      "planted_at": null
+    },
+    {
+      "index": 2,
+      "crop_id": null,
+      "planted_at": null
+    },
+    {
+      "index": 3,
+      "crop_id": null,
+      "planted_at": null
+    },
+    {
+      "index": 4,
+      "crop_id": null,
+      "planted_at": null
+    },
+    {
+      "index": 5,
+      "crop_id": null,
+      "planted_at": null
+    },
+    {
+      "index": 6,
+      "crop_id": null,
+      "planted_at": null
+    },
+    {
+      "index": 7,
+      "crop_id": null,
+      "planted_at": null
+    },
+    {
+      "index": 8,
+      "crop_id": null,
+      "planted_at": null
+    }
+  ],
+  "buildings": [
+    {
+      "building_id": "campfire",
+      "count": 1,
+      "ready_at_game_seconds": 500.0
+    }
+  ],
+  "craft_job": {
+    "recipe_id": "torch",
+    "finishes_at": "2026-08-04T14:17:28.283385+00:00"
+  },
+  "plot_count": 9
+}
