@@ -1,1 +1,0 @@
-"""HUD widgets package."""

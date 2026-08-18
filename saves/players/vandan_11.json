@@ -1,31 +1,52 @@
 {
   "user_id": "vandan_11",
-  "money": 14906,
+  "money": 28026,
   "inventory": {
-    "apple": 180,
-    "banana": 60,
-    "bread": 9,
-    "cherry": 104,
-    "grape_seed": 12,
-    "stone": 52,
+    "apple": 38,
+    "banana": 10,
+    "bread": 5,
+    "cherry": 10,
+    "grape_seed": 10,
+    "stone": 11,
     "stone_pick": 1,
-    "strawberry": 49,
-    "wheat": 65,
-    "fiber": 384,
-    "watermelon": 15,
-    "orange": 34,
+    "strawberry": 10,
+    "wheat": 10,
+    "fiber": 0,
+    "watermelon": 10,
+    "orange": 10,
     "cherry_jam": 1,
-    "wood": 38,
-    "food": 30,
+    "wood": 10,
+    "food": 10,
     "rubber": 6,
-    "fuel": 12,
-    "water": 17,
-    "steel": 19,
+    "fuel": 10,
+    "water": 5,
+    "steel": 10,
     "iron": 1,
-    "copper": 90
+    "copper": 10,
+    "apple_seed": 5,
+    "wheat_seed": 7,
+    "banana_seed": 3,
+    "cherry_seed": 5,
+    "orange_seed": 5,
+    "strawberry_seed": 5,
+    "watermelon_seed": 5,
+    "avacado_seed": 5,
+    "peach_seed": 5,
+    "blue_berry_seed": 5,
+    "carrot_seed": 5,
+    "pumpkin_seed": 5,
+    "mushroom_seed": 5,
+    "corn_seed": 5,
+    "cucumber_seed": 5,
+    "brokeli_seed": 5,
+    "cabbige_seed": 5,
+    "chilly_seed": 5,
+    "reddies_seed": 5,
+    "rope": 1,
+    "carrot": 10
   },
   "clock": {
-    "total_seconds": 266603.6740002568,
+    "total_seconds": 329177.0340002394,
     "speed": 8,
     "weather": "Fog"
   },
@@ -33,158 +54,173 @@
     {
       "index": 0,
       "crop_id": "apple",
-      "planted_at": "2026-08-10T15:51:21.868235+00:00"
+      "planted_at": "2026-08-18T19:19:25.942Z"
     },
     {
       "index": 1,
-      "crop_id": null,
-      "planted_at": null
+      "crop_id": "apple",
+      "planted_at": "2026-08-18T19:19:25.942Z"
     },
     {
       "index": 2,
-      "crop_id": null,
-      "planted_at": null
+      "crop_id": "apple",
+      "planted_at": "2026-08-18T19:19:25.942Z"
     },
     {
       "index": 3,
-      "crop_id": null,
-      "planted_at": null
+      "crop_id": "apple",
+      "planted_at": "2026-08-18T19:19:39.445Z"
     },
     {
       "index": 4,
-      "crop_id": null,
-      "planted_at": null
+      "crop_id": "apple",
+      "planted_at": "2026-08-18T19:19:39.445Z"
     },
     {
       "index": 5,
-      "crop_id": null,
-      "planted_at": null
+      "crop_id": "apple",
+      "planted_at": "2026-08-18T19:19:39.445Z"
     },
     {
       "index": 6,
-      "crop_id": null,
-      "planted_at": null
+      "crop_id": "apple",
+      "planted_at": "2026-08-18T19:19:39.445Z"
     },
     {
       "index": 7,
-      "crop_id": null,
-      "planted_at": null
+      "crop_id": "apple",
+      "planted_at": "2026-08-18T19:19:39.445Z"
     },
     {
       "index": 8,
-      "crop_id": null,
-      "planted_at": null
+      "crop_id": "apple",
+      "planted_at": "2026-08-18T19:19:30.476Z"
     },
     {
       "index": 9,
-      "crop_id": null,
-      "planted_at": null
+      "crop_id": "apple",
+      "planted_at": "2026-08-18T19:19:33.441Z"
     },
     {
       "index": 10,
-      "crop_id": null,
-      "planted_at": null
+      "crop_id": "apple",
+      "planted_at": "2026-08-18T19:19:33.441Z"
     },
     {
       "index": 11,
-      "crop_id": null,
-      "planted_at": null
+      "crop_id": "apple",
+      "planted_at": "2026-08-18T19:19:16.948Z"
     },
     {
       "index": 12,
-      "crop_id": "wheat",
-      "planted_at": "2026-08-04T19:59:52.704143+00:00"
+      "crop_id": "apple",
+      "planted_at": "2026-08-18T19:19:39.445Z"
     },
     {
       "index": 13,
-      "crop_id": "wheat",
-      "planted_at": "2026-08-04T19:59:52.704158+00:00"
+      "crop_id": "apple",
+      "planted_at": "2026-08-18T19:19:16.948Z"
     },
     {
       "index": 14,
-      "crop_id": "wheat",
-      "planted_at": "2026-08-04T19:59:52.704163+00:00"
+      "crop_id": "apple",
+      "planted_at": "2026-08-18T19:19:16.948Z"
     },
     {
       "index": 15,
-      "crop_id": "wheat",
-      "planted_at": "2026-08-04T19:59:52.704168+00:00"
+      "crop_id": "apple",
+      "planted_at": "2026-08-18T19:19:16.948Z"
     },
     {
       "index": 16,
-      "crop_id": "wheat",
-      "planted_at": "2026-08-04T19:59:52.704172+00:00"
+      "crop_id": "apple",
+      "planted_at": "2026-08-18T19:19:33.441Z"
     },
     {
       "index": 17,
-      "crop_id": "wheat",
-      "planted_at": "2026-08-04T19:59:52.704176+00:00"
+      "crop_id": "apple",
+      "planted_at": "2026-08-18T19:19:33.441Z"
     },
     {
       "index": 18,
-      "crop_id": "wheat",
-      "planted_at": "2026-08-04T19:59:52.704180+00:00"
+      "crop_id": "apple",
+      "planted_at": "2026-08-18T19:19:33.441Z"
     },
     {
       "index": 19,
-      "crop_id": "wheat",
-      "planted_at": "2026-08-04T19:59:52.704185+00:00"
+      "crop_id": "apple",
+      "planted_at": "2026-08-18T19:19:33.441Z"
     },
     {
       "index": 20,
-      "crop_id": "wheat",
-      "planted_at": "2026-08-04T19:59:52.704189+00:00"
+      "crop_id": "apple",
+      "planted_at": "2026-08-18T19:19:25.942Z"
     },
     {
       "index": 21,
       "crop_id": "wheat",
-      "planted_at": "2026-08-04T19:59:52.704193+00:00"
+      "planted_at": "2026-08-18T19:19:39.445Z"
     },
     {
       "index": 22,
       "crop_id": "wheat",
-      "planted_at": "2026-08-04T19:59:52.704198+00:00"
+      "planted_at": "2026-08-18T19:19:39.445Z"
     },
     {
       "index": 23,
       "crop_id": "wheat",
-      "planted_at": "2026-08-04T19:59:52.704202+00:00"
+      "planted_at": "2026-08-18T19:19:39.445Z"
     },
     {
       "index": 24,
-      "crop_id": "wheat",
-      "planted_at": "2026-08-04T19:59:52.704206+00:00"
+      "crop_id": "apple",
+      "planted_at": "2026-08-18T19:19:30.476Z"
     },
     {
       "index": 25,
-      "crop_id": "wheat",
-      "planted_at": "2026-08-04T19:59:52.704211+00:00"
+      "crop_id": "apple",
+      "planted_at": "2026-08-18T19:19:36.447Z"
     },
     {
       "index": 26,
-      "crop_id": "wheat",
-      "planted_at": "2026-08-04T19:59:52.704215+00:00"
+      "crop_id": "apple",
+      "planted_at": "2026-08-18T19:19:30.476Z"
     },
     {
       "index": 27,
-      "crop_id": "wheat",
-      "planted_at": "2026-08-04T19:59:52.704220+00:00"
+      "crop_id": "apple",
+      "planted_at": "2026-08-18T19:19:36.447Z"
     },
     {
       "index": 28,
-      "crop_id": "wheat",
-      "planted_at": "2026-08-04T19:59:52.704228+00:00"
+      "crop_id": "apple",
+      "planted_at": "2026-08-18T19:19:36.447Z"
     },
     {
       "index": 29,
-      "crop_id": "wheat",
-      "planted_at": "2026-08-04T19:59:52.704234+00:00"
+      "crop_id": "apple",
+      "planted_at": "2026-08-18T19:19:19.944Z"
+    },
+    {
+      "index": 30,
+      "crop_id": "apple",
+      "planted_at": "2026-08-18T19:19:36.447Z"
+    },
+    {
+      "index": 31,
+      "crop_id": "apple",
+      "planted_at": "2026-08-18T19:19:36.447Z"
+    },
+    {
+      "index": 32,
+      "crop_id": "apple",
+      "planted_at": "2026-08-18T19:19:10.955Z"
     }
   ],
   "buildings": [
     {
       "building_id": "farm",
-      "count": 7,
+      "count": 8,
       "ready_at_game_seconds": null,
       "x": null,
       "y": null
@@ -456,8 +492,11 @@
       "y": 20
     }
   ],
-  "craft_job": null,
-  "plot_count": 30,
+  "craft_job": {
+    "recipe_id": "bread",
+    "finishes_at": "2026-08-18T19:19:47.445Z"
+  },
+  "plot_count": 33,
   "owned_land": [
     [
       15,
@@ -3362,7 +3401,1253 @@
     2,
     2
   ],
-  "camera_x": 480.0,
-  "camera_y": 560.0,
-  "build_queue": []
+  "camera_x": 224,
+  "camera_y": 448.66666666666674,
+  "build_queue": [],
+  "agent_settings": {
+    "farming": {
+      "enabled": true,
+      "preferred_crops": [
+        "apple",
+        "wheat",
+        "banana",
+        "carrot"
+      ],
+      "auto_buy_seeds": true
+    },
+    "manufacturing": {
+      "enabled": true,
+      "preferred_recipes": {
+        "bread": 10,
+        "rope": 5,
+        "tomato_ketch": 5,
+        "burger": 5,
+        "pizza": 5
+      },
+      "auto_build_farms": true
+    },
+    "trade": {
+      "enabled": true,
+      "min_cash_reserve": 5,
+      "keep_stock": {
+        "wood": 20,
+        "stone": 20,
+        "fiber": 20,
+        "wheat": 10,
+        "apple": 38,
+        "banana": 10,
+        "carrot": 10,
+        "bread": 5,
+        "rope": 5,
+        "tomato_ketch": 5,
+        "burger": 2,
+        "pizza": 2
+      },
+      "buy_seeds_threshold": 3,
+      "buy_seeds_qty": 5
+    }
+  },
+  "agent_logs": [
+    "Farming Agent: Planted Apple Tree on plot 33.",
+    "Manufacturing Agent: Crafting Bread... (8s)",
+    "Trade Agent: Sold 2x Banana for $14 at $7/unit.",
+    "Trade Agent: Sold 1x Bread for $15 at $15/unit.",
+    "Farming Agent: Harvested 4x apple.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Harvested 4x apple.",
+    "Farming Agent: Harvested 2x apple.",
+    "Farming Agent: Harvested 3x wheat.",
+    "Farming Agent: Harvested 5x wheat.",
+    "Farming Agent: Harvested 2x apple.",
+    "Farming Agent: Planted Apple Tree on plot 12.",
+    "Farming Agent: Planted Apple Tree on plot 14.",
+    "Farming Agent: Planted Apple Tree on plot 15.",
+    "Farming Agent: Planted Apple Tree on plot 16.",
+    "Farming Agent: Planted Wheat on plot 22.",
+    "Farming Agent: Planted Wheat on plot 23.",
+    "Farming Agent: Planted Wheat on plot 24.",
+    "Trade Agent: Sold 15x Apple for $120 at $8/unit.",
+    "Trade Agent: Sold 5x Wheat for $15 at $3/unit.",
+    "Trade Agent: Low seed stock. Bought 5x Apple Seed for $25 at $5/unit.",
+    "Trade Agent: Low seed stock. Bought 5x Wheat Seed for $15 at $3/unit.",
+    "Crafted 1x Bread.",
+    "Farming Agent: Harvested 2x apple.",
+    "Farming Agent: Planted Apple Tree on plot 30.",
+    "Manufacturing Agent: Crafting Bread... (8s)",
+    "Trade Agent: Sold 2x Apple for $16 at $8/unit.",
+    "Trade Agent: Sold 1x Bread for $15 at $15/unit.",
+    "Farming Agent: Harvested 4x apple.",
+    "Farming Agent: Harvested 2x apple.",
+    "Farming Agent: Harvested 2x apple.",
+    "Farming Agent: Harvested 4x apple.",
+    "Farming Agent: Planted Apple Tree on plot 1.",
+    "Farming Agent: Planted Apple Tree on plot 2.",
+    "Farming Agent: Planted Apple Tree on plot 3.",
+    "Farming Agent: Planted Apple Tree on plot 21.",
+    "Trade Agent: Sold 12x Apple for $96 at $8/unit.",
+    "Trade Agent: Low seed stock. Bought 5x Apple Seed for $25 at $5/unit.",
+    "Crafted 1x Bread.",
+    "Farming Agent: Harvested 2x apple.",
+    "Farming Agent: Harvested 4x apple.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Planted Apple Tree on plot 9.",
+    "Farming Agent: Planted Apple Tree on plot 25.",
+    "Farming Agent: Planted Apple Tree on plot 27.",
+    "Manufacturing Agent: Crafting Bread... (8s)",
+    "Trade Agent: Sold 9x Apple for $72 at $8/unit.",
+    "Trade Agent: Sold 1x Bread for $15 at $15/unit.",
+    "Trade Agent: Low seed stock. Bought 5x Apple Seed for $25 at $5/unit.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Harvested 4x apple.",
+    "Farming Agent: Harvested 2x apple.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Harvested 2x apple.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Planted Apple Tree on plot 10.",
+    "Farming Agent: Planted Apple Tree on plot 11.",
+    "Farming Agent: Planted Apple Tree on plot 17.",
+    "Farming Agent: Planted Apple Tree on plot 18.",
+    "Farming Agent: Planted Apple Tree on plot 19.",
+    "Farming Agent: Planted Apple Tree on plot 20.",
+    "Trade Agent: Sold 17x Apple for $136 at $8/unit.",
+    "Trade Agent: Low seed stock. Bought 5x Apple Seed for $25 at $5/unit.",
+    "Farming Agent: Harvested 4x apple.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Harvested 2x apple.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Harvested 2x apple.",
+    "Farming Agent: Planted Apple Tree on plot 26.",
+    "Farming Agent: Planted Apple Tree on plot 28.",
+    "Farming Agent: Planted Apple Tree on plot 29.",
+    "Farming Agent: Planted Apple Tree on plot 31.",
+    "Farming Agent: Planted Apple Tree on plot 32.",
+    "Trade Agent: Sold 14x Apple for $112 at $8/unit.",
+    "Trade Agent: Low seed stock. Bought 5x Apple Seed for $25 at $5/unit.",
+    "Crafted 1x Bread.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Harvested 4x apple.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Harvested 4x apple.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Harvested 2x apple.",
+    "Farming Agent: Harvested 5x wheat.",
+    "Farming Agent: Harvested 4x wheat.",
+    "Farming Agent: Harvested 2x wheat.",
+    "Farming Agent: Planted Apple Tree on plot 4.",
+    "Farming Agent: Planted Apple Tree on plot 5.",
+    "Farming Agent: Planted Apple Tree on plot 6.",
+    "Farming Agent: Planted Apple Tree on plot 7.",
+    "Farming Agent: Planted Apple Tree on plot 8.",
+    "Farming Agent: Planted Apple Tree on plot 13.",
+    "Farming Agent: Planted Wheat on plot 22.",
+    "Farming Agent: Planted Wheat on plot 23.",
+    "Farming Agent: Planted Wheat on plot 24.",
+    "Manufacturing Agent: Crafting Bread... (8s)",
+    "Trade Agent: Sold 19x Apple for $152 at $8/unit.",
+    "Trade Agent: Sold 1x Bread for $15 at $15/unit.",
+    "Trade Agent: Sold 2x Wheat for $6 at $3/unit.",
+    "Trade Agent: Low seed stock. Bought 5x Apple Seed for $25 at $5/unit.",
+    "Trade Agent: Low seed stock. Bought 5x Wheat Seed for $15 at $3/unit."
+  ],
+  "item_prices": {
+    "wood": 2,
+    "stone": 4,
+    "fiber": 1,
+    "apple_seed": 5,
+    "apple": 8,
+    "wheat_seed": 3,
+    "wheat": 3,
+    "rope": 15,
+    "torch": 10,
+    "bread": 15,
+    "wooden_axe": 29,
+    "stone_pick": 28,
+    "banana_seed": 3,
+    "banana": 7,
+    "cherry_seed": 3,
+    "cherry": 4,
+    "grape_seed": 5,
+    "grapes": 6,
+    "orange_seed": 4,
+    "orange": 6,
+    "strawberry_seed": 4,
+    "strawberry": 8,
+    "watermelon_seed": 7,
+    "watermelon": 17,
+    "avacado_seed": 6,
+    "avacado": 12,
+    "peach_seed": 5,
+    "peach": 7,
+    "blue_berry_seed": 4,
+    "blue_berry": 5,
+    "carrot_seed": 3,
+    "carrot": 5,
+    "pumpkin_seed": 6,
+    "pumpkin": 21,
+    "mushroom_seed": 2,
+    "mushroom": 4,
+    "corn_seed": 3,
+    "corn": 6,
+    "cucumber_seed": 4,
+    "cucumber": 7,
+    "brokeli_seed": 4,
+    "brokeli": 8,
+    "cabbige_seed": 4,
+    "cabbige": 9,
+    "chilly_seed": 3,
+    "chilly": 8,
+    "reddies_seed": 2,
+    "reddies": 4,
+    "orange_juice": 34,
+    "strawberry_cake": 46,
+    "cherry_cake": 34,
+    "cake": 31,
+    "wine": 59,
+    "pizza": 60,
+    "burger": 44,
+    "cherry_jam": 22,
+    "chess": 20,
+    "tomato_ketch": 11,
+    "iron": 10,
+    "copper": 6,
+    "steel": 17,
+    "glass": 12,
+    "water": 2,
+    "food": 5,
+    "fuel": 13,
+    "concrete": 7,
+    "rubber": 11,
+    "trofy": 392
+  },
+  "last_price_update_day": 229,
+  "last_saved_at": "2026-08-18T19:19:39.447Z",
+  "logs_this_day": [
+    "Farming Agent: Harvested 4x apple.",
+    "Farming Agent: Harvested 2x apple.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Harvested 2x apple.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Harvested 4x apple.",
+    "Farming Agent: Harvested 2x apple.",
+    "Farming Agent: Planted Apple Tree on plot 7.",
+    "Farming Agent: Planted Apple Tree on plot 8.",
+    "Farming Agent: Planted Apple Tree on plot 13.",
+    "Farming Agent: Planted Apple Tree on plot 22.",
+    "Farming Agent: Planted Apple Tree on plot 23.",
+    "Farming Agent: Planted Wheat on plot 32.",
+    "Farming Agent: Planted Wheat on plot 33.",
+    "Trade Agent: Sold 20x Apple for $160 at $8/unit.",
+    "Trade Agent: Low seed stock. Bought 5x Apple Seed for $25 at $5/unit.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Harvested 2x apple.",
+    "Farming Agent: Harvested 4x apple.",
+    "Farming Agent: Planted Apple Tree on plot 4.",
+    "Farming Agent: Planted Apple Tree on plot 5.",
+    "Farming Agent: Planted Apple Tree on plot 6.",
+    "Trade Agent: Sold 9x Apple for $72 at $8/unit.",
+    "Trade Agent: Sold 1x Bread for $15 at $15/unit.",
+    "Trade Agent: Low seed stock. Bought 5x Apple Seed for $25 at $5/unit.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Harvested 2x apple.",
+    "Farming Agent: Harvested 4x apple.",
+    "Farming Agent: Harvested 4x apple.",
+    "Farming Agent: Harvested 4x apple.",
+    "Farming Agent: Planted Apple Tree on plot 12.",
+    "Farming Agent: Planted Apple Tree on plot 14.",
+    "Farming Agent: Planted Apple Tree on plot 15.",
+    "Farming Agent: Planted Apple Tree on plot 16.",
+    "Farming Agent: Planted Apple Tree on plot 17.",
+    "Trade Agent: Sold 17x Apple for $136 at $8/unit.",
+    "Trade Agent: Low seed stock. Bought 5x Apple Seed for $25 at $5/unit.",
+    "Farming Agent: Harvested 2x apple.",
+    "Farming Agent: Harvested 2x apple.",
+    "Farming Agent: Harvested 2x apple.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Planted Apple Tree on plot 24.",
+    "Farming Agent: Planted Apple Tree on plot 26.",
+    "Farming Agent: Planted Apple Tree on plot 28.",
+    "Farming Agent: Planted Apple Tree on plot 29.",
+    "Farming Agent: Planted Apple Tree on plot 31.",
+    "Trade Agent: Sold 12x Apple for $96 at $8/unit.",
+    "Trade Agent: Low seed stock. Bought 5x Apple Seed for $25 at $5/unit.",
+    "Farming Agent: Harvested 5x wheat.",
+    "Farming Agent: Planted Apple Tree on plot 30.",
+    "Manufacturing Agent: Crafting Bread... (8s)",
+    "Farming Agent: Harvested 4x apple.",
+    "Farming Agent: Harvested 4x apple.",
+    "Farming Agent: Harvested 4x apple.",
+    "Farming Agent: Harvested 4x apple.",
+    "Farming Agent: Harvested 2x wheat.",
+    "Farming Agent: Harvested 2x wheat.",
+    "Farming Agent: Planted Apple Tree on plot 1.",
+    "Farming Agent: Planted Apple Tree on plot 2.",
+    "Farming Agent: Planted Apple Tree on plot 3.",
+    "Farming Agent: Planted Apple Tree on plot 21.",
+    "Farming Agent: Planted Apple Tree on plot 32.",
+    "Farming Agent: Planted Apple Tree on plot 33.",
+    "Trade Agent: Sold 16x Apple for $128 at $8/unit.",
+    "Trade Agent: Low seed stock. Bought 5x Apple Seed for $25 at $5/unit.",
+    "Farming Agent: Harvested 4x apple.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Harvested 2x apple.",
+    "Farming Agent: Planted Apple Tree on plot 9.",
+    "Farming Agent: Planted Apple Tree on plot 25.",
+    "Farming Agent: Planted Apple Tree on plot 27.",
+    "Manufacturing Agent: Crafting Bread... (8s)",
+    "Trade Agent: Sold 9x Apple for $72 at $8/unit.",
+    "Trade Agent: Sold 1x Bread for $15 at $15/unit.",
+    "Trade Agent: Low seed stock. Bought 5x Apple Seed for $25 at $5/unit.",
+    "Farming Agent: Harvested 4x apple.",
+    "Farming Agent: Harvested 4x apple.",
+    "Farming Agent: Harvested 2x apple.",
+    "Farming Agent: Harvested 2x apple.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Planted Apple Tree on plot 10.",
+    "Farming Agent: Planted Apple Tree on plot 11.",
+    "Farming Agent: Planted Apple Tree on plot 18.",
+    "Farming Agent: Planted Apple Tree on plot 19.",
+    "Farming Agent: Planted Apple Tree on plot 20.",
+    "Trade Agent: Sold 15x Apple for $120 at $8/unit.",
+    "Trade Agent: Low seed stock. Bought 5x Apple Seed for $25 at $5/unit.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Harvested 4x apple.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Harvested 4x apple.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Planted Apple Tree on plot 7.",
+    "Farming Agent: Planted Apple Tree on plot 8.",
+    "Farming Agent: Planted Apple Tree on plot 13.",
+    "Farming Agent: Planted Apple Tree on plot 22.",
+    "Farming Agent: Planted Apple Tree on plot 23.",
+    "Trade Agent: Sold 17x Apple for $136 at $8/unit.",
+    "Trade Agent: Low seed stock. Bought 5x Apple Seed for $25 at $5/unit.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Harvested 4x apple.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Planted Apple Tree on plot 4.",
+    "Farming Agent: Planted Apple Tree on plot 5.",
+    "Farming Agent: Planted Apple Tree on plot 6.",
+    "Manufacturing Agent: Crafting Bread... (8s)",
+    "Trade Agent: Sold 10x Apple for $80 at $8/unit.",
+    "Trade Agent: Sold 1x Bread for $15 at $15/unit.",
+    "Farming Agent: Harvested 4x apple.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Harvested 4x apple.",
+    "Farming Agent: Harvested 2x apple.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Planted Apple Tree on plot 12.",
+    "Farming Agent: Planted Apple Tree on plot 14.",
+    "Farming Agent: Planted Apple Tree on plot 15.",
+    "Farming Agent: Planted Apple Tree on plot 16.",
+    "Farming Agent: Planted Wheat on plot 17.",
+    "Trade Agent: Sold 16x Apple for $128 at $8/unit.",
+    "Trade Agent: Low seed stock. Bought 5x Apple Seed for $25 at $5/unit.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Harvested 4x apple.",
+    "Farming Agent: Harvested 4x apple.",
+    "Farming Agent: Harvested 4x apple.",
+    "Farming Agent: Harvested 4x apple.",
+    "Farming Agent: Planted Apple Tree on plot 24.",
+    "Farming Agent: Planted Apple Tree on plot 26.",
+    "Farming Agent: Planted Apple Tree on plot 28.",
+    "Farming Agent: Planted Apple Tree on plot 29.",
+    "Farming Agent: Planted Apple Tree on plot 31.",
+    "Trade Agent: Sold 19x Apple for $152 at $8/unit.",
+    "Trade Agent: Sold 1x Bread for $15 at $15/unit.",
+    "Trade Agent: Low seed stock. Bought 5x Apple Seed for $25 at $5/unit.",
+    "Farming Agent: Harvested 2x apple.",
+    "Farming Agent: Planted Apple Tree on plot 30.",
+    "Trade Agent: Sold 2x Apple for $16 at $8/unit.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Harvested 2x apple.",
+    "Farming Agent: Harvested 4x apple.",
+    "Farming Agent: Harvested 4x apple.",
+    "Farming Agent: Planted Apple Tree on plot 1.",
+    "Farming Agent: Planted Apple Tree on plot 2.",
+    "Farming Agent: Planted Apple Tree on plot 3.",
+    "Farming Agent: Planted Apple Tree on plot 21.",
+    "Farming Agent: Planted Wheat on plot 32.",
+    "Farming Agent: Planted Wheat on plot 33.",
+    "Trade Agent: Sold 19x Apple for $152 at $8/unit.",
+    "Trade Agent: Low seed stock. Bought 5x Apple Seed for $25 at $5/unit.",
+    "Trade Agent: Low seed stock. Bought 5x Wheat Seed for $15 at $3/unit.",
+    "Farming Agent: Harvested 4x apple.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Planted Apple Tree on plot 9.",
+    "Farming Agent: Planted Apple Tree on plot 25.",
+    "Farming Agent: Planted Apple Tree on plot 27.",
+    "Trade Agent: Sold 10x Apple for $80 at $8/unit.",
+    "Trade Agent: Low seed stock. Bought 5x Apple Seed for $25 at $5/unit.",
+    "Farming Agent: Harvested 2x apple.",
+    "Farming Agent: Harvested 2x apple.",
+    "Farming Agent: Harvested 4x wheat.",
+    "Farming Agent: Harvested 4x apple.",
+    "Farming Agent: Harvested 4x apple.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Planted Apple Tree on plot 10.",
+    "Farming Agent: Planted Apple Tree on plot 11.",
+    "Farming Agent: Planted Apple Tree on plot 17.",
+    "Farming Agent: Planted Apple Tree on plot 18.",
+    "Farming Agent: Planted Apple Tree on plot 19.",
+    "Farming Agent: Planted Apple Tree on plot 20.",
+    "Manufacturing Agent: Crafting Bread... (8s)",
+    "Trade Agent: Sold 15x Apple for $120 at $8/unit.",
+    "Trade Agent: Low seed stock. Bought 5x Apple Seed for $25 at $5/unit.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Harvested 2x apple.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Harvested 2x apple.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Harvested 2x apple.",
+    "Farming Agent: Harvested 4x apple.",
+    "Farming Agent: Harvested 2x apple.",
+    "Farming Agent: Planted Apple Tree on plot 4.",
+    "Farming Agent: Planted Apple Tree on plot 5.",
+    "Farming Agent: Planted Apple Tree on plot 6.",
+    "Farming Agent: Planted Apple Tree on plot 7.",
+    "Farming Agent: Planted Apple Tree on plot 8.",
+    "Farming Agent: Planted Apple Tree on plot 13.",
+    "Farming Agent: Planted Wheat on plot 22.",
+    "Farming Agent: Planted Wheat on plot 23.",
+    "Trade Agent: Sold 21x Apple for $168 at $8/unit.",
+    "Trade Agent: Low seed stock. Bought 5x Apple Seed for $25 at $5/unit.",
+    "Trade Agent: Sold 1x Bread for $15 at $15/unit.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Harvested 2x apple.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Harvested 4x apple.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Harvested 4x apple.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Harvested 4x apple.",
+    "Farming Agent: Harvested 2x wheat.",
+    "Farming Agent: Harvested 3x wheat.",
+    "Farming Agent: Planted Apple Tree on plot 12.",
+    "Farming Agent: Planted Apple Tree on plot 14.",
+    "Farming Agent: Planted Apple Tree on plot 15.",
+    "Farming Agent: Planted Apple Tree on plot 16.",
+    "Farming Agent: Planted Apple Tree on plot 24.",
+    "Farming Agent: Planted Wheat on plot 26.",
+    "Farming Agent: Planted Wheat on plot 28.",
+    "Farming Agent: Planted Wheat on plot 29.",
+    "Farming Agent: Planted Wheat on plot 31.",
+    "Farming Agent: Planted Wheat on plot 32.",
+    "Farming Agent: Planted Banana Tree on plot 33.",
+    "Manufacturing Agent: Crafting Bread... (8s)",
+    "Trade Agent: Sold 29x Apple for $232 at $8/unit.",
+    "Trade Agent: Low seed stock. Bought 5x Apple Seed for $25 at $5/unit.",
+    "Trade Agent: Low seed stock. Bought 5x Wheat Seed for $15 at $3/unit.",
+    "Farming Agent: Harvested 2x apple.",
+    "Farming Agent: Planted Apple Tree on plot 30.",
+    "Trade Agent: Sold 2x Apple for $16 at $8/unit.",
+    "Manufacturing Agent: Crafting Bread... (8s)",
+    "Trade Agent: Sold 1x Bread for $15 at $15/unit.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Harvested 4x wheat.",
+    "Farming Agent: Harvested 4x wheat.",
+    "Farming Agent: Planted Apple Tree on plot 1.",
+    "Farming Agent: Planted Apple Tree on plot 2.",
+    "Farming Agent: Planted Apple Tree on plot 3.",
+    "Farming Agent: Planted Apple Tree on plot 21.",
+    "Farming Agent: Planted Wheat on plot 22.",
+    "Farming Agent: Planted Wheat on plot 23.",
+    "Trade Agent: Sold 12x Apple for $96 at $8/unit.",
+    "Trade Agent: Low seed stock. Bought 5x Apple Seed for $25 at $5/unit.",
+    "Farming Agent: Harvested 2x apple.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Planted Apple Tree on plot 9.",
+    "Farming Agent: Planted Apple Tree on plot 25.",
+    "Farming Agent: Planted Apple Tree on plot 27.",
+    "Trade Agent: Sold 8x Apple for $64 at $8/unit.",
+    "Trade Agent: Low seed stock. Bought 5x Apple Seed for $25 at $5/unit.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Harvested 2x apple.",
+    "Farming Agent: Harvested 4x apple.",
+    "Farming Agent: Harvested 4x apple.",
+    "Farming Agent: Harvested 2x apple.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Planted Apple Tree on plot 10.",
+    "Farming Agent: Planted Apple Tree on plot 11.",
+    "Farming Agent: Planted Apple Tree on plot 17.",
+    "Farming Agent: Planted Apple Tree on plot 18.",
+    "Farming Agent: Planted Apple Tree on plot 19.",
+    "Farming Agent: Planted Apple Tree on plot 20.",
+    "Manufacturing Agent: Crafting Bread... (8s)",
+    "Trade Agent: Sold 18x Apple for $144 at $8/unit.",
+    "Trade Agent: Sold 1x Bread for $15 at $15/unit.",
+    "Trade Agent: Low seed stock. Bought 5x Apple Seed for $25 at $5/unit.",
+    "Farming Agent: Harvested 4x wheat.",
+    "Farming Agent: Harvested 4x wheat.",
+    "Farming Agent: Harvested 5x wheat.",
+    "Farming Agent: Harvested 3x wheat.",
+    "Farming Agent: Harvested 3x wheat.",
+    "Farming Agent: Planted Apple Tree on plot 26.",
+    "Farming Agent: Planted Apple Tree on plot 28.",
+    "Farming Agent: Planted Apple Tree on plot 29.",
+    "Farming Agent: Planted Apple Tree on plot 31.",
+    "Farming Agent: Planted Apple Tree on plot 32.",
+    "Trade Agent: Sold 14x Wheat for $42 at $3/unit.",
+    "Trade Agent: Low seed stock. Bought 5x Apple Seed for $25 at $5/unit.",
+    "Farming Agent: Harvested 4x apple.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Harvested 4x apple.",
+    "Farming Agent: Harvested 2x apple.",
+    "Farming Agent: Harvested 4x apple.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Planted Apple Tree on plot 4.",
+    "Farming Agent: Planted Apple Tree on plot 5.",
+    "Farming Agent: Planted Apple Tree on plot 6.",
+    "Farming Agent: Planted Apple Tree on plot 7.",
+    "Farming Agent: Planted Apple Tree on plot 8.",
+    "Farming Agent: Planted Apple Tree on plot 13.",
+    "Trade Agent: Sold 20x Apple for $160 at $8/unit.",
+    "Trade Agent: Low seed stock. Bought 5x Apple Seed for $25 at $5/unit.",
+    "Farming Agent: Harvested 2x banana.",
+    "Farming Agent: Planted Apple Tree on plot 33.",
+    "Manufacturing Agent: Crafting Bread... (8s)",
+    "Trade Agent: Sold 2x Banana for $14 at $7/unit.",
+    "Trade Agent: Sold 1x Bread for $15 at $15/unit.",
+    "Farming Agent: Harvested 4x apple.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Harvested 4x apple.",
+    "Farming Agent: Harvested 2x apple.",
+    "Farming Agent: Harvested 3x wheat.",
+    "Farming Agent: Harvested 5x wheat.",
+    "Farming Agent: Harvested 2x apple.",
+    "Farming Agent: Planted Apple Tree on plot 12.",
+    "Farming Agent: Planted Apple Tree on plot 14.",
+    "Farming Agent: Planted Apple Tree on plot 15.",
+    "Farming Agent: Planted Apple Tree on plot 16.",
+    "Farming Agent: Planted Wheat on plot 22.",
+    "Farming Agent: Planted Wheat on plot 23.",
+    "Farming Agent: Planted Wheat on plot 24.",
+    "Trade Agent: Sold 15x Apple for $120 at $8/unit.",
+    "Trade Agent: Sold 5x Wheat for $15 at $3/unit.",
+    "Trade Agent: Low seed stock. Bought 5x Apple Seed for $25 at $5/unit.",
+    "Trade Agent: Low seed stock. Bought 5x Wheat Seed for $15 at $3/unit.",
+    "Farming Agent: Harvested 2x apple.",
+    "Farming Agent: Planted Apple Tree on plot 30.",
+    "Manufacturing Agent: Crafting Bread... (8s)",
+    "Trade Agent: Sold 2x Apple for $16 at $8/unit.",
+    "Trade Agent: Sold 1x Bread for $15 at $15/unit.",
+    "Farming Agent: Harvested 4x apple.",
+    "Farming Agent: Harvested 2x apple.",
+    "Farming Agent: Harvested 2x apple.",
+    "Farming Agent: Harvested 4x apple.",
+    "Farming Agent: Planted Apple Tree on plot 1.",
+    "Farming Agent: Planted Apple Tree on plot 2.",
+    "Farming Agent: Planted Apple Tree on plot 3.",
+    "Farming Agent: Planted Apple Tree on plot 21.",
+    "Trade Agent: Sold 12x Apple for $96 at $8/unit.",
+    "Trade Agent: Low seed stock. Bought 5x Apple Seed for $25 at $5/unit.",
+    "Farming Agent: Harvested 2x apple.",
+    "Farming Agent: Harvested 4x apple.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Planted Apple Tree on plot 9.",
+    "Farming Agent: Planted Apple Tree on plot 25.",
+    "Farming Agent: Planted Apple Tree on plot 27.",
+    "Manufacturing Agent: Crafting Bread... (8s)",
+    "Trade Agent: Sold 9x Apple for $72 at $8/unit.",
+    "Trade Agent: Sold 1x Bread for $15 at $15/unit.",
+    "Trade Agent: Low seed stock. Bought 5x Apple Seed for $25 at $5/unit.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Harvested 4x apple.",
+    "Farming Agent: Harvested 2x apple.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Harvested 2x apple.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Planted Apple Tree on plot 10.",
+    "Farming Agent: Planted Apple Tree on plot 11.",
+    "Farming Agent: Planted Apple Tree on plot 17.",
+    "Farming Agent: Planted Apple Tree on plot 18.",
+    "Farming Agent: Planted Apple Tree on plot 19.",
+    "Farming Agent: Planted Apple Tree on plot 20.",
+    "Trade Agent: Sold 17x Apple for $136 at $8/unit.",
+    "Trade Agent: Low seed stock. Bought 5x Apple Seed for $25 at $5/unit.",
+    "Farming Agent: Harvested 4x apple.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Harvested 2x apple.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Harvested 2x apple.",
+    "Farming Agent: Planted Apple Tree on plot 26.",
+    "Farming Agent: Planted Apple Tree on plot 28.",
+    "Farming Agent: Planted Apple Tree on plot 29.",
+    "Farming Agent: Planted Apple Tree on plot 31.",
+    "Farming Agent: Planted Apple Tree on plot 32.",
+    "Trade Agent: Sold 14x Apple for $112 at $8/unit.",
+    "Trade Agent: Low seed stock. Bought 5x Apple Seed for $25 at $5/unit.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Harvested 4x apple.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Harvested 4x apple.",
+    "Farming Agent: Harvested 3x apple.",
+    "Farming Agent: Harvested 2x apple.",
+    "Farming Agent: Harvested 5x wheat.",
+    "Farming Agent: Harvested 4x wheat.",
+    "Farming Agent: Harvested 2x wheat.",
+    "Farming Agent: Planted Apple Tree on plot 4.",
+    "Farming Agent: Planted Apple Tree on plot 5.",
+    "Farming Agent: Planted Apple Tree on plot 6.",
+    "Farming Agent: Planted Apple Tree on plot 7.",
+    "Farming Agent: Planted Apple Tree on plot 8.",
+    "Farming Agent: Planted Apple Tree on plot 13.",
+    "Farming Agent: Planted Wheat on plot 22.",
+    "Farming Agent: Planted Wheat on plot 23.",
+    "Farming Agent: Planted Wheat on plot 24.",
+    "Manufacturing Agent: Crafting Bread... (8s)",
+    "Trade Agent: Sold 19x Apple for $152 at $8/unit.",
+    "Trade Agent: Sold 1x Bread for $15 at $15/unit.",
+    "Trade Agent: Sold 2x Wheat for $6 at $3/unit.",
+    "Trade Agent: Low seed stock. Bought 5x Apple Seed for $25 at $5/unit.",
+    "Trade Agent: Low seed stock. Bought 5x Wheat Seed for $15 at $3/unit."
+  ],
+  "city_name": "Rumla",
+  "city_treasury": 124335,
+  "tax_rate": 9,
+  "city_projects": [
+    {
+      "id": "school",
+      "name": "Community School",
+      "cost": 500,
+      "allocated": 1150,
+      "completed": true
+    },
+    {
+      "id": "hospital",
+      "name": "General Hospital",
+      "cost": 1000,
+      "allocated": 1340,
+      "completed": true
+    },
+    {
+      "id": "park",
+      "name": "Leisure Park",
+      "cost": 300,
+      "allocated": 500,
+      "completed": true
+    },
+    {
+      "id": "roads",
+      "name": "Paved Highways",
+      "cost": 400,
+      "allocated": 400,
+      "completed": true
+    }
+  ],
+  "household": {
+    "name": "Thakorbhai's Residence",
+    "budget": 163,
+    "inventory": {
+      "milk": 3,
+      "wheat": 3,
+      "apple": 3,
+      "torch": 1
+    },
+    "members": [
+      {
+        "name": "Thakorbhai",
+        "role": "father",
+        "state": "Sleeping in Bed"
+      },
+      {
+        "name": "vasantiben",
+        "role": "mother",
+        "state": "Sleeping in Bed"
+      },
+      {
+        "name": "vandan",
+        "role": "son",
+        "state": "Sleeping in Bed"
+      },
+      {
+        "name": "hetvi",
+        "role": "daughter",
+        "state": "Sleeping in Bed"
+      }
+    ]
+  },
+  "last_tax_collected_day": 229,
+  "last_routine_hour": 14,
+  "shops": [
+    {
+      "id": "dairy",
+      "name": "Rumla Dairy & Groceries",
+      "owner": "Amina",
+      "inventory": {
+        "milk": 0,
+        "wheat": 1,
+        "apple": 0,
+        "bread": 5,
+        "tomato_ketch": 5,
+        "pizza": 2,
+        "burger": 2
+      },
+      "prices": {
+        "milk": 2,
+        "wheat": 3,
+        "apple": 4,
+        "bread": 10,
+        "tomato_ketch": 10,
+        "pizza": 45,
+        "burger": 35
+      },
+      "revenue": 54,
+      "sales_history": [
+        "Day 198 17:00 - Sold 3x milk to Vasantiben for $6",
+        "Day 198 17:00 - Sold 3x wheat to Vasantiben for $9",
+        "Day 198 17:00 - Sold 3x apple to Vasantiben for $12",
+        "Day 201 17:00 - Sold 3x milk to hemuben for $6",
+        "Day 201 17:00 - Sold 3x wheat to hemuben for $9",
+        "Day 201 17:00 - Sold 3x apple to hemuben for $12",
+        "Day 202 06:00 - Restocked 10x wheat from Player for $40",
+        "Day 202 06:00 - Restocked 11x apple from Player for $99",
+        "Day 202 17:00 - Sold 3x milk to mayuriben for $6",
+        "Day 202 17:00 - Sold 3x wheat to mayuriben for $9",
+        "Day 202 17:00 - Sold 3x apple to mayuriben for $12",
+        "Day 203 17:00 - Sold 1x milk to vasantiben for $2",
+        "Day 203 17:00 - Sold 3x wheat to vasantiben for $9",
+        "Day 203 17:00 - Sold 3x apple to vasantiben for $12",
+        "Day 204 17:00 - Sold 3x wheat to hemuben for $9",
+        "Day 204 17:00 - Sold 3x apple to hemuben for $12",
+        "Day 205 17:00 - Sold 3x wheat to mayuriben for $9",
+        "Day 205 17:00 - Sold 3x apple to mayuriben for $12",
+        "Day 206 06:00 - Restocked 4x wheat from Player for $16",
+        "Day 206 17:00 - Sold 3x wheat to vasantiben for $9",
+        "Day 206 17:00 - Sold 3x apple to vasantiben for $12",
+        "Day 207 06:00 - Restocked 7x wheat from Player for $35",
+        "Day 207 17:00 - Sold 3x wheat to hemuben for $9",
+        "Day 208 17:00 - Sold 3x wheat to mayuriben for $9",
+        "Day 209 06:00 - Restocked 10x wheat from Player for $50",
+        "Day 209 17:00 - Sold 3x wheat to vasantiben for $9",
+        "Day 210 17:00 - Sold 3x wheat to hemuben for $9",
+        "Day 211 17:00 - Sold 3x wheat to mayuriben for $9",
+        "Day 212 17:00 - Sold 3x wheat to vasantiben for $9",
+        "Day 213 06:00 - Restocked 10x wheat from Player for $50",
+        "Day 213 17:00 - Sold 3x wheat to hemuben for $9",
+        "Day 214 17:00 - Sold 3x wheat to mayuriben for $9",
+        "Day 215 17:00 - Sold 3x wheat to vasantiben for $9",
+        "Day 216 17:00 - Sold 3x wheat to hemuben for $9",
+        "Day 217 06:00 - Restocked 10x wheat from Player for $40",
+        "Day 217 17:00 - Sold 3x wheat to mayuriben for $9",
+        "Day 218 17:00 - Sold 3x wheat to vasantiben for $9",
+        "Day 219 17:00 - Sold 3x wheat to hemuben for $9",
+        "Day 220 17:00 - Sold 1x wheat to mayuriben for $3",
+        "Day 229 06:00 - Restocked 1x wheat from Player for $3"
+      ]
+    },
+    {
+      "id": "general",
+      "name": "Ramesh's General Supplies",
+      "owner": "Ramesh",
+      "inventory": {
+        "wood": 15,
+        "stone": 20,
+        "rope": 10,
+        "wooden_axe": 1,
+        "stone_pick": 1
+      },
+      "prices": {
+        "wood": 2,
+        "stone": 3,
+        "rope": 10,
+        "wooden_axe": 25,
+        "stone_pick": 30
+      },
+      "revenue": 160,
+      "sales_history": [
+        "Day 198: Sold 1x wood to Player for $2",
+        "Day 198: Bought 1x wood from Player for $2",
+        "Day 198: Sold 1x wood to Player for $2",
+        "Day 198: Sold 1x wood to Player for $2",
+        "Day 198: Sold 1x wood to Player for $2",
+        "Day 198: Sold 1x wood to Player for $2",
+        "Day 198: Sold 1x wood to Player for $2"
+      ]
+    },
+    {
+      "id": "clothing",
+      "name": "Savita's Clothiers",
+      "owner": "Savita",
+      "inventory": {
+        "fiber": 32,
+        "wool": 20,
+        "rubber": 10
+      },
+      "prices": {
+        "fiber": 1,
+        "wool": 4,
+        "rubber": 8
+      },
+      "revenue": 118,
+      "sales_history": [
+        "Day 198: Bought 1x fiber from Player for $1",
+        "Day 198: Bought 1x fiber from Player for $1"
+      ]
+    },
+    {
+      "id": "electronics",
+      "name": "Rajesh's Electronic Hub",
+      "owner": "Rajesh",
+      "inventory": {
+        "torch": 3,
+        "copper": 10,
+        "iron": 10,
+        "steel": 5
+      },
+      "prices": {
+        "torch": 10,
+        "copper": 6,
+        "iron": 8,
+        "steel": 12
+      },
+      "revenue": 220,
+      "sales_history": [
+        "Day 198 17:00 - Sold 1x torch to Thakorbhai for $10",
+        "Day 202 17:00 - Sold 1x torch to Thakorbhai for $10"
+      ]
+    }
+  ],
+  "last_restock_day": 229,
+  "families": [
+    {
+      "id": "house_1",
+      "name": "Thakorbhai's Residence",
+      "budget": 483,
+      "inventory": {
+        "milk": 0,
+        "wheat": 0,
+        "apple": 0,
+        "torch": 1
+      },
+      "members": [
+        {
+          "name": "Thakorbhai",
+          "role": "father",
+          "relation": "Main Person",
+          "state": "Working at Farms"
+        },
+        {
+          "name": "vasantiben",
+          "role": "mother",
+          "relation": "Wife of Thakorbhai",
+          "state": "Home Chores / Baking"
+        },
+        {
+          "name": "vandan",
+          "role": "son",
+          "relation": "Son of Thakorbhai",
+          "state": "Working at Factory"
+        },
+        {
+          "name": "hetvi",
+          "role": "daughter",
+          "relation": "Daughter of Thakorbhai",
+          "state": "Schooling at Community School"
+        }
+      ]
+    },
+    {
+      "id": "house_2",
+      "name": "Bharatbhai's Residence",
+      "budget": 620,
+      "inventory": {
+        "milk": 0,
+        "wheat": 0,
+        "apple": 0
+      },
+      "members": [
+        {
+          "name": "bharatbhai",
+          "role": "father",
+          "relation": "Brother of Vasantiben",
+          "state": "Working at General Store"
+        },
+        {
+          "name": "mayuriben",
+          "role": "mother",
+          "relation": "Wife of Bharatbhai",
+          "state": "Home Chores / Gardening"
+        },
+        {
+          "name": "vainavi",
+          "role": "daughter",
+          "relation": "Daughter of Bharatbhai",
+          "state": "Schooling at Community School"
+        },
+        {
+          "name": "prathav",
+          "role": "son",
+          "relation": "Son of Bharatbhai",
+          "state": "Working at Factory"
+        }
+      ]
+    },
+    {
+      "id": "house_3",
+      "name": "Rameshbhai's Residence",
+      "budget": 335,
+      "inventory": {
+        "milk": 0,
+        "wheat": 0,
+        "apple": 0
+      },
+      "members": [
+        {
+          "name": "rameshbhai",
+          "role": "father",
+          "relation": "Husband of Hemuben",
+          "state": "Working at Electronic Hub"
+        },
+        {
+          "name": "hemuben",
+          "role": "mother",
+          "relation": "Sister of Vasantiben",
+          "state": "Home Chores / Cleaning"
+        },
+        {
+          "name": "krushil",
+          "role": "son",
+          "relation": "Son of Rameshbhai",
+          "state": "Schooling at Community School"
+        },
+        {
+          "name": "harshil",
+          "role": "son",
+          "relation": "Son of Rameshbhai",
+          "state": "Schooling at Community School"
+        }
+      ]
+    }
+  ],
+  "government": {
+    "mayor": "Thakorbhai",
+    "income_tax": 5,
+    "sales_tax": 5,
+    "welfare_threshold": 15,
+    "welfare_payout": 15,
+    "welfare_checks_payouts": 0
+  },
+  "cabinet": {
+    "prime_minister": "Thakorbhai",
+    "district_magistrate": "Vasantiben",
+    "ministers": {
+      "finance": "Mayuriben",
+      "education": "Bharatbhai",
+      "infrastructure": "Rameshbhai"
+    }
+  },
+  "news_feed": [
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Cabinet Milestone: PMO relocated 'Rameshbhai's House (Home 3)' to geolocated coordinates [20.7547, 73.0543].",
+      "category": "POLITICS"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Local Warning: Food shortages reported at Rameshbhai's Residence. Residents plead for deliveries.",
+      "category": "LOCAL"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Local Warning: Food shortages reported at Bharatbhai's Residence. Residents plead for deliveries.",
+      "category": "LOCAL"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Local Warning: Food shortages reported at Thakorbhai's Residence. Residents plead for deliveries.",
+      "category": "LOCAL"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Market Report: 'Rumla Dairy & Groceries' owner Amina replenished shelves from Player Brokerage.",
+      "category": "LOCAL"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Weather Alert: Heatwave warning: Power grids at maximum load. Citizens stay hydrated.",
+      "category": "WEATHER"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Finance Ministry: Collected $17 in income tax from Rameshbhai's Residence.",
+      "category": "ECONOMY"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Finance Ministry: Collected $32 in income tax from Bharatbhai's Residence.",
+      "category": "ECONOMY"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Finance Ministry: Collected $25 in income tax from Thakorbhai's Residence.",
+      "category": "ECONOMY"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Finance Ministry: Collected $2498 in corporate taxes from Player Brokerage.",
+      "category": "ECONOMY"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Cabinet Milestone: PMO relocated 'Bharatbhai's House (Home 2)' to geolocated coordinates [20.7587, 73.0574].",
+      "category": "POLITICS"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Cabinet Milestone: PMO relocated 'Bharatbhai's House (Home 2)' to geolocated coordinates [20.7574, 73.0592].",
+      "category": "POLITICS"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Cabinet Milestone: PMO relocated 'Bharatbhai's House (Home 2)' to geolocated coordinates [20.7587, 73.0574].",
+      "category": "POLITICS"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Cabinet Milestone: PMO relocated 'Bharatbhai's House (Home 2)' to geolocated coordinates [20.7574, 73.0592].",
+      "category": "POLITICS"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Local Warning: Food shortages reported at Rameshbhai's Residence. Residents plead for deliveries.",
+      "category": "LOCAL"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Local Warning: Food shortages reported at Bharatbhai's Residence. Residents plead for deliveries.",
+      "category": "LOCAL"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Local Warning: Food shortages reported at Thakorbhai's Residence. Residents plead for deliveries.",
+      "category": "LOCAL"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Cabinet Milestone: PMO relocated 'Rameshbhai's House (Home 3)' to geolocated coordinates [20.6715, 73.0795].",
+      "category": "POLITICS"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Cabinet Milestone: PMO relocated 'Bharatbhai's House (Home 2)' to geolocated coordinates [20.6720, 73.0815].",
+      "category": "POLITICS"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Cabinet Milestone: PMO relocated 'Thakorbhai's House (Home 1)' to geolocated coordinates [20.6732, 73.0800].",
+      "category": "POLITICS"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Cabinet Milestone: PMO relocated 'Bharatbhai's House (Home 2)' to geolocated coordinates [20.7574, 73.0592].",
+      "category": "POLITICS"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Cabinet Milestone: PMO relocated 'Bharatbhai's House (Home 2)' to geolocated coordinates [20.7574, 73.0592].",
+      "category": "POLITICS"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Weather Alert: Monsoonal breeze sweeps through the town plaza.",
+      "category": "WEATHER"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Finance Ministry: Collected $17 in income tax from Rameshbhai's Residence.",
+      "category": "ECONOMY"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Finance Ministry: Collected $31 in income tax from Bharatbhai's Residence.",
+      "category": "ECONOMY"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Finance Ministry: Collected $24 in income tax from Thakorbhai's Residence.",
+      "category": "ECONOMY"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Finance Ministry: Collected $2261 in corporate taxes from Player Brokerage.",
+      "category": "ECONOMY"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Cabinet Milestone: PMO relocated 'Rameshbhai's House (Home 3)' to geolocated coordinates [20.6715, 73.0795].",
+      "category": "POLITICS"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Cabinet Milestone: PMO relocated 'Bharatbhai's House (Home 2)' to geolocated coordinates [20.6720, 73.0815].",
+      "category": "POLITICS"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Cabinet Milestone: PMO relocated 'Thakorbhai's House (Home 1)' to geolocated coordinates [20.6732, 73.0800].",
+      "category": "POLITICS"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Cabinet Milestone: PMO relocated 'Bharatbhai's House (Home 2)' to geolocated coordinates [20.6720, 73.0815].",
+      "category": "POLITICS"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Cabinet Milestone: PMO relocated 'Rameshbhai's House (Home 3)' to geolocated coordinates [20.6715, 73.0795].",
+      "category": "POLITICS"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Cabinet Milestone: PMO relocated 'Thakorbhai's House (Home 1)' to geolocated coordinates [20.6732, 73.0800].",
+      "category": "POLITICS"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Cabinet Milestone: PMO relocated 'Rameshbhai's House (Home 3)' to geolocated coordinates [20.9490, 72.9560].",
+      "category": "POLITICS"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Cabinet Milestone: PMO relocated 'Rameshbhai's House (Home 3)' to geolocated coordinates [20.9490, 72.9560].",
+      "category": "POLITICS"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Cabinet Milestone: PMO relocated 'Bharatbhai's House (Home 2)' to geolocated coordinates [20.9467, 72.9520].",
+      "category": "POLITICS"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Cabinet Milestone: PMO relocated 'Bharatbhai's House (Home 2)' to geolocated coordinates [20.7587, 73.0573].",
+      "category": "POLITICS"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Local Warning: Food shortages reported at Rameshbhai's Residence. Residents plead for deliveries.",
+      "category": "LOCAL"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Local Warning: Food shortages reported at Bharatbhai's Residence. Residents plead for deliveries.",
+      "category": "LOCAL"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Local Warning: Food shortages reported at Thakorbhai's Residence. Residents plead for deliveries.",
+      "category": "LOCAL"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Weather Alert: Monsoonal breeze sweeps through the town plaza.",
+      "category": "WEATHER"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Finance Ministry: Collected $16 in income tax from Rameshbhai's Residence.",
+      "category": "ECONOMY"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Finance Ministry: Collected $31 in income tax from Bharatbhai's Residence.",
+      "category": "ECONOMY"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Finance Ministry: Collected $24 in income tax from Thakorbhai's Residence.",
+      "category": "ECONOMY"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Finance Ministry: Collected $1974 in corporate taxes from Player Brokerage.",
+      "category": "ECONOMY"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "🏛️ DEMOCRACY (Year 1): Citizens elected Thakorbhai as Prime Minister & Vasantiben as District Magistrate!",
+      "category": "POLITICS"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "🏛️ DEMOCRACY (Year 1): Citizens elected Rameshbhai as Prime Minister & Vasantiben as District Magistrate!",
+      "category": "POLITICS"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Local Warning: Food shortages reported at Rameshbhai's Residence. Residents plead for deliveries.",
+      "category": "LOCAL"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Local Warning: Food shortages reported at Bharatbhai's Residence. Residents plead for deliveries.",
+      "category": "LOCAL"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Local Warning: Food shortages reported at Thakorbhai's Residence. Residents plead for deliveries.",
+      "category": "LOCAL"
+    }
+  ],
+  "city_manager_enabled": true,
+  "last_cabinet_meeting_day": 229,
+  "zone_locations": {
+    "house_1": [
+      20.6732,
+      73.08
+    ],
+    "house_2": [
+      20.758725078156804,
+      73.05738063947962
+    ],
+    "house_3": [
+      20.754671681442954,
+      73.05427228901112
+    ],
+    "dairy": [
+      20.6728,
+      73.0805
+    ],
+    "general": [
+      20.6725,
+      73.081
+    ],
+    "clothing": [
+      20.6722,
+      73.0808
+    ],
+    "electronics": [
+      20.673,
+      73.0812
+    ],
+    "farms": [
+      20.6705,
+      73.078
+    ],
+    "factory": [
+      20.674,
+      73.082
+    ],
+    "school": [
+      20.6735,
+      73.079
+    ],
+    "hospital": [
+      20.671,
+      73.0825
+    ],
+    "park": [
+      20.6725,
+      73.083
+    ]
+  },
+  "last_election_cycle": 23
 }

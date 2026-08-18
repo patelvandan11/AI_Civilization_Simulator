@@ -1,0 +1,242 @@
+{
+  "road": {
+    "id": "road",
+    "name": "Road Segment",
+    "description": "Asphalt road tile. Paint roads to connect your city.",
+    "category": "infrastructure",
+    "placement_rule": "any_owned",
+    "build_time_game_seconds": 5,
+    "requirements": { "concrete": 2 },
+    "unique": false
+  },
+  "sidewalk": {
+    "id": "sidewalk",
+    "name": "Sidewalk",
+    "description": "Concrete pavement for pedestrians.",
+    "category": "infrastructure",
+    "placement_rule": "any_owned",
+    "build_time_game_seconds": 5,
+    "requirements": { "concrete": 1 },
+    "unique": false
+  },
+  "bridge": {
+    "id": "bridge",
+    "name": "Bridge",
+    "description": "Wooden bridge across a river.",
+    "category": "infrastructure",
+    "placement_rule": "river_only",
+    "build_time_game_seconds": 90,
+    "requirements": { "wood": 25, "rope": 10 },
+    "unique": false
+  },
+  "house": {
+    "id": "house",
+    "name": "House",
+    "description": "A cozy home for your citizens. Must touch a road.",
+    "category": "residential",
+    "placement_rule": "road_adjacent",
+    "build_time_game_seconds": 120,
+    "requirements": { "wood": 20, "stone": 15, "rope": 5 },
+    "unique": false
+  },
+  "apartment": {
+    "id": "apartment",
+    "name": "Apartment",
+    "description": "Multi-family housing. Fits more residents.",
+    "category": "residential",
+    "placement_rule": "road_adjacent",
+    "build_time_game_seconds": 200,
+    "requirements": { "wood": 30, "stone": 25, "glass": 10, "concrete": 15 },
+    "unique": false
+  },
+  "villa": {
+    "id": "villa",
+    "name": "Villa",
+    "description": "Luxury residence for wealthy citizens.",
+    "category": "residential",
+    "placement_rule": "road_adjacent",
+    "build_time_game_seconds": 180,
+    "requirements": { "wood": 25, "stone": 20, "glass": 15, "iron": 5 },
+    "unique": false
+  },
+  "shop": {
+    "id": "shop",
+    "name": "Shop",
+    "description": "A retail store. Must touch a road.",
+    "category": "commercial",
+    "placement_rule": "road_adjacent",
+    "build_time_game_seconds": 100,
+    "requirements": { "wood": 15, "glass": 10, "stone": 10 },
+    "unique": false
+  },
+  "food_cart": {
+    "id": "food_cart",
+    "name": "Food Cart",
+    "description": "A food stand on wheels. Road or sidewalk.",
+    "category": "commercial",
+    "placement_rule": "road_or_sidewalk",
+    "build_time_game_seconds": 30,
+    "requirements": { "wood": 10, "steel": 5, "glass": 3 },
+    "unique": false
+  },
+  "campfire": {
+    "id": "campfire",
+    "name": "Campfire",
+    "description": "A warm campfire. Place anywhere on owned land.",
+    "category": "decorative",
+    "placement_rule": "any_owned",
+    "build_time_game_seconds": 15,
+    "requirements": { "wood": 5, "stone": 3 },
+    "unique": false
+  },
+  "street_lamp": {
+    "id": "street_lamp",
+    "name": "Street Lamp",
+    "description": "Illuminates streets. Place on road edge.",
+    "category": "infrastructure",
+    "placement_rule": "road_adjacent",
+    "build_time_game_seconds": 40,
+    "requirements": { "iron": 3, "glass": 2, "copper": 2 },
+    "unique": false
+  },
+  "fence": {
+    "id": "fence",
+    "name": "Fence",
+    "description": "Wooden boundary fence. Place anywhere except water.",
+    "category": "decorative",
+    "placement_rule": "no_water",
+    "build_time_game_seconds": 20,
+    "requirements": { "wood": 8 },
+    "unique": false
+  },
+  "car": {
+    "id": "car",
+    "name": "Car",
+    "description": "A pixel-art vehicle. Roads only.",
+    "category": "commercial",
+    "placement_rule": "road_only",
+    "build_time_game_seconds": 150,
+    "requirements": { "steel": 10, "rubber": 4, "glass": 4, "iron": 5 },
+    "unique": false
+  },
+  "bus": {
+    "id": "bus",
+    "name": "Bus",
+    "description": "Public transport bus. Roads only.",
+    "category": "civic",
+    "placement_rule": "road_only",
+    "build_time_game_seconds": 200,
+    "requirements": { "steel": 15, "rubber": 6, "glass": 6, "iron": 8 },
+    "unique": false
+  },
+  "hospital": {
+    "id": "hospital",
+    "name": "Hospital",
+    "description": "Medical centre for your citizens.",
+    "category": "civic",
+    "placement_rule": "road_adjacent",
+    "build_time_game_seconds": 300,
+    "requirements": { "stone": 30, "glass": 20, "steel": 15, "concrete": 20 },
+    "unique": false
+  },
+  "police": {
+    "id": "police",
+    "name": "Police Station",
+    "description": "Keeps the peace in your city.",
+    "category": "civic",
+    "placement_rule": "road_adjacent",
+    "build_time_game_seconds": 240,
+    "requirements": { "stone": 25, "steel": 12, "concrete": 18, "glass": 8 },
+    "unique": false
+  },
+  "fire_station": {
+    "id": "fire_station",
+    "name": "Fire Station",
+    "description": "Rapid response to fire emergencies.",
+    "category": "civic",
+    "placement_rule": "road_adjacent",
+    "build_time_game_seconds": 240,
+    "requirements": { "stone": 20, "steel": 15, "concrete": 18, "iron": 10 },
+    "unique": false
+  },
+  "school": {
+    "id": "school",
+    "name": "School",
+    "description": "Education centre for young citizens.",
+    "category": "civic",
+    "placement_rule": "road_adjacent",
+    "build_time_game_seconds": 280,
+    "requirements": { "wood": 20, "stone": 20, "glass": 15, "concrete": 10 },
+    "unique": false
+  },
+  "warehouse": {
+    "id": "warehouse",
+    "name": "Warehouse",
+    "description": "Large storage facility for goods.",
+    "category": "commercial",
+    "placement_rule": "road_adjacent",
+    "build_time_game_seconds": 160,
+    "requirements": { "wood": 30, "stone": 20, "steel": 10, "iron": 8 },
+    "unique": false
+  },
+  "farm": {
+    "id": "farm",
+    "name": "Farm",
+    "description": "Adds farm plots. Place on grass.",
+    "category": "commercial",
+    "placement_rule": "any_owned",
+    "build_time_game_seconds": 90,
+    "requirements": { "wood": 15, "rope": 5, "water": 5 },
+    "unique": false
+  },
+  "windmill": {
+    "id": "windmill",
+    "name": "Windmill",
+    "description": "Generates wind power for the city.",
+    "category": "infrastructure",
+    "placement_rule": "any_owned",
+    "build_time_game_seconds": 200,
+    "requirements": { "wood": 20, "iron": 10, "rope": 8, "stone": 10 },
+    "unique": false
+  },
+  "park": {
+    "id": "park",
+    "name": "Park",
+    "description": "Green space for citizens to relax.",
+    "category": "decorative",
+    "placement_rule": "any_owned",
+    "build_time_game_seconds": 60,
+    "requirements": { "wood": 5, "water": 3, "stone": 5 },
+    "unique": false
+  },
+  "statue": {
+    "id": "statue",
+    "name": "Statue",
+    "description": "A monument to your civilization's greatness.",
+    "category": "decorative",
+    "placement_rule": "any_owned",
+    "build_time_game_seconds": 120,
+    "requirements": { "stone": 20, "iron": 5, "copper": 3 },
+    "unique": false
+  },
+  "power_plant": {
+    "id": "power_plant",
+    "name": "Power Plant",
+    "description": "Supplies electricity to the entire city.",
+    "category": "infrastructure",
+    "placement_rule": "road_adjacent",
+    "build_time_game_seconds": 400,
+    "requirements": { "steel": 25, "concrete": 30, "iron": 20, "copper": 15, "fuel": 10 },
+    "unique": false
+  },
+  "workshop": {
+    "id": "workshop",
+    "name": "Workshop",
+    "description": "Artisan workshop for crafting goods.",
+    "category": "commercial",
+    "placement_rule": "road_adjacent",
+    "build_time_game_seconds": 100,
+    "requirements": { "wood": 15, "stone": 8, "iron": 5 },
+    "unique": true
+  }
+}

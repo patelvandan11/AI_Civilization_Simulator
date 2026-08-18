@@ -6,10 +6,11 @@
     "stone": 18,
     "fiber": 14,
     "apple_seed": 4,
-    "wheat_seed": 5
+    "wheat_seed": 5,
+    "torch": 2
   },
   "clock": {
-    "total_seconds": 480,
+    "total_seconds": 779.0,
     "speed": 1,
     "weather": "Clear"
   },
@@ -64,12 +65,532 @@
     {
       "building_id": "campfire",
       "count": 1,
-      "ready_at_game_seconds": 500.0
+      "ready_at_game_seconds": null,
+      "x": null,
+      "y": null
     }
   ],
-  "craft_job": {
-    "recipe_id": "torch",
-    "finishes_at": "2026-08-04T14:17:28.283385+00:00"
+  "craft_job": null,
+  "plot_count": 9,
+  "owned_land": [
+    [
+      15,
+      15
+    ],
+    [
+      16,
+      15
+    ],
+    [
+      17,
+      15
+    ],
+    [
+      18,
+      15
+    ],
+    [
+      19,
+      15
+    ],
+    [
+      20,
+      15
+    ],
+    [
+      21,
+      15
+    ],
+    [
+      22,
+      15
+    ],
+    [
+      23,
+      15
+    ],
+    [
+      24,
+      15
+    ],
+    [
+      15,
+      16
+    ],
+    [
+      16,
+      16
+    ],
+    [
+      17,
+      16
+    ],
+    [
+      18,
+      16
+    ],
+    [
+      19,
+      16
+    ],
+    [
+      20,
+      16
+    ],
+    [
+      21,
+      16
+    ],
+    [
+      22,
+      16
+    ],
+    [
+      23,
+      16
+    ],
+    [
+      24,
+      16
+    ],
+    [
+      15,
+      17
+    ],
+    [
+      16,
+      17
+    ],
+    [
+      17,
+      17
+    ],
+    [
+      18,
+      17
+    ],
+    [
+      19,
+      17
+    ],
+    [
+      20,
+      17
+    ],
+    [
+      21,
+      17
+    ],
+    [
+      22,
+      17
+    ],
+    [
+      23,
+      17
+    ],
+    [
+      24,
+      17
+    ],
+    [
+      15,
+      18
+    ],
+    [
+      16,
+      18
+    ],
+    [
+      17,
+      18
+    ],
+    [
+      18,
+      18
+    ],
+    [
+      19,
+      18
+    ],
+    [
+      20,
+      18
+    ],
+    [
+      21,
+      18
+    ],
+    [
+      22,
+      18
+    ],
+    [
+      23,
+      18
+    ],
+    [
+      24,
+      18
+    ],
+    [
+      15,
+      19
+    ],
+    [
+      16,
+      19
+    ],
+    [
+      17,
+      19
+    ],
+    [
+      18,
+      19
+    ],
+    [
+      19,
+      19
+    ],
+    [
+      20,
+      19
+    ],
+    [
+      21,
+      19
+    ],
+    [
+      22,
+      19
+    ],
+    [
+      23,
+      19
+    ],
+    [
+      24,
+      19
+    ],
+    [
+      15,
+      20
+    ],
+    [
+      16,
+      20
+    ],
+    [
+      17,
+      20
+    ],
+    [
+      18,
+      20
+    ],
+    [
+      19,
+      20
+    ],
+    [
+      20,
+      20
+    ],
+    [
+      21,
+      20
+    ],
+    [
+      22,
+      20
+    ],
+    [
+      23,
+      20
+    ],
+    [
+      24,
+      20
+    ],
+    [
+      15,
+      21
+    ],
+    [
+      16,
+      21
+    ],
+    [
+      17,
+      21
+    ],
+    [
+      18,
+      21
+    ],
+    [
+      19,
+      21
+    ],
+    [
+      20,
+      21
+    ],
+    [
+      21,
+      21
+    ],
+    [
+      22,
+      21
+    ],
+    [
+      23,
+      21
+    ],
+    [
+      24,
+      21
+    ],
+    [
+      15,
+      22
+    ],
+    [
+      16,
+      22
+    ],
+    [
+      17,
+      22
+    ],
+    [
+      18,
+      22
+    ],
+    [
+      19,
+      22
+    ],
+    [
+      20,
+      22
+    ],
+    [
+      21,
+      22
+    ],
+    [
+      22,
+      22
+    ],
+    [
+      23,
+      22
+    ],
+    [
+      24,
+      22
+    ],
+    [
+      15,
+      23
+    ],
+    [
+      16,
+      23
+    ],
+    [
+      17,
+      23
+    ],
+    [
+      18,
+      23
+    ],
+    [
+      19,
+      23
+    ],
+    [
+      20,
+      23
+    ],
+    [
+      21,
+      23
+    ],
+    [
+      22,
+      23
+    ],
+    [
+      23,
+      23
+    ],
+    [
+      24,
+      23
+    ],
+    [
+      15,
+      24
+    ],
+    [
+      16,
+      24
+    ],
+    [
+      17,
+      24
+    ],
+    [
+      18,
+      24
+    ],
+    [
+      19,
+      24
+    ],
+    [
+      20,
+      24
+    ],
+    [
+      21,
+      24
+    ],
+    [
+      22,
+      24
+    ],
+    [
+      23,
+      24
+    ],
+    [
+      24,
+      24
+    ]
+  ],
+  "terrain_data": null,
+  "camera_x": 0.0,
+  "camera_y": 0.0,
+  "build_queue": [],
+  "agent_settings": {
+    "farming": {
+      "enabled": false,
+      "preferred_crops": [
+        "apple",
+        "wheat",
+        "banana",
+        "carrot"
+      ],
+      "auto_buy_seeds": true
+    },
+    "manufacturing": {
+      "enabled": false,
+      "preferred_recipes": {
+        "bread": 10,
+        "rope": 5,
+        "tomato_ketch": 5,
+        "burger": 5,
+        "pizza": 5
+      },
+      "auto_build_farms": true
+    },
+    "trade": {
+      "enabled": false,
+      "min_cash_reserve": 100,
+      "keep_stock": {
+        "wood": 20,
+        "stone": 20,
+        "fiber": 20,
+        "wheat": 10,
+        "apple": 10,
+        "banana": 10,
+        "carrot": 10,
+        "bread": 5,
+        "rope": 5,
+        "tomato_ketch": 5,
+        "burger": 2,
+        "pizza": 2
+      },
+      "buy_seeds_threshold": 3,
+      "buy_seeds_qty": 5
+    }
   },
-  "plot_count": 9
+  "agent_logs": [],
+  "item_prices": {
+    "wood": 2,
+    "stone": 2,
+    "fiber": 1,
+    "apple_seed": 5,
+    "apple": 9,
+    "wheat_seed": 4,
+    "wheat": 3,
+    "rope": 11,
+    "torch": 10,
+    "bread": 15,
+    "wooden_axe": 25,
+    "stone_pick": 35,
+    "banana_seed": 3,
+    "banana": 7,
+    "cherry_seed": 4,
+    "cherry": 4,
+    "grape_seed": 4,
+    "grapes": 7,
+    "orange_seed": 3,
+    "orange": 8,
+    "strawberry_seed": 5,
+    "strawberry": 11,
+    "watermelon_seed": 8,
+    "watermelon": 12,
+    "avacado_seed": 6,
+    "avacado": 12,
+    "peach_seed": 6,
+    "peach": 9,
+    "blue_berry_seed": 3,
+    "blue_berry": 6,
+    "carrot_seed": 3,
+    "carrot": 6,
+    "pumpkin_seed": 9,
+    "pumpkin": 18,
+    "mushroom_seed": 2,
+    "mushroom": 5,
+    "corn_seed": 5,
+    "corn": 9,
+    "cucumber_seed": 3,
+    "cucumber": 7,
+    "brokeli_seed": 3,
+    "brokeli": 9,
+    "cabbige_seed": 5,
+    "cabbige": 10,
+    "chilly_seed": 3,
+    "chilly": 8,
+    "reddies_seed": 2,
+    "reddies": 6,
+    "orange_juice": 29,
+    "strawberry_cake": 54,
+    "cherry_cake": 32,
+    "cake": 48,
+    "wine": 51,
+    "pizza": 47,
+    "burger": 37,
+    "cherry_jam": 19,
+    "chess": 18,
+    "tomato_ketch": 12,
+    "iron": 6,
+    "copper": 8,
+    "steel": 17,
+    "glass": 9,
+    "water": 2,
+    "food": 4,
+    "fuel": 15,
+    "concrete": 5,
+    "rubber": 10,
+    "trofy": 606
+  },
+  "last_price_update_day": 1
 }

@@ -1,0 +1,202 @@
+{
+  "apple": {
+    "id": "apple",
+    "name": "Apple Tree",
+    "seed_id": "apple_seed",
+    "yield_id": "apple",
+    "yield_min": 2,
+    "yield_max": 4,
+    "growth_seconds": 30,
+    "description": "Grows sweet apples."
+  },
+  "wheat": {
+    "id": "wheat",
+    "name": "Wheat",
+    "seed_id": "wheat_seed",
+    "yield_id": "wheat",
+    "yield_min": 2,
+    "yield_max": 5,
+    "growth_seconds": 20,
+    "description": "Grows wheat stalk for baking."
+  },
+  "banana": {
+    "id": "banana",
+    "name": "Banana Tree",
+    "seed_id": "banana_seed",
+    "yield_id": "banana",
+    "yield_min": 2,
+    "yield_max": 4,
+    "growth_seconds": 25,
+    "description": "Grows bunches of sweet bananas."
+  },
+  "cherry": {
+    "id": "cherry",
+    "name": "Cherry Tree",
+    "seed_id": "cherry_seed",
+    "yield_id": "cherry",
+    "yield_min": 3,
+    "yield_max": 6,
+    "growth_seconds": 15,
+    "description": "Grows ripe juicy cherries."
+  },
+  "grapes": {
+    "id": "grapes",
+    "name": "Grape Vine",
+    "seed_id": "grape_seed",
+    "yield_id": "grapes",
+    "yield_min": 3,
+    "yield_max": 6,
+    "growth_seconds": 25,
+    "description": "Grows sweet grapes for pressing."
+  },
+  "orange": {
+    "id": "orange",
+    "name": "Orange Tree",
+    "seed_id": "orange_seed",
+    "yield_id": "orange",
+    "yield_min": 2,
+    "yield_max": 5,
+    "growth_seconds": 30,
+    "description": "Grows sweet citrus oranges."
+  },
+  "strawberry": {
+    "id": "strawberry",
+    "name": "Strawberry Bush",
+    "seed_id": "strawberry_seed",
+    "yield_id": "strawberry",
+    "yield_min": 3,
+    "yield_max": 7,
+    "growth_seconds": 15,
+    "description": "Grows sweet red strawberries."
+  },
+  "watermelon": {
+    "id": "watermelon",
+    "name": "Watermelon Vine",
+    "seed_id": "watermelon_seed",
+    "yield_id": "watermelon",
+    "yield_min": 1,
+    "yield_max": 2,
+    "growth_seconds": 45,
+    "description": "Grows heavy watermelons."
+  },
+  "avacado": {
+    "id": "avacado",
+    "name": "Avocado Tree",
+    "seed_id": "avacado_seed",
+    "yield_id": "avacado",
+    "yield_min": 2,
+    "yield_max": 4,
+    "growth_seconds": 35,
+    "description": "Grows rich organic avocados."
+  },
+  "peach": {
+    "id": "peach",
+    "name": "Peach Tree",
+    "seed_id": "peach_seed",
+    "yield_id": "peach",
+    "yield_min": 2,
+    "yield_max": 4,
+    "growth_seconds": 30,
+    "description": "Grows fuzzy sweet peaches."
+  },
+  "blue_berry": {
+    "id": "blue_berry",
+    "name": "Blueberry Bush",
+    "seed_id": "blue_berry_seed",
+    "yield_id": "blue_berry",
+    "yield_min": 4,
+    "yield_max": 8,
+    "growth_seconds": 20,
+    "description": "Grows sweet antioxidant blueberries."
+  },
+  "carrot": {
+    "id": "carrot",
+    "name": "Carrot Crop",
+    "seed_id": "carrot_seed",
+    "yield_id": "carrot",
+    "yield_min": 2,
+    "yield_max": 5,
+    "growth_seconds": 15,
+    "description": "Grows underground crunchy carrots."
+  },
+  "pumpkin": {
+    "id": "pumpkin",
+    "name": "Pumpkin Patch",
+    "seed_id": "pumpkin_seed",
+    "yield_id": "pumpkin",
+    "yield_min": 1,
+    "yield_max": 2,
+    "growth_seconds": 40,
+    "description": "Grows huge heavy orange pumpkins."
+  },
+  "mushroom": {
+    "id": "mushroom",
+    "name": "Mushroom Spores",
+    "seed_id": "mushroom_seed",
+    "yield_id": "mushroom",
+    "yield_min": 3,
+    "yield_max": 6,
+    "growth_seconds": 10,
+    "description": "Grows edible forest mushrooms."
+  },
+  "corn": {
+    "id": "corn",
+    "name": "Corn Stalk",
+    "seed_id": "corn_seed",
+    "yield_id": "corn",
+    "yield_min": 2,
+    "yield_max": 4,
+    "growth_seconds": 25,
+    "description": "Grows sweet yellow corn cobs."
+  },
+  "cucumber": {
+    "id": "cucumber",
+    "name": "Cucumber Vine",
+    "seed_id": "cucumber_seed",
+    "yield_id": "cucumber",
+    "yield_min": 2,
+    "yield_max": 5,
+    "growth_seconds": 20,
+    "description": "Grows crisp cucumbers."
+  },
+  "brokeli": {
+    "id": "brokeli",
+    "name": "Broccoli Crop",
+    "seed_id": "brokeli_seed",
+    "yield_id": "brokeli",
+    "yield_min": 2,
+    "yield_max": 4,
+    "growth_seconds": 30,
+    "description": "Grows organic green broccoli florets."
+  },
+  "cabbige": {
+    "id": "cabbige",
+    "name": "Cabbage Crop",
+    "seed_id": "cabbige_seed",
+    "yield_id": "cabbige",
+    "yield_min": 1,
+    "yield_max": 2,
+    "growth_seconds": 35,
+    "description": "Grows compact leafy green cabbage."
+  },
+  "chilly": {
+    "id": "chilly",
+    "name": "Chili Crop",
+    "seed_id": "chilly_seed",
+    "yield_id": "chilly",
+    "yield_min": 3,
+    "yield_max": 7,
+    "growth_seconds": 20,
+    "description": "Grows spicy red chili peppers."
+  },
+  "reddies": {
+    "id": "reddies",
+    "name": "Radish Crop",
+    "seed_id": "reddies_seed",
+    "yield_id": "reddies",
+    "yield_min": 2,
+    "yield_max": 5,
+    "growth_seconds": 15,
+    "description": "Grows fast peppery crisp radishes."
+  }
+}
