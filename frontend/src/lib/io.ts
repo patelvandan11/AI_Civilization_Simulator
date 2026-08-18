@@ -229,7 +229,7 @@ export function createNewPlayer(userId: string, citizenOptions?: CitizenRegistra
     item_prices: {},
     last_price_update_day: 0,
     // City & Household fields
-    city_name: "Rumla",
+    city_name: "AI Civilization",
     city_treasury: 100.0,
     tax_rate: 10,
     city_projects: [
@@ -270,7 +270,7 @@ export function createNewPlayer(userId: string, citizenOptions?: CitizenRegistra
       },
       {
         timestamp: "08:30 AM",
-        headline: "Prime Minister Thakorbhai announces the Rumla Cabinet Coalition formation.",
+        headline: "Prime Minister Thakorbhai announces the Cabinet Coalition formation.",
         category: "POLITICS"
       }
     ],
@@ -278,7 +278,7 @@ export function createNewPlayer(userId: string, citizenOptions?: CitizenRegistra
     shops: [
       {
         id: "dairy",
-        name: "Rumla Dairy & Groceries",
+        name: "City Dairy & Groceries",
         owner: "Amina",
         inventory: { milk: 10, wheat: 10, apple: 10, bread: 5, tomato_ketch: 5, pizza: 2, burger: 2 },
         prices: { milk: 2, wheat: 3, apple: 4, bread: 10, tomato_ketch: 10, pizza: 45, burger: 35 },

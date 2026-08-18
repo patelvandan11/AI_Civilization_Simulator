@@ -37,7 +37,8 @@ export async function POST(req: NextRequest) {
     const player = await loadPlayer(userId);
     const catalogs = loadAllCatalogs();
 
-    const isUserAdmin = userId === "vandan_11" || userId === "vandan_11patel@gmail.com";
+    const adminEmail = (process.env.ADMIN_EMAIL || "vandan11patel@gmail.com").toLowerCase().trim();
+    const isUserAdmin = userId.toLowerCase() === "vandan_11" || userId.toLowerCase().trim() === adminEmail;
 
     if (action === "plant_all") {
       const cropId = body.crop_id || "apple";
@@ -160,7 +161,7 @@ export async function POST(req: NextRequest) {
 
       if (project.allocated >= project.cost) {
         project.completed = true;
-        player.agent_logs.push(`System: Rumla municipal project ${project.name} completed successfully!`);
+        player.agent_logs.push(`System: Civilization municipal project ${project.name} completed successfully!`);
       }
 
       await savePlayer(player);
@@ -303,9 +304,9 @@ export async function POST(req: NextRequest) {
         mayor: mayor
       };
 
-      player.agent_logs.push(`System: Appointed ${mayor} as the new Mayor of Rumla.`);
+      player.agent_logs.push(`System: Appointed ${mayor} as the new Mayor.`);
       await savePlayer(player);
-      return NextResponse.json({ ok: true, message: `Appointed ${mayor} as Mayor of Rumla.` });
+      return NextResponse.json({ ok: true, message: `Appointed ${mayor} as Mayor.` });
     }
 
     if (action === "toggle_city_manager") {
@@ -362,7 +363,7 @@ export async function POST(req: NextRequest) {
 
     if (action === "relocate_landmark") {
       if (!isUserAdmin) {
-        return NextResponse.json({ ok: false, message: "Access Denied: Only admin vandan_11 or vandan_11patel@gmail.com can relocate locations." }, { status: 403 });
+        return NextResponse.json({ ok: false, message: `Access Denied: Only admin (${adminEmail}) can relocate locations.` }, { status: 403 });
       }
 
       const landmarkId = String(body.landmark_id).trim();
@@ -379,15 +380,15 @@ export async function POST(req: NextRequest) {
         house_1: "Thakorbhai's House (Home 1)",
         house_2: "Bharatbhai's House (Home 2)",
         house_3: "Rameshbhai's House (Home 3)",
-        dairy: "Rumla Dairy Groceries",
+        dairy: "City Dairy Groceries",
         general: "Ramesh Supplies",
         clothing: "Savita's Clothiers",
         electronics: "Electronics Hub",
         farms: "Colony Farms",
         factory: "Manufacturing Factory",
-        school: "Rumla Community School",
-        hospital: "Rumla General Hospital",
-        park: "Rumla Leisure Park"
+        school: "Community School",
+        hospital: "General Hospital",
+        park: "Civic Leisure Park"
       };
 
       const label = landmarkNames[landmarkId] || landmarkId;

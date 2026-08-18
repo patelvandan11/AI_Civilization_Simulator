@@ -47,7 +47,7 @@ export function verifyStoredOtp(email: string, code: string): boolean {
 
 export async function sendOtpEmail(toEmail: string, otpCode: string, name: string = "Citizen") {
   const transporter = createTransporter();
-  const from = process.env.SMTP_FROM || `"Rumla AI Civilization" <${process.env.SMTP_USER || "meivaninfo@gmail.com"}>`;
+  const from = process.env.SMTP_FROM || `"AI Civilization Simulator" <${process.env.SMTP_USER || "meivaninfo@gmail.com"}>`;
 
   const html = `
     <!DOCTYPE html>
@@ -68,7 +68,7 @@ export async function sendOtpEmail(toEmail: string, otpCode: string, name: strin
     <body>
       <div class="container">
         <div class="logo">🏛️</div>
-        <h1 class="title">RUMLA CIVILIZATION</h1>
+        <h1 class="title">AI CIVILIZATION</h1>
         <p class="subtitle">Hello <strong>${name}</strong>, use the verification code below to authenticate your citizen account.</p>
         
         <div class="otp-box">
@@ -81,7 +81,7 @@ export async function sendOtpEmail(toEmail: string, otpCode: string, name: strin
         </p>
 
         <div class="footer">
-          Rumla Autonomous Micro-Nation Simulation &bull; Satellite GIS Citizen Authentication
+          Autonomous AI Civilization Simulation &bull; Satellite GIS Citizen Authentication
         </div>
       </div>
     </body>
@@ -91,15 +91,15 @@ export async function sendOtpEmail(toEmail: string, otpCode: string, name: strin
   return await transporter.sendMail({
     from,
     to: toEmail,
-    subject: `🔐 Your Rumla Civilization Verification Code: ${otpCode}`,
-    text: `Hello ${name}, your Rumla verification code is: ${otpCode}. Valid for 10 minutes.`,
+    subject: `🔐 Your AI Civilization Verification Code: ${otpCode}`,
+    text: `Hello ${name}, your AI Civilization verification code is: ${otpCode}. Valid for 10 minutes.`,
     html
   });
 }
 
 export async function sendMagicLinkEmail(toEmail: string, magicLinkUrl: string, name: string = "Citizen") {
   const transporter = createTransporter();
-  const from = process.env.SMTP_FROM || `"Rumla AI Civilization" <${process.env.SMTP_USER || "meivaninfo@gmail.com"}>`;
+  const from = process.env.SMTP_FROM || `"AI Civilization Simulator" <${process.env.SMTP_USER || "meivaninfo@gmail.com"}>`;
 
   const html = `
     <!DOCTYPE html>
@@ -118,17 +118,17 @@ export async function sendMagicLinkEmail(toEmail: string, magicLinkUrl: string, 
     <body>
       <div class="container">
         <div class="logo">🏛️</div>
-        <h1 class="title">RUMLA CIVILIZATION</h1>
+        <h1 class="title">AI CIVILIZATION</h1>
         <p style="color: #94a3b8; font-size: 13px; text-align: center;">Click the button below to instantly sign in to your citizen dashboard.</p>
         
-        <a href="${magicLinkUrl}" class="btn">🚀 ENTER RUMLA SIMULATION</a>
+        <a href="${magicLinkUrl}" class="btn">🚀 ENTER AI CIVILIZATION</a>
 
         <p style="color: #64748b; font-size: 11px; text-align: center; word-break: break-all;">
           Or copy link: ${magicLinkUrl}
         </p>
 
         <div class="footer">
-          Rumla Autonomous Micro-Nation Simulation &bull; Passwordless Security
+          Autonomous AI Civilization Simulation &bull; Passwordless Security
         </div>
       </div>
     </body>
@@ -138,7 +138,7 @@ export async function sendMagicLinkEmail(toEmail: string, magicLinkUrl: string, 
   return await transporter.sendMail({
     from,
     to: toEmail,
-    subject: `🔗 Your Instant Magic Sign-In Link for Rumla Civilization`,
+    subject: `🔗 Your Instant Magic Sign-In Link for AI Civilization`,
     text: `Click the link to sign in: ${magicLinkUrl}`,
     html
   });

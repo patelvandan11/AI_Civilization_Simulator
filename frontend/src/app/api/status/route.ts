@@ -109,7 +109,8 @@ export async function GET(req: NextRequest) {
     } catch {}
 
     const formattedClock = `Day ${clockDay}  ${clockHour.toString().padStart(2, "0")}:${clockMinute.toString().padStart(2, "0")}`;
-    const isAdmin = userId === "vandan_11" || userId === "vandan_11patel@gmail.com";
+    const adminEmail = (process.env.ADMIN_EMAIL || "vandan11patel@gmail.com").toLowerCase().trim();
+    const isAdmin = userId.toLowerCase() === "vandan_11" || userId.toLowerCase().trim() === adminEmail;
 
     // Privacy filter for non-admin citizens:
     // Citizens can see where houses are located on the map, but cannot see private family names, member counts, budgets, or jobs

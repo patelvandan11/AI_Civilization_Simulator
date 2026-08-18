@@ -683,8 +683,8 @@ export function tickHouseholdAndProjects(player: PlayerState, dt: number, catalo
 
       // Trigger daily weather forecast
       const weatherForecasts = [
-        "Heavy monsoons expected over Valsad region. Rumla Farms report high mud saturation.",
-        "Sunny skies and mild wind current in Rumla town.",
+        "Heavy monsoons expected over the region. Farmlands report high mud saturation.",
+        "Sunny skies and mild wind current across the region.",
         "Heatwave warning: Power grids at maximum load. Citizens stay hydrated.",
         "Monsoonal breeze sweeps through the town plaza."
       ];
@@ -950,7 +950,7 @@ export function tickHouseholdAndProjects(player: PlayerState, dt: number, catalo
   return logs;
 }
 
-// Conduct democratic election across Rumla citizens
+// Conduct democratic election across all citizens
 export function conductDemocraticElection(player: PlayerState): string {
   const candidates = ["Thakorbhai", "Bharatbhai", "Rameshbhai", "Vasantiben", "Mayuriben", "Hemuben"];
   

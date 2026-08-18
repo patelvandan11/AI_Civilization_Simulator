@@ -62,8 +62,8 @@ export default function CivilizationDashboard() {
   const [signupMemberCount, setSignupMemberCount] = useState<number>(4);
   const [signupMemberNames, setSignupMemberNames] = useState<string[]>(["", "", "", ""]);
   const [signupCityQuery, setSignupCityQuery] = useState<string>("");
-  const [signupCoords, setSignupCoords] = useState<[number, number]>([20.6728, 73.0805]);
-  const [signupCityName, setSignupCityName] = useState<string>("Rumla, Gujarat");
+  const [signupCoords, setSignupCoords] = useState<[number, number]>([20.9467, 72.9520]);
+  const [signupCityName, setSignupCityName] = useState<string>("Navsari, Gujarat");
   const [signupIsSearching, setSignupIsSearching] = useState<boolean>(false);
 
   // Game UI States
@@ -127,25 +127,26 @@ export default function CivilizationDashboard() {
   const [isSendingOtp, setIsSendingOtp] = useState<boolean>(false);
 
   // Check admin status
-  const isAdmin = userId === "vandan_11" || userId === "vandan_11patel@gmail.com";
+  const adminEmail = (process.env.NEXT_PUBLIC_ADMIN_EMAIL || "vandan11patel@gmail.com").toLowerCase().trim();
+  const isAdmin = Boolean(status?.is_admin) || userId.toLowerCase() === "vandan_11" || userId.toLowerCase().trim() === adminEmail;
 
-  // Center Coordinates for Rumla, Gujarat
-  const RUMLA_LAT = 20.6728;
-  const RUMLA_LNG = 73.0805;
+  // Center Coordinates for Civilization Map
+  const CENTER_LAT = 20.9467;
+  const CENTER_LNG = 72.9520;
 
   const defaultLocations: Record<string, [number, number]> = {
-    house_1: [20.6732, 73.0800],
-    house_2: [20.6720, 73.0815],
-    house_3: [20.6715, 73.0795],
-    dairy: [20.6728, 73.0805],
-    general: [20.6725, 73.0810],
-    clothing: [20.6722, 73.0808],
-    electronics: [20.6730, 73.0812],
-    farms: [20.6705, 73.0780],
-    factory: [20.6740, 73.0820],
-    school: [20.6735, 73.0790],
-    hospital: [20.6710, 73.0825],
-    park: [20.6725, 73.0830]
+    house_1: [20.9472, 72.9515],
+    house_2: [20.9460, 72.9530],
+    house_3: [20.9455, 72.9510],
+    dairy: [20.9468, 72.9520],
+    general: [20.9465, 72.9525],
+    clothing: [20.9462, 72.9523],
+    electronics: [20.9470, 72.9527],
+    farms: [20.9445, 72.9495],
+    factory: [20.9480, 72.9535],
+    school: [20.9475, 72.9505],
+    hospital: [20.9450, 72.9540],
+    park: [20.9465, 72.9545]
   };
 
   const getLocations = () => {
@@ -156,23 +157,23 @@ export default function CivilizationDashboard() {
   const getCitizenGeo = (name: string, state: string, familyId: string): [number, number] => {
     const locs = getLocations();
     if (state.includes("Sleeping") || state.includes("Breakfast") || state.includes("Dinner") || state.includes("Leisure at Home") || state.includes("Private")) {
-      if (familyId === "house_2") return locs.house_2 || [RUMLA_LAT, RUMLA_LNG];
-      if (familyId === "house_3") return locs.house_3 || [RUMLA_LAT, RUMLA_LNG];
-      return locs.house_1 || [RUMLA_LAT, RUMLA_LNG];
+      if (familyId === "house_2") return locs.house_2 || [CENTER_LAT, CENTER_LNG];
+      if (familyId === "house_3") return locs.house_3 || [CENTER_LAT, CENTER_LNG];
+      return locs.house_1 || [CENTER_LAT, CENTER_LNG];
     }
-    if (state.includes("Farms")) return locs.farms || [RUMLA_LAT, RUMLA_LNG];
-    if (state.includes("General Store")) return locs.general || [RUMLA_LAT, RUMLA_LNG];
-    if (state.includes("Electronic Hub")) return locs.electronics || [RUMLA_LAT, RUMLA_LNG];
-    if (state.includes("Clothiers")) return locs.clothing || [RUMLA_LAT, RUMLA_LNG];
-    if (state.includes("Dairy Store") || state.includes("Shopping")) return locs.dairy || [RUMLA_LAT, RUMLA_LNG];
-    if (state.includes("Factory")) return locs.factory || [RUMLA_LAT, RUMLA_LNG];
-    if (state.includes("School")) return locs.school || [RUMLA_LAT, RUMLA_LNG];
-    if (state.includes("Plaza") || state.includes("Park")) return locs.park || [RUMLA_LAT, RUMLA_LNG];
+    if (state.includes("Farms")) return locs.farms || [CENTER_LAT, CENTER_LNG];
+    if (state.includes("General Store")) return locs.general || [CENTER_LAT, CENTER_LNG];
+    if (state.includes("Electronic Hub")) return locs.electronics || [CENTER_LAT, CENTER_LNG];
+    if (state.includes("Clothiers")) return locs.clothing || [CENTER_LAT, CENTER_LNG];
+    if (state.includes("Dairy Store") || state.includes("Shopping")) return locs.dairy || [CENTER_LAT, CENTER_LNG];
+    if (state.includes("Factory")) return locs.factory || [CENTER_LAT, CENTER_LNG];
+    if (state.includes("School")) return locs.school || [CENTER_LAT, CENTER_LNG];
+    if (state.includes("Plaza") || state.includes("Park")) return locs.park || [CENTER_LAT, CENTER_LNG];
     
     // Fallback
-    if (familyId === "house_2") return locs.house_2 || [RUMLA_LAT, RUMLA_LNG];
-    if (familyId === "house_3") return locs.house_3 || [RUMLA_LAT, RUMLA_LNG];
-    return locs.house_1 || [RUMLA_LAT, RUMLA_LNG];
+    if (familyId === "house_2") return locs.house_2 || [CENTER_LAT, CENTER_LNG];
+    if (familyId === "house_3") return locs.house_3 || [CENTER_LAT, CENTER_LNG];
+    return locs.house_1 || [CENTER_LAT, CENTER_LNG];
   };
 
   // Restore saved session or magic link from URL
@@ -184,11 +185,11 @@ export default function CivilizationDashboard() {
         if (magicUser) {
           setUserId(magicUser);
           setIsLoggedIn(true);
-          localStorage.setItem("rumla_active_user", magicUser);
+          localStorage.setItem("civilization_active_user", magicUser);
           return;
         }
       }
-      const saved = localStorage.getItem("rumla_active_user");
+      const saved = localStorage.getItem("civilization_active_user");
       if (saved) {
         setUserId(saved);
         setIsLoggedIn(true);
@@ -281,43 +282,53 @@ export default function CivilizationDashboard() {
       const map = L.map(mapContainerRef.current, {
         zoomControl: false,
         attributionControl: false
-      }).setView([RUMLA_LAT, RUMLA_LNG], 16);
+      }).setView([CENTER_LAT, CENTER_LNG], 16);
+
+      L.control.zoom({ position: "bottomright" }).addTo(map);
 
       L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", {
         maxZoom: 19,
-        attribution: 'Tiles &copy; Esri &mdash; World Satellite Imagery'
+        attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
       }).addTo(map);
+
+      map.on("click", handleMapClick);
 
       mapInstanceRef.current = map;
     }
 
     const map = mapInstanceRef.current;
-    
-    // Clear old static markers
-    staticMarkersRef.current.forEach(m => m.remove());
-    staticMarkersRef.current = [];
-
     const locs = getLocations();
 
-    const addLandmark = (coords: number[], name: string, description: string, color: string, symbol: string) => {
-      const landmarkIcon = L.divIcon({
+    staticMarkersRef.current.forEach(m => map.removeLayer(m));
+    staticMarkersRef.current = [];
+
+    const addLandmark = (coord: [number, number], title: string, desc: string, color: string, icon: string) => {
+      const customIcon = L.divIcon({
         className: "",
-        html: `<div class="flex items-center justify-center w-8 h-8 rounded-full border-2 border-slate-900 shadow-xl text-white font-bold" style="background: ${color}"><span class="text-[14px]">${symbol}</span></div>`,
+        html: `
+          <div style="background-color: ${color};" class="w-8 h-8 rounded-full border-2 border-slate-900 shadow-xl flex items-center justify-center text-sm transform hover:scale-125 transition-transform duration-200 cursor-pointer">
+            <span>${icon}</span>
+          </div>
+        `,
         iconSize: [32, 32],
         iconAnchor: [16, 16]
       });
 
-      const marker = L.marker(coords, { icon: landmarkIcon })
-        .addTo(map)
-        .bindPopup(`<div class="font-sans text-xs p-1 text-slate-800"><strong class="block text-slate-950 font-bold mb-0.5">${name}</strong>${description}</div>`);
+      const marker = L.marker(coord, { icon: customIcon }).addTo(map);
+      marker.bindPopup(`
+        <div style="font-family: sans-serif; padding: 4px;">
+          <div style="font-weight: 800; font-size: 13px; color: #0f172a; margin-bottom: 2px;">${title}</div>
+          <div style="font-size: 11px; color: #475569; line-height: 1.3;">${desc}</div>
+          <div style="font-size: 9px; color: #94a3b8; margin-top: 4px; font-family: monospace;">GPS: [${coord[0].toFixed(4)}, ${coord[1].toFixed(4)}]</div>
+        </div>
+      `);
       staticMarkersRef.current.push(marker);
     };
 
-    // Landmark names with privacy considerations
     if (isAdmin) {
-      addLandmark(locs.house_1, "Thakorbhai's House (Home 1)", "Residences of Thakorbhai, Vasantiben, Vandan, Hetvi & Kiran", "#0284c7", "🏠");
-      addLandmark(locs.house_2, "Bharatbhai's House (Home 2)", "Residences of Bharatbhai, Mayuriben, Vainavi, Prathav, Dinesh & Geeta", "#0d9488", "🏠");
-      addLandmark(locs.house_3, "Rameshbhai's House (Home 3)", "Residences of Rameshbhai, Hemuben, Krushil, Harshil & Sanjay", "#4f46e5", "🏠");
+      addLandmark(locs.house_1, "Thakorbhai Home (Zone 1)", "Patel Residence - Agriculture", "#0284c7", "🏠");
+      addLandmark(locs.house_2, "Bharatbhai Home (Zone 2)", "Patel Residence - Carpentry", "#0d9488", "🏠");
+      addLandmark(locs.house_3, "Rameshbhai Home (Zone 3)", "Patel Residence - Masonry", "#4f46e5", "🏠");
     } else {
       // Citizen privacy mode: shows location of homes, but no occupant names, jobs, counts or private details
       addLandmark(locs.house_1, "Residential Zone 1", "Private Residence (Protected Location)", "#0284c7", "🏠");
@@ -325,15 +336,15 @@ export default function CivilizationDashboard() {
       addLandmark(locs.house_3, "Residential Zone 3", "Private Residence (Protected Location)", "#4f46e5", "🏠");
     }
 
-    addLandmark(locs.dairy, "Rumla Groceries (Dairy)", "Dairy retail shop owned by Amina", "#d97706", "🥛");
+    addLandmark(locs.dairy, "City Dairy Groceries", "Dairy retail shop owned by Amina", "#d97706", "🥛");
     addLandmark(locs.general, "Ramesh Supplies", "General construction materials store owned by Ramesh", "#475569", "📦");
     addLandmark(locs.clothing, "Savita's Clothiers", "Specialized fiber, fabrics & clothing store", "#db2777", "👕");
     addLandmark(locs.electronics, "Electronics Hub", "Electronics components hub owned by Rajesh", "#7c3aed", "🔌");
     addLandmark(locs.farms, "Colony Farms", "Wheat & agricultural fields", "#16a34a", "🌾");
     addLandmark(locs.factory, "Manufacturing Factory", "Colony fabrication center", "#dc2626", "🏭");
-    addLandmark(locs.school, "Rumla Community School", "Primary educational project", "#6366f1", "🏫");
-    addLandmark(locs.hospital, "Rumla General Hospital", "Health clinic infrastructure", "#ec4899", "🏥");
-    addLandmark(locs.park, "Rumla Leisure Park", "Green public plaza", "#22c55e", "🌳");
+    addLandmark(locs.school, "Community School", "Primary educational project", "#6366f1", "🏫");
+    addLandmark(locs.hospital, "General Hospital", "Health clinic infrastructure", "#ec4899", "🏥");
+    addLandmark(locs.park, "Civic Leisure Park", "Green public plaza", "#22c55e", "🌳");
 
     // Re-bind click event
     map.off("click");
@@ -348,7 +359,7 @@ export default function CivilizationDashboard() {
           
           let dotBg = "bg-sky-500 text-slate-950 border-sky-400";
           let labelText = m.name ? m.name.charAt(0) : "👤";
-          let tooltipContent = isAdmin ? `${m.name}: ${m.state}` : `Rumla Resident: Active`;
+          let tooltipContent = isAdmin ? `${m.name}: ${m.state}` : `Civilization Citizen: Active`;
 
           if (!isAdmin) {
             dotBg = "bg-amber-500/90 text-slate-950 border-amber-300";
@@ -596,47 +607,36 @@ export default function CivilizationDashboard() {
       return;
     }
 
-    // SIGN IN TAB
+    // SIGN IN TAB (COMMON OTP LOGIN)
     if (authTab === "signin") {
-      const isAdminTarget = targetUser === "vandan_11" || targetUser === "vandan_11patel@gmail.com";
-      if (isAdminTarget) {
-        if (authPassword !== "vandan@11" && authPassword !== "vandan11") {
-          setAuthError("Invalid Admin Password. Please enter the correct password for PMO Admin.");
+      if (!enteredOtp.trim()) {
+        setAuthError("Please enter the 6-digit OTP verification code sent to your email.");
+        return;
+      }
+      try {
+        const res = await fetch(`${apiHost}/api/auth/otp`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "verify_otp",
+            email: targetUser,
+            code: enteredOtp.trim()
+          })
+        });
+        const data = await res.json();
+        if (!data.ok) {
+          setAuthError(data.message || "Invalid or expired OTP code.");
           return;
         }
-      } else {
-        // Citizen OTP verification via backend
-        if (authMethod === "otp") {
-          if (!enteredOtp.trim()) {
-            setAuthError("Please enter the 6-digit OTP code received in your email.");
-            return;
-          }
-          try {
-            const res = await fetch(`${apiHost}/api/auth/otp`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                action: "verify_otp",
-                email: targetUser,
-                code: enteredOtp.trim()
-              })
-            });
-            const data = await res.json();
-            if (!data.ok) {
-              setAuthError(data.message || "Invalid or expired OTP code.");
-              return;
-            }
-          } catch (err: any) {
-            setAuthError("Verification failed: " + err.message);
-            return;
-          }
-        }
+      } catch (err: any) {
+        setAuthError("Verification failed: " + err.message);
+        return;
       }
 
       setUserId(targetUser);
       setIsLoggedIn(true);
       try {
-        localStorage.setItem("rumla_active_user", targetUser);
+        localStorage.setItem("civilization_active_user", targetUser);
       } catch {}
       return;
     }
@@ -685,7 +685,7 @@ export default function CivilizationDashboard() {
       setUserId(targetUser);
       setIsLoggedIn(true);
       try {
-        localStorage.setItem("rumla_active_user", targetUser);
+        localStorage.setItem("civilization_active_user", targetUser);
       } catch {}
     }
   };
@@ -696,7 +696,7 @@ export default function CivilizationDashboard() {
   const handleLogout = () => {
     setIsLoggedIn(false);
     try {
-      localStorage.removeItem("rumla_active_user");
+      localStorage.removeItem("civilization_active_user");
     } catch {}
   };
 
@@ -869,7 +869,7 @@ export default function CivilizationDashboard() {
             LIVE SYSTEM
           </span>
           <span className="text-xs text-slate-400 font-mono">
-            Rumla Autonomous Micro-Nation Simulation • High-Resolution Satellite GIS & Municipal PMO
+            Autonomous AI Civilization Simulation • High-Resolution Satellite GIS & PMO
           </span>
         </div>
 
@@ -883,7 +883,7 @@ export default function CivilizationDashboard() {
                 <span className="text-2xl">🏛️</span>
               </div>
               <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-200 to-amber-400 bg-clip-text text-transparent">
-                RUMLA CIVILIZATION
+                AI CIVILIZATION
               </h1>
               <p className="text-xs text-slate-400 mt-1">
                 Enter your Email or Phone number to join the living geolocated simulation.
@@ -944,131 +944,56 @@ export default function CivilizationDashboard() {
             {/* SIGN IN VIEW */}
             {authTab === "signin" && (
               <form onSubmit={handleAuthSubmit} className="flex flex-col gap-4">
-                {/* Method selector for Sign In */}
-                <div className="flex bg-slate-950/80 p-1 rounded-lg border border-slate-800 text-[11px] font-bold">
-                  <button
-                    type="button"
-                    onClick={() => { setAuthMethod("otp"); setAuthError(""); }}
-                    className={`flex-1 py-1.5 rounded transition-all ${authMethod === "otp" ? "bg-amber-500 text-slate-950 shadow" : "text-slate-400 hover:text-white"}`}
-                  >
-                    📱 OTP LOGIN
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => { setAuthMethod("magiclink"); setAuthError(""); }}
-                    className={`flex-1 py-1.5 rounded transition-all ${authMethod === "magiclink" ? "bg-amber-500 text-slate-950 shadow" : "text-slate-400 hover:text-white"}`}
-                  >
-                    🔗 MAGIC LINK
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => { setAuthMethod("password"); setAuthError(""); }}
-                    className={`flex-1 py-1.5 rounded transition-all ${authMethod === "password" ? "bg-amber-500 text-slate-950 shadow" : "text-slate-400 hover:text-white"}`}
-                  >
-                    🔑 ADMIN LOGIN
-                  </button>
-                </div>
-
                 <div>
                   <label className="text-xs font-semibold text-slate-300 mb-1.5 block">
                     Email Address or Phone Number
                   </label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-2.5 text-slate-500 text-sm">✉️</span>
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. vandan_11patel@gmail.com or +91 98765 43210"
-                      value={authInput}
-                      onChange={(e) => setAuthInput(e.target.value)}
-                      className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-amber-500 font-mono transition-all"
-                    />
+                  <div className="flex gap-2">
+                    <div className="relative flex-grow">
+                      <span className="absolute left-3 top-2.5 text-slate-500 text-sm">✉️</span>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. citizen@gmail.com or +91 98765 43210"
+                        value={authInput}
+                        onChange={(e) => setAuthInput(e.target.value)}
+                        className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-amber-500 font-mono transition-all"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      disabled={isSendingOtp}
+                      onClick={handleSendOtp}
+                      className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs px-4 rounded-xl transition-all whitespace-nowrap shadow-md active:scale-95 disabled:opacity-50"
+                    >
+                      {isSendingOtp ? "SENDING..." : generatedOtp ? "RESEND OTP" : "GET OTP"}
+                    </button>
                   </div>
                 </div>
 
-                {/* OTP Mode Fields */}
-                {authMethod === "otp" && (
-                  <div className="flex flex-col gap-2 bg-slate-950/50 border border-slate-800/80 p-3 rounded-xl">
-                    <div className="flex justify-between items-center">
-                      <label className="text-xs font-semibold text-slate-300">
-                        6-Digit OTP Verification Code
-                      </label>
-                      <button
-                        type="button"
-                        onClick={handleSendOtp}
-                        className="text-xs text-amber-400 hover:text-amber-300 font-bold underline"
-                      >
-                        {generatedOtp ? "Resend OTP Code" : "Get 6-Digit OTP"}
-                      </button>
-                    </div>
-                    <input
-                      type="text"
-                      maxLength={6}
-                      placeholder="Enter 6-digit OTP code (e.g. 839201)"
-                      value={enteredOtp}
-                      onChange={(e) => setEnteredOtp(e.target.value)}
-                      className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-amber-500 font-mono text-center tracking-widest text-base font-bold"
-                    />
-                  </div>
-                )}
-
-                {/* Magic Link Mode */}
-                {authMethod === "magiclink" && (
-                  <div className="flex flex-col gap-2.5 bg-slate-950/50 border border-slate-800/80 p-3 rounded-xl text-xs">
-                    <p className="text-slate-400">
-                      We will generate an instant 1-click passwordless login link for your account.
-                    </p>
-                    {!magicLinkSent ? (
-                      <button
-                        type="button"
-                        onClick={handleSendMagicLink}
-                        className="bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold py-2 rounded-lg transition-all"
-                      >
-                        🔗 GENERATE MAGIC LINK
-                      </button>
-                    ) : (
-                      <div className="bg-sky-950/40 border border-sky-500/40 p-2.5 rounded-lg flex flex-col gap-2">
-                        <span className="text-sky-300 font-semibold">Magic Link Ready:</span>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setUserId(authInput.trim());
-                            setIsLoggedIn(true);
-                            try { localStorage.setItem("rumla_active_user", authInput.trim()); } catch {}
-                          }}
-                          className="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-2 rounded-lg transition-all shadow"
-                        >
-                          👉 CLICK HERE TO INSTANTLY SIGN IN AS {authInput.trim()}
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Password Mode (For Admin) */}
-                {authMethod === "password" && (
-                  <div>
-                    <label className="text-xs font-semibold text-slate-300 mb-1.5 block">
-                      Admin Password
+                {/* OTP Code Input Field */}
+                <div className="flex flex-col gap-1.5 bg-slate-950/60 border border-slate-800/80 p-3.5 rounded-xl">
+                  <div className="flex justify-between items-center">
+                    <label className="text-xs font-semibold text-slate-300">
+                      6-Digit OTP Verification Code
                     </label>
-                    <div className="relative">
-                      <span className="absolute left-3 top-2.5 text-slate-500 text-sm">🔒</span>
-                      <input
-                        type="password"
-                        placeholder="••••••••"
-                        value={authPassword}
-                        onChange={(e) => setAuthPassword(e.target.value)}
-                        className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-amber-500 font-mono transition-all"
-                      />
-                    </div>
+                    <span className="text-[10px] text-slate-400 font-mono">Sent to your Email</span>
                   </div>
-                )}
+                  <input
+                    type="text"
+                    maxLength={6}
+                    placeholder="Enter 6-digit OTP code (e.g. 748291)"
+                    value={enteredOtp}
+                    onChange={(e) => setEnteredOtp(e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2.5 text-base text-amber-400 placeholder-slate-600 focus:outline-none focus:border-amber-500 font-mono text-center tracking-widest font-extrabold"
+                  />
+                </div>
 
                 <button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-extrabold text-sm py-2.5 rounded-xl shadow-lg shadow-amber-500/20 transition-all active:scale-[0.99] mt-2"
+                  className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-extrabold text-sm py-3 rounded-xl shadow-lg shadow-amber-500/20 transition-all active:scale-[0.99] mt-1"
                 >
-                  ENTER RUMLA CIVILIZATION
+                  VERIFY & ENTER AI CIVILIZATION
                 </button>
               </form>
             )}
@@ -1187,7 +1112,7 @@ export default function CivilizationDashboard() {
                       <span className="absolute left-2.5 top-1.5 text-slate-500 text-xs">🔍</span>
                       <input
                         type="text"
-                        placeholder="Search City/Village (e.g. Nandarkha Bilimora, Navsari, Surat, Rumla...)"
+                        placeholder="Search City/Village (e.g. Nandarkha Bilimora, Navsari, Surat...)"
                         value={signupCityQuery}
                         onChange={(e) => setSignupCityQuery(e.target.value)}
                         className="w-full bg-slate-900 border border-slate-800 rounded-lg pl-7 pr-2 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 font-mono"
@@ -1232,23 +1157,12 @@ export default function CivilizationDashboard() {
               </form>
             )}
 
-
-
-            {/* Privacy Law Notice */}
-            <div className="bg-slate-950/70 border border-slate-850 p-3 rounded-xl flex items-start gap-2.5 text-[11px] text-slate-400 leading-relaxed">
-              <span className="text-base">🛡️</span>
-              <div>
-                <strong className="text-slate-300 block font-semibold">Real-Life Civic Privacy Protection:</strong>
-                PMO Supreme Admin (<span className="text-amber-400 font-mono">vandan_11</span> / <span className="text-amber-400 font-mono">vandan_11patel@gmail.com</span>) has full municipal oversight. Other citizen players only view town map locations and private household data is encrypted.
-              </div>
-            </div>
-
           </div>
         </div>
 
         {/* Footer */}
         <footer className="text-center text-[10px] text-slate-500 py-3 border-t border-slate-900 font-mono">
-          Rumla AI Civilization Simulator • 100% Pure TypeScript & High-Resolution Satellite GIS
+          AI Civilization Simulator • 100% Pure TypeScript & High-Resolution Satellite GIS
         </footer>
 
       </div>
@@ -1269,7 +1183,7 @@ export default function CivilizationDashboard() {
           </div>
           <div>
             <h1 className="text-lg md:text-xl font-extrabold tracking-tight text-white bg-gradient-to-r from-white via-slate-100 to-amber-500 bg-clip-text text-transparent">
-              RUMLA CIVILIZATION PANEL
+              AI CIVILIZATION PANEL
             </h1>
             <p className="text-[10px] text-slate-400 font-mono">
               Geolocated Satellite GIS Map • PMO Cabinet & Autonomous City Simulation
@@ -1385,7 +1299,7 @@ export default function CivilizationDashboard() {
                   <div className="flex justify-between items-center border-b border-slate-800 pb-2 flex-none flex-wrap gap-2">
                     <div>
                       <h2 className="text-white text-base font-bold">Satellite GIS Map & City Search</h2>
-                      <span className="text-[10px] text-slate-400 font-mono">Real-world geolocated map of Rumla, Navsari & Gujarat Region</span>
+                      <span className="text-[10px] text-slate-400 font-mono">Real-world geolocated map of Gujarat & Civilization Region</span>
                     </div>
 
                     {/* Location edit controls for admin only */}
@@ -1410,11 +1324,11 @@ export default function CivilizationDashboard() {
                   {isAdmin && (
                     <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-3 flex flex-col gap-2.5">
                       <form onSubmit={handleCitySearch} className="flex gap-2 items-center flex-wrap">
-                        <div className="relative flex-grow min-w-[220px]">
-                          <span className="absolute left-3 top-2 text-slate-400 text-xs">🔍</span>
+                        <div className="relative flex-grow min-w-[200px]">
+                          <span className="absolute left-3 top-2 text-slate-500 text-xs">🔍</span>
                           <input
                             type="text"
-                            placeholder="Search any city (e.g. Navsari, Surat, Valsad, Bilimora, Vapi...)"
+                            placeholder="Search any City or Area (e.g. Navsari, Surat, Valsad, Bilimora...)"
                             value={searchCityInput}
                             onChange={(e) => setSearchCityInput(e.target.value)}
                             className="w-full bg-slate-950 border border-slate-800 rounded-lg pl-8 pr-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 font-mono"
@@ -1423,21 +1337,21 @@ export default function CivilizationDashboard() {
                         <button
                           type="submit"
                           disabled={isSearchingCity}
-                          className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs px-3 py-1.5 rounded-lg transition-all disabled:opacity-50"
+                          className="bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-xs px-4 py-1.5 rounded-lg transition-all shadow disabled:opacity-50"
                         >
-                          {isSearchingCity ? "SEARCHING..." : "SEARCH CITY"}
+                          {isSearchingCity ? "SEARCHING..." : "SEARCH GPS"}
                         </button>
                       </form>
 
                       {searchError && (
-                        <span className="text-rose-400 text-[11px] font-mono">⚠️ {searchError}</span>
+                        <div className="text-xs text-rose-400 font-mono">⚠️ {searchError}</div>
                       )}
 
                       {/* City Search Result & Relocation Assignment Action */}
                       {searchedLocation && (
                         <div className="bg-slate-950/80 border border-sky-500/40 rounded-lg p-2.5 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-xs">
                           <div>
-                            <span className="text-sky-400 font-bold block">📍 Found Location: {searchedLocation.name}</span>
+                            <span className="text-sky-400 font-bold block">📍 Found: {searchedLocation.name}</span>
                             <span className="text-slate-400 text-[10px] font-mono">Coordinates: [{searchedLocation.lat.toFixed(4)}, {searchedLocation.lng.toFixed(4)}]</span>
                           </div>
 
@@ -1446,12 +1360,12 @@ export default function CivilizationDashboard() {
                             <select
                               value={searchLandmarkTarget}
                               onChange={(e) => setSearchLandmarkTarget(e.target.value)}
-                              className="bg-slate-900 border border-slate-800 text-white rounded p-1 text-xs font-mono"
+                              className="bg-slate-900 border border-slate-750 text-white rounded px-2 py-1 text-xs font-mono"
                             >
-                              <option value="house_1">Home 1 (Thakorbhai)</option>
-                              <option value="house_2">Home 2 (Bharatbhai)</option>
-                              <option value="house_3">Home 3 (Rameshbhai)</option>
-                              <option value="dairy">Amina Dairy Groceries</option>
+                              <option value="house_1">Thakorbhai (Home 1)</option>
+                              <option value="house_2">Bharatbhai (Home 2)</option>
+                              <option value="house_3">Rameshbhai (Home 3)</option>
+                              <option value="dairy">City Dairy</option>
                               <option value="general">Ramesh Supplies</option>
                               <option value="clothing">Savita Clothiers</option>
                               <option value="electronics">Rajesh Electronics</option>
@@ -1459,12 +1373,12 @@ export default function CivilizationDashboard() {
                               <option value="factory">Manufacturing Factory</option>
                               <option value="school">Community School</option>
                               <option value="hospital">General Hospital</option>
-                              <option value="park">Leisure Park</option>
+                              <option value="park">Civic Leisure Park</option>
                             </select>
                             <button
                               type="button"
                               onClick={() => assignSearchedLocation(searchLandmarkTarget)}
-                              className="bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold px-3 py-1 rounded text-xs transition-all shadow"
+                              className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-3 py-1 rounded text-xs transition-all shadow"
                             >
                               📍 ASSIGN LOCATION
                             </button>
@@ -1558,14 +1472,14 @@ export default function CivilizationDashboard() {
                         <button
                           type="button"
                           onClick={() => {
-                            dispatchAction("relocate_landmark", { landmark_id: "house_1", lat: 20.6732, lng: 73.0800 });
-                            dispatchAction("relocate_landmark", { landmark_id: "house_2", lat: 20.6720, lng: 73.0815 });
-                            dispatchAction("relocate_landmark", { landmark_id: "house_3", lat: 20.6715, lng: 73.0795 });
-                            if (mapInstanceRef.current) mapInstanceRef.current.flyTo([20.6728, 73.0805], 16);
+                            dispatchAction("relocate_landmark", { landmark_id: "house_1", lat: 20.9472, lng: 72.9515 });
+                            dispatchAction("relocate_landmark", { landmark_id: "house_2", lat: 20.9460, lng: 72.9530 });
+                            dispatchAction("relocate_landmark", { landmark_id: "house_3", lat: 20.9455, lng: 72.9510 });
+                            if (mapInstanceRef.current) mapInstanceRef.current.flyTo([20.9467, 72.9520], 16);
                           }}
                           className="bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded font-mono text-[10px]"
                         >
-                          📍 Reset All to Rumla
+                          📍 Reset All Locations
                         </button>
                       </div>
                     </div>
@@ -1592,7 +1506,7 @@ export default function CivilizationDashboard() {
                     {/* Residences & Housing Registry */}
                     <div className="flex flex-col h-full min-h-0 overflow-y-auto">
                       <h3 className="text-amber-500 text-xs font-semibold mb-2 border-b border-slate-800 pb-1 flex-none flex items-center justify-between">
-                        <span>Rumla Housing Registry</span>
+                        <span>Civilization Housing Registry</span>
                         {isAdmin ? (
                           <span className="text-[9px] text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">ADMIN CENSUS ACCESS</span>
                         ) : (
@@ -1659,7 +1573,7 @@ export default function CivilizationDashboard() {
                                 <span>CONFIDENTIAL RESIDENCE DATA</span>
                               </div>
                               <p className="text-slate-300 text-[11px] leading-relaxed">
-                                This residence is an active private domicile in Rumla. Under the <em>Rumla Citizen Privacy Charter</em>, the names of resident family members, private occupations, and personal bank accounts are confidential.
+                                This residence is an active private domicile in the civilization. Under the <em>Civilization Citizen Privacy Charter</em>, the names of resident family members, private occupations, and personal bank accounts are confidential.
                               </p>
                               <div className="bg-slate-950/80 p-3 rounded-lg border border-slate-850 flex flex-col gap-1 text-[11px] font-mono text-slate-400">
                                 <div><strong className="text-slate-300">Status:</strong> Occupied Residential Zone</div>
@@ -1679,7 +1593,7 @@ export default function CivilizationDashboard() {
               {activeTab === "projects" && (
                 <div className="flex flex-col gap-4">
                   <div className="flex justify-between items-center border-b border-slate-800 pb-2">
-                    <h2 className="text-white text-base font-bold">Rumla City Planning Bureau</h2>
+                    <h2 className="text-white text-base font-bold">Civilization Planning Bureau</h2>
                     <span className="text-xs font-mono text-slate-400">Municipal infrastructure development</span>
                   </div>
 
@@ -1696,14 +1610,14 @@ export default function CivilizationDashboard() {
                             type="range" 
                             min="0" 
                             max="50" 
-                            disabled={!isAdmin}
+                            disabled={!isAdmin} 
                             className="w-full accent-amber-500 cursor-pointer disabled:opacity-50"
                             value={taxRateInput}
                             onChange={(e) => setTaxRateInput(parseInt(e.target.value))}
                           />
                         </div>
                         <button 
-                          disabled={!isAdmin}
+                          disabled={!isAdmin} 
                           className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs py-2 px-4 rounded-lg transition-all disabled:bg-slate-800 disabled:text-slate-500" 
                           onClick={saveTaxRate}
                         >
@@ -1770,7 +1684,7 @@ export default function CivilizationDashboard() {
                 <div className="flex flex-col gap-4">
                   <div className="flex justify-between items-center border-b border-slate-800 pb-2">
                     <div>
-                      <h2 className="text-white text-base font-bold">Rumla Prime Minister Office (PMO)</h2>
+                      <h2 className="text-white text-base font-bold">Prime Minister Office (PMO)</h2>
                       <span className="text-[10px] text-slate-400 font-mono">Democratic Republic Governance & Cabinet Bureau</span>
                     </div>
                     
@@ -1806,7 +1720,7 @@ export default function CivilizationDashboard() {
                       <span className="text-xl">🗳️</span>
                       <div>
                         <strong className="text-white block font-semibold">10-Year Democratic Voting & Civic Elections</strong>
-                        <span className="text-slate-400 text-[11px]">All adult citizens of Rumla cast democratic ballots every cycle to elect the Prime Minister, DM, and Ministers.</span>
+                        <span className="text-slate-400 text-[11px]">All adult citizens of the civilization cast democratic ballots every cycle to elect the Prime Minister, DM, and Ministers.</span>
                       </div>
                     </div>
                     <div className="text-right">
@@ -1882,7 +1796,7 @@ export default function CivilizationDashboard() {
                         </div>
 
                         <button 
-                          disabled={!isAdmin}
+                          disabled={!isAdmin} 
                           onClick={saveCabinetRoles}
                           className="mt-2 bg-sky-500 hover:bg-sky-600 text-slate-950 font-bold py-2 rounded-lg transition-all disabled:bg-slate-800 disabled:text-slate-500"
                         >
@@ -1946,7 +1860,7 @@ export default function CivilizationDashboard() {
                         </div>
 
                         <button 
-                          disabled={!isAdmin}
+                          disabled={!isAdmin} 
                           onClick={saveGovernmentPolicies}
                           className="mt-3 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-2 rounded-lg transition-all disabled:bg-slate-800 disabled:text-slate-500"
                         >
@@ -2022,7 +1936,7 @@ export default function CivilizationDashboard() {
               {activeTab === "market" && (
                 <div className="flex flex-col gap-4">
                   <div className="flex justify-between items-center border-b border-slate-800 pb-2">
-                    <h2 className="text-white text-base font-bold">Rumla Retail Shops & Markets</h2>
+                    <h2 className="text-white text-base font-bold">Civilization Retail Shops & Markets</h2>
                     <span className="text-xs font-mono text-slate-400">Decentralized citizen commerce</span>
                   </div>
 
@@ -2081,7 +1995,7 @@ export default function CivilizationDashboard() {
                     <div className="bg-slate-950 p-3 rounded-lg border border-slate-850 font-mono text-xs text-slate-400 space-y-1">
                       <div><strong className="text-slate-200">Autonomous City Manager:</strong> {status.city_manager_enabled ? "Active" : "Disabled"}</div>
                       <div><strong className="text-slate-200">Farming Automations:</strong> Enabled</div>
-                      <div><strong className="text-slate-200">Price Dynamics:</strong> Synchronized with Rumla Market Registry</div>
+                      <div><strong className="text-slate-200">Price Dynamics:</strong> Synchronized with Market Registry</div>
                     </div>
                   </div>
                 </div>
@@ -2092,7 +2006,7 @@ export default function CivilizationDashboard() {
             {/* Right Panel: News & Agent Logs Feed */}
             <section className="bg-slate-900/25 border border-slate-800/80 rounded-xl p-3.5 flex flex-col min-h-0 overflow-hidden">
               <div className="flex justify-between items-center border-b border-slate-800 pb-2 mb-2 flex-none">
-                <h3 className="text-white text-xs font-bold uppercase tracking-wider">Rumla Live Dispatch</h3>
+                <h3 className="text-white text-xs font-bold uppercase tracking-wider">Civilization Live Dispatch</h3>
                 <span className="text-[9px] font-mono text-amber-500 animate-pulse">LIVE FEED</span>
               </div>
 
