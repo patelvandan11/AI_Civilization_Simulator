@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { loadPlayer, savePlayer, loadAllCatalogs, createNewPlayer } from "@/lib/io";
-import { plantCrop, harvestCrop, startCraft, getPlotStatus, conductDemocraticElection } from "@/lib/simulation";
+import { loadPlayer, savePlayer, loadAllCatalogs, createNewPlayer, updateWorldLocation, resetWorldLocations } from "@/lib/io";
+import { plantCrop, harvestCrop, startCraft, getPlotStatus, conductDemocraticElection, runSimulationTick, normalizeCropKey } from "@/lib/simulation";
+import { KisanAgentManager } from "@/lib/kisan_agent";
 
 export async function POST(req: NextRequest) {
   try {
@@ -41,11 +42,23 @@ export async function POST(req: NextRequest) {
     const isUserAdmin = userId.toLowerCase() === "vandan_11" || userId.toLowerCase().trim() === adminEmail;
 
     if (action === "plant_all") {
-      const cropId = body.crop_id || "apple";
+      const cropId = normalizeCropKey(String(body.crop_id || "wheat"));
+      const crop = catalogs.crops[cropId] || catalogs.crops[body.crop_id];
+      if (!crop) {
+        return NextResponse.json({ ok: false, message: `Unknown crop ${cropId}.` }, { status: 400 });
+      }
+      const seedId = crop.seed_id;
+      const seedPrice = Number(catalogs.items[seedId]?.value || 2);
       let n = 0;
+
       for (const plot of player.plots) {
-        const status = getPlotStatus(plot, catalogs.crops);
+        const status = getPlotStatus(plot, catalogs.crops, player.clock?.total_seconds);
         if (status.state === "empty") {
+          // Auto-buy seed if needed
+          if ((player.inventory[seedId] || 0) < 1 && player.money >= seedPrice) {
+            player.money -= seedPrice;
+            player.inventory[seedId] = (player.inventory[seedId] || 0) + 1;
+          }
           const msg = plantCrop(player, plot.index, cropId, catalogs.crops);
           if (msg.startsWith("Planted")) {
             n++;
@@ -53,22 +66,92 @@ export async function POST(req: NextRequest) {
         }
       }
       await savePlayer(player);
-      return NextResponse.json({ ok: true, message: `Planted ${n} plots with ${cropId}.` });
+      return NextResponse.json({ ok: true, message: `Planted ${n} plots with ${crop.name}.` });
+    }
+
+    if (action === "plant_plot") {
+      const plotIndex = Number(body.plot_index);
+      const cropId = normalizeCropKey(String(body.crop_id || "wheat"));
+      const crop = catalogs.crops[cropId] || catalogs.crops[body.crop_id];
+      if (!crop) {
+        return NextResponse.json({ ok: false, message: "Unknown crop ID." }, { status: 400 });
+      }
+      const seedId = crop.seed_id;
+      const seedPrice = Number(catalogs.items[seedId]?.value || 2);
+
+      if ((player.inventory[seedId] || 0) < 1) {
+        if (player.money >= seedPrice) {
+          player.money -= seedPrice;
+          player.inventory[seedId] = (player.inventory[seedId] || 0) + 1;
+        } else {
+          return NextResponse.json({ ok: false, message: `Need ${seedId} or $${seedPrice} to purchase seeds.` }, { status: 400 });
+        }
+      }
+      const msg = plantCrop(player, plotIndex, cropId, catalogs.crops);
+      if (!msg.startsWith("Planted")) {
+        return NextResponse.json({ ok: false, message: msg }, { status: 400 });
+      }
+      await savePlayer(player);
+      return NextResponse.json({ ok: true, message: msg });
     }
 
     if (action === "harvest_all") {
       let n = 0;
+      let harvestDetails: string[] = [];
+
       for (const plot of player.plots) {
-        const status = getPlotStatus(plot, catalogs.crops);
+        if (!plot.crop_id) continue;
+        const status = getPlotStatus(plot, catalogs.crops, player.clock?.total_seconds);
         if (status.state === "ready") {
           const msg = harvestCrop(player, plot.index, catalogs.crops);
           if (msg.startsWith("Harvested")) {
             n++;
+            harvestDetails.push(msg);
           }
         }
       }
+
       await savePlayer(player);
-      return NextResponse.json({ ok: true, message: `Harvested ${n} plots.` });
+      if (n === 0) {
+        return NextResponse.json({ ok: false, message: "No crops are ready to harvest yet. Please allow them to mature." }, { status: 400 });
+      }
+      return NextResponse.json({ ok: true, message: `Successfully harvested ${n} mature plots! Produce deposited into your personal inventory & Kisan farm barn.` });
+    }
+
+    if (action === "harvest_plot") {
+      const plotIndex = Number(body.plot_index);
+      if (isNaN(plotIndex) || plotIndex < 0 || plotIndex >= player.plots.length) {
+        return NextResponse.json({ ok: false, message: "Invalid plot index." }, { status: 400 });
+      }
+      const plot = player.plots[plotIndex];
+      if (!plot.crop_id) {
+        return NextResponse.json({ ok: false, message: "This plot is empty." }, { status: 400 });
+      }
+      const msg = harvestCrop(player, plotIndex, catalogs.crops);
+      if (!msg.startsWith("Harvested")) {
+        return NextResponse.json({ ok: false, message: msg }, { status: 400 });
+      }
+      await savePlayer(player);
+      return NextResponse.json({ ok: true, message: msg });
+    }
+
+    if (action === "buy_seeds") {
+      const seedId = String(body.seed_id || "wheat_seed").trim();
+      const qty = Number(body.qty || 1);
+      const meta = catalogs.items[seedId];
+      if (!meta) {
+        return NextResponse.json({ ok: false, message: "Unknown seed type." }, { status: 400 });
+      }
+      const price = Number(meta.value || 2);
+      const totalCost = price * qty;
+      if (player.money < totalCost) {
+        return NextResponse.json({ ok: false, message: `Insufficient funds. Need $${totalCost} for ${qty}x ${meta.name}.` }, { status: 400 });
+      }
+      player.money -= totalCost;
+      player.inventory[seedId] = (player.inventory[seedId] || 0) + qty;
+      player.agent_logs.push(`Agriculture: Purchased ${qty}x ${meta.name} from Seed Market for $${totalCost}.`);
+      await savePlayer(player);
+      return NextResponse.json({ ok: true, message: `Purchased ${qty}x ${meta.name} for $${totalCost}.` });
     }
 
     if (action === "craft") {
@@ -237,7 +320,8 @@ export async function POST(req: NextRequest) {
       const totalPayout = price * qty;
 
       if (shop.revenue < totalPayout) {
-        return NextResponse.json({ ok: false, message: `${shop.name} cannot afford this purchase.` }, { status: 400 });
+        // Ensure shop has working capital to purchase goods from citizen suppliers
+        shop.revenue = (shop.revenue || 0) + Math.max(50, totalPayout);
       }
 
       player.money += totalPayout;
@@ -251,6 +335,54 @@ export async function POST(req: NextRequest) {
 
       await savePlayer(player);
       return NextResponse.json({ ok: true, message: `Sold ${qty}x ${itemId} to ${shop.name} for $${totalPayout}.` });
+    }
+
+    if (action === "eat_item") {
+      const itemId = String(body.item_id || "").trim();
+      const owned = player.inventory[itemId] || 0;
+      if (owned <= 0) {
+        return NextResponse.json({ ok: false, message: `You have no ${itemId} to eat.` }, { status: 400 });
+      }
+      player.inventory[itemId] = owned - 1;
+      player.agent_logs.push(`Nourishment: Ate 1x fresh ${itemId}. Energy & health replenished!`);
+      await savePlayer(player);
+      return NextResponse.json({ ok: true, message: `Ate 1x ${itemId}. Feeling refreshed and energized!` });
+    }
+
+    if (action === "buy_groceries_now") {
+      const familyId = String(body.family_id || "house_1").trim();
+      const fam = player.families?.find(f => f.id === familyId);
+      if (!fam) {
+        return NextResponse.json({ ok: false, message: "Family residence not found." }, { status: 404 });
+      }
+      const farmersMarket = player.shops?.find(s => s.id === "farmers_market");
+      const dairyShop = player.shops?.find(s => s.id === "dairy");
+      const inv = fam.inventory || {};
+      let spent = 0;
+      const itemsToStock = [
+        { shop: farmersMarket, items: ["carrot", "cucumber", "broccoli", "cabbage", "corn", "apple", "strawberry", "egg", "milk"] },
+        { shop: dairyShop, items: ["milk", "egg", "wheat"] }
+      ];
+      for (const { shop, items } of itemsToStock) {
+        if (!shop) continue;
+        for (const it of items) {
+          const inShop = shop.inventory[it] || 0;
+          if (inShop > 0) {
+            const buyQty = Math.min(3, inShop);
+            const cost = (shop.prices[it] || 3) * buyQty;
+            if (fam.budget >= cost) {
+              fam.budget -= cost;
+              shop.revenue = (shop.revenue || 0) + cost;
+              shop.inventory[it] -= buyQty;
+              inv[it] = (inv[it] || 0) + buyQty;
+              spent += cost;
+            }
+          }
+        }
+      }
+      player.agent_logs.push(`Household: ${fam.name} purchased groceries on demand spending $${spent}.`);
+      await savePlayer(player);
+      return NextResponse.json({ ok: true, message: `Fresh groceries purchased for ${fam.name} ($${spent} spent).`, family: fam });
     }
 
     if (action === "set_government_policies") {
@@ -374,7 +506,9 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ ok: false, message: "Invalid landmark id or coordinates." }, { status: 400 });
       }
 
-      player.zone_locations[landmarkId] = [lat, lng];
+      // Permanently update world canonical location store
+      const updatedWorldLocs = await updateWorldLocation(landmarkId, [lat, lng]);
+      player.zone_locations = { ...player.zone_locations, ...updatedWorldLocs, [landmarkId]: [lat, lng] };
 
       const landmarkNames: Record<string, string> = {
         house_1: "Thakorbhai's House (Home 1)",
@@ -388,17 +522,561 @@ export async function POST(req: NextRequest) {
         factory: "Manufacturing Factory",
         school: "Community School",
         hospital: "General Hospital",
-        park: "Civic Leisure Park"
+        park: "Civic Leisure Park",
+        roads: "Paved Highways & Plaza"
       };
 
-      const label = landmarkNames[landmarkId] || landmarkId;
-      player.agent_logs.push(`Government: Admin relocated ${label} to [${lat.toFixed(4)}, ${lng.toFixed(4)}].`);
+      const customFam = player.families?.find(f => f.id === landmarkId);
+      const label = customFam ? `${customFam.name} (${landmarkId})` : landmarkNames[landmarkId] || landmarkId;
+
+      player.agent_logs.push(`Government: Admin permanently fixed location for ${label} to [${lat.toFixed(6)}, ${lng.toFixed(6)}].`);
       
       const { publishNews } = require("../../../lib/simulation");
-      publishNews(player, `Cabinet Milestone: PMO relocated '${label}' to geolocated coordinates [${lat.toFixed(4)}, ${lng.toFixed(4)}].`, "POLITICS");
+      publishNews(player, `PMO Milestone: Admin relocated & permanently fixed '${label}' at GPS [${lat.toFixed(6)}, ${lng.toFixed(6)}].`, "POLITICS");
 
       await savePlayer(player);
-      return NextResponse.json({ ok: true, message: `Successfully relocated ${label} on satellite map.` });
+      return NextResponse.json({ ok: true, message: `Successfully saved and fixed permanent location for ${label} on satellite map.`, zone_locations: player.zone_locations });
+    }
+
+    if (action === "reset_world_locations") {
+      if (!isUserAdmin) {
+        return NextResponse.json({ ok: false, message: `Access Denied: Only admin (${adminEmail}) can reset locations.` }, { status: 403 });
+      }
+
+      const defaultLocs = await resetWorldLocations();
+      player.zone_locations = { ...defaultLocs };
+
+      player.agent_logs.push("Government: Admin restored civilization world locations to default Navsari coordinates.");
+      const { publishNews } = require("../../../lib/simulation");
+      publishNews(player, "PMO Notice: Supreme Admin restored all map locations to baseline coordinates.", "POLITICS");
+
+      await savePlayer(player);
+      return NextResponse.json({ ok: true, message: "Civilization world locations reset to defaults successfully.", zone_locations: player.zone_locations });
+    }
+
+    if (action === "assign_member_role") {
+      if (!isUserAdmin) {
+        return NextResponse.json({ ok: false, message: "Access Denied: Only admin can assign family roles." }, { status: 403 });
+      }
+
+      const familyId = String(body.family_id || "").trim();
+      const memberName = String(body.member_name || "").trim();
+      const newRole = String(body.role || "").trim();
+      const newRelation = String(body.relation || "").trim();
+      const newVehicle = String(body.vehicle || "bicycle").trim().toLowerCase();
+
+      if (!familyId || !memberName || !newRole) {
+        return NextResponse.json({ ok: false, message: "Family ID, member name, and role are required." }, { status: 400 });
+      }
+
+      const family = player.families?.find(f => f.id === familyId);
+      if (!family) {
+        return NextResponse.json({ ok: false, message: `Family with ID '${familyId}' not found.` }, { status: 404 });
+      }
+
+      const member = family.members?.find(m => m.name.toLowerCase() === memberName.toLowerCase());
+      if (!member) {
+        return NextResponse.json({ ok: false, message: `Member '${memberName}' not found in ${family.name}.` }, { status: 404 });
+      }
+
+      member.role = newRole;
+      if (newRelation) member.relation = newRelation;
+      if (newVehicle) member.vehicle = newVehicle;
+
+      // Also update household if this matches current user's household
+      if (player.household?.members) {
+        const hMember = player.household.members.find(m => m.name.toLowerCase() === memberName.toLowerCase());
+        if (hMember) {
+          hMember.role = newRole;
+          if (newRelation) hMember.relation = newRelation;
+          if (newVehicle) hMember.vehicle = newVehicle;
+        }
+      }
+
+      const vehicleEmoji: Record<string, string> = {
+        tractor: "🚜 Tractor",
+        scooter: "🛵 Scooter",
+        car: "🚗 Car",
+        bicycle: "🚲 Bicycle",
+        truck: "🚚 Delivery Truck",
+        walk: "🚶 Walking"
+      };
+
+      const vehDisplay = vehicleEmoji[newVehicle] || newVehicle;
+      player.agent_logs.push(`Government: Admin assigned role '${newRole}' (${vehDisplay}) to ${memberName} in ${family.name}.`);
+
+      const { publishNews } = require("../../../lib/simulation");
+      publishNews(player, `PMO Gazetted: ${memberName} assigned role '${newRole}' with vehicle ${vehDisplay}.`, "POLITICS");
+
+      await savePlayer(player);
+      return NextResponse.json({ ok: true, message: `Updated role for ${memberName} to '${newRole}' with vehicle ${vehDisplay}.`, families: player.families });
+    }
+
+    if (action === "create_residence") {
+      if (!isUserAdmin) {
+        return NextResponse.json({ ok: false, message: "Access Denied: Only admin can create new houses and hostels." }, { status: 403 });
+      }
+
+      const rawId = String(body.id || "").trim().toLowerCase().replace(/[^a-z0-9_-]/g, "_");
+      const name = String(body.name || "").trim();
+      const type = (body.type === "hostel" ? "hostel" : "house") as "house" | "hostel";
+      const capacity = Number(body.capacity) || (type === "hostel" ? 12 : 6);
+      const budget = Number(body.budget) || (type === "hostel" ? 120 : 60);
+      const lat = Number(body.lat);
+      const lng = Number(body.lng);
+
+      if (!name) {
+        return NextResponse.json({ ok: false, message: "Residence name is required." }, { status: 400 });
+      }
+
+      const id = rawId || (type === "hostel" ? `hostel_${Date.now()}` : `house_${Date.now()}`);
+
+      if (player.families?.some(f => f.id === id)) {
+        return NextResponse.json({ ok: false, message: `A residence with ID '${id}' already exists.` }, { status: 400 });
+      }
+
+      const newResidence = {
+        id,
+        name,
+        type,
+        capacity,
+        budget,
+        inventory: { milk: 5, wheat: 5, apple: 5, carrot: 5 },
+        members: []
+      };
+
+      if (!player.families) player.families = [];
+      player.families.push(newResidence);
+
+      // Register fixed GPS coordinates
+      if (!isNaN(lat) && !isNaN(lng) && lat !== 0 && lng !== 0) {
+        await updateWorldLocation(id, [lat, lng]);
+        player.zone_locations[id] = [lat, lng];
+      } else {
+        const defaultCoord: [number, number] = type === "hostel" ? [20.9485, 72.9525] : [20.9465, 72.9520];
+        await updateWorldLocation(id, defaultCoord);
+        player.zone_locations[id] = defaultCoord;
+      }
+
+      const icon = type === "hostel" ? "🏢 Worker Hostel" : "🏠 Private House";
+      player.agent_logs.push(`Government: Admin commissioned new ${icon} '${name}' (ID: ${id}).`);
+      const { publishNews } = require("../../../lib/simulation");
+      publishNews(player, `Municipal Infrastructure: New ${icon} '${name}' opened in Navsari.`, "INFRASTRUCTURE");
+
+      await savePlayer(player);
+      return NextResponse.json({ ok: true, message: `Created new ${icon} '${name}' successfully.`, families: player.families, zone_locations: player.zone_locations });
+    }
+
+    if (action === "edit_residence") {
+      if (!isUserAdmin) {
+        return NextResponse.json({ ok: false, message: "Access Denied: Only admin can edit residences." }, { status: 403 });
+      }
+
+      const familyId = String(body.family_id || "").trim();
+      const name = String(body.name || "").trim();
+      const budget = body.budget !== undefined ? Number(body.budget) : undefined;
+      const capacity = body.capacity !== undefined ? Number(body.capacity) : undefined;
+      const type = body.type ? (body.type === "hostel" ? "hostel" : "house") : undefined;
+
+      const family = player.families?.find(f => f.id === familyId);
+      if (!family) {
+        return NextResponse.json({ ok: false, message: `Residence with ID '${familyId}' not found.` }, { status: 404 });
+      }
+
+      if (name) family.name = name;
+      if (budget !== undefined && !isNaN(budget)) family.budget = budget;
+      if (capacity !== undefined && !isNaN(capacity)) family.capacity = capacity;
+      if (type) family.type = type;
+
+      player.agent_logs.push(`Government: Admin updated residence details for '${family.name}' (${familyId}).`);
+      await savePlayer(player);
+      return NextResponse.json({ ok: true, message: `Updated residence '${family.name}' successfully.`, families: player.families });
+    }
+
+    if (action === "add_member_to_residence") {
+      if (!isUserAdmin) {
+        return NextResponse.json({ ok: false, message: "Access Denied: Only admin can add persons to residences." }, { status: 403 });
+      }
+
+      const familyId = String(body.family_id || "").trim();
+      const name = String(body.name || "").trim();
+      const role = String(body.role || "worker").trim();
+      const relation = String(body.relation || (role === "worker" ? "Civilization Worker" : "Resident")).trim();
+      const vehicle = String(body.vehicle || "bicycle").trim().toLowerCase();
+
+      if (!familyId || !name) {
+        return NextResponse.json({ ok: false, message: "Residence ID and person name are required." }, { status: 400 });
+      }
+
+      const family = player.families?.find(f => f.id === familyId);
+      if (!family) {
+        return NextResponse.json({ ok: false, message: `Residence with ID '${familyId}' not found.` }, { status: 404 });
+      }
+
+      if (!family.members) family.members = [];
+
+      if (family.members.some(m => m.name.toLowerCase() === name.toLowerCase())) {
+        return NextResponse.json({ ok: false, message: `A person named '${name}' is already registered in ${family.name}.` }, { status: 400 });
+      }
+
+      const newMember = {
+        name,
+        role,
+        relation,
+        vehicle,
+        state: "Sleeping"
+      };
+
+      family.members.push(newMember);
+
+      player.agent_logs.push(`Government: Admin registered citizen '${name}' (${role}, ${vehicle}) into ${family.name}.`);
+      const { publishNews } = require("../../../lib/simulation");
+      publishNews(player, `Citizen Registry: ${name} registered into ${family.name} as ${role}.`, "CENSUS");
+
+      await savePlayer(player);
+      return NextResponse.json({ ok: true, message: `Added ${name} to ${family.name} successfully.`, families: player.families });
+    }
+
+    if (action === "remove_member_from_residence") {
+      if (!isUserAdmin) {
+        return NextResponse.json({ ok: false, message: "Access Denied: Only admin can remove persons." }, { status: 403 });
+      }
+
+      const familyId = String(body.family_id || "").trim();
+      const memberName = String(body.member_name || "").trim();
+
+      const family = player.families?.find(f => f.id === familyId);
+      if (!family) {
+        return NextResponse.json({ ok: false, message: `Residence with ID '${familyId}' not found.` }, { status: 404 });
+      }
+
+      const idx = family.members?.findIndex(m => m.name.toLowerCase() === memberName.toLowerCase());
+      if (idx === undefined || idx === -1) {
+        return NextResponse.json({ ok: false, message: `Member '${memberName}' not found in ${family.name}.` }, { status: 404 });
+      }
+
+      family.members.splice(idx, 1);
+      player.agent_logs.push(`Government: Admin removed ${memberName} from ${family.name}.`);
+
+      await savePlayer(player);
+      return NextResponse.json({ ok: true, message: `Removed ${memberName} from ${family.name}.`, families: player.families });
+    }
+
+    if (action === "transfer_worker") {
+      if (!isUserAdmin) {
+        return NextResponse.json({ ok: false, message: "Access Denied: Only admin can transfer workers." }, { status: 403 });
+      }
+
+      const fromFamilyId = String(body.from_family_id || "").trim();
+      const toFamilyId = String(body.to_family_id || "").trim();
+      const memberName = String(body.member_name || "").trim();
+      const newRole = body.new_role ? String(body.new_role).trim() : null;
+      const newVehicle = body.new_vehicle ? String(body.new_vehicle).trim().toLowerCase() : null;
+
+      if (!fromFamilyId || !toFamilyId || !memberName) {
+        return NextResponse.json({ ok: false, message: "Source residence, destination residence, and worker name are required." }, { status: 400 });
+      }
+
+      if (fromFamilyId === toFamilyId) {
+        return NextResponse.json({ ok: false, message: "Source and destination residence cannot be the same." }, { status: 400 });
+      }
+
+      const fromFam = player.families?.find(f => f.id === fromFamilyId);
+      const toFam = player.families?.find(f => f.id === toFamilyId);
+
+      if (!fromFam) {
+        return NextResponse.json({ ok: false, message: `Source residence '${fromFamilyId}' not found.` }, { status: 404 });
+      }
+      if (!toFam) {
+        return NextResponse.json({ ok: false, message: `Destination residence '${toFamilyId}' not found.` }, { status: 404 });
+      }
+
+      const memberIdx = fromFam.members?.findIndex(m => m.name.toLowerCase() === memberName.toLowerCase());
+      if (memberIdx === undefined || memberIdx === -1) {
+        return NextResponse.json({ ok: false, message: `Worker '${memberName}' not found in ${fromFam.name}.` }, { status: 404 });
+      }
+
+      // Check capacity in toFam if defined
+      if (toFam.capacity && (toFam.members?.length || 0) >= toFam.capacity) {
+        return NextResponse.json({ ok: false, message: `${toFam.name} has reached maximum capacity (${toFam.capacity} beds).` }, { status: 400 });
+      }
+
+      const [member] = fromFam.members.splice(memberIdx, 1);
+      if (newRole) member.role = newRole;
+      if (newVehicle) member.vehicle = newVehicle;
+      if (!toFam.members) toFam.members = [];
+      toFam.members.push(member);
+
+      player.agent_logs.push(`Government: Admin transferred worker '${memberName}' from ${fromFam.name} to ${toFam.name}.`);
+      const { publishNews } = require("../../../lib/simulation");
+      publishNews(player, `Labor Logistics: ${memberName} transferred to ${toFam.name}.`, "HOUSING");
+
+      await savePlayer(player);
+      return NextResponse.json({ ok: true, message: `Transferred ${memberName} to ${toFam.name} successfully.`, families: player.families });
+    }
+
+    if (action === "delete_residence") {
+      if (!isUserAdmin) {
+        return NextResponse.json({ ok: false, message: "Access Denied: Only admin can delete residences." }, { status: 403 });
+      }
+
+      const familyId = String(body.family_id || "").trim();
+      if (familyId === "house_1" || familyId === "house_2" || familyId === "house_3") {
+        return NextResponse.json({ ok: false, message: "Core historical houses (House 1, 2, 3) cannot be deleted." }, { status: 400 });
+      }
+
+      const famIdx = player.families?.findIndex(f => f.id === familyId);
+      if (famIdx === undefined || famIdx === -1) {
+        return NextResponse.json({ ok: false, message: `Residence '${familyId}' not found.` }, { status: 404 });
+      }
+
+      const fam = player.families[famIdx];
+      if (fam.members && fam.members.length > 0) {
+        return NextResponse.json({ ok: false, message: `Cannot delete '${fam.name}' because it still has ${fam.members.length} occupant(s). Please transfer them first.` }, { status: 400 });
+      }
+
+      player.families.splice(famIdx, 1);
+      delete player.zone_locations[familyId];
+
+      player.agent_logs.push(`Government: Admin decommissioned residence '${fam.name}' (${familyId}).`);
+      await savePlayer(player);
+      return NextResponse.json({ ok: true, message: `Decommissioned '${fam.name}' successfully.`, families: player.families });
+    }
+
+    if (action === "step_simulation") {
+      const secondsToAdvance = Math.min(86400, Math.max(1, Number(body.seconds) || 60));
+      const ticks = Math.min(3600, Math.ceil(secondsToAdvance / 5));
+      const dt = secondsToAdvance / ticks;
+
+      for (let i = 0; i < ticks; i++) {
+        runSimulationTick(player, dt, catalogs);
+      }
+
+      await savePlayer(player);
+      return NextResponse.json({ ok: true, message: `Advanced simulation by ${secondsToAdvance} seconds.`, clock: player.clock });
+    }
+
+    if (action === "toggle_automated_farming") {
+      const enabled = body.enabled !== undefined ? Boolean(body.enabled) : !player.automated_farming_enabled;
+      player.automated_farming_enabled = enabled;
+      const statusStr = enabled ? "enabled" : "paused";
+      player.agent_logs.push(`Agriculture: Automated Kisan AI Farming Agent ${statusStr}.`);
+      await savePlayer(player);
+      return NextResponse.json({ ok: true, message: `Automated farming ${statusStr}.`, automated_farming_enabled: enabled });
+    }
+
+    if (action === "adjust_livestock") {
+      if (!isUserAdmin) {
+        return NextResponse.json({ ok: false, message: "Access Denied: Only admin can adjust livestock." }, { status: 403 });
+      }
+
+      if (!player.livestock) {
+        player.livestock = { cows: 4, sheep: 6, chickens: 10 };
+      }
+
+      if (body.cows !== undefined) player.livestock.cows = Math.max(0, Number(body.cows));
+      if (body.sheep !== undefined) player.livestock.sheep = Math.max(0, Number(body.sheep));
+      if (body.chickens !== undefined) player.livestock.chickens = Math.max(0, Number(body.chickens));
+
+      player.agent_logs.push(`Agriculture: Admin updated livestock to ${player.livestock.cows} Cows 🐄, ${player.livestock.sheep} Sheep 🐑, ${player.livestock.chickens} Chickens 🐔.`);
+      await savePlayer(player);
+      return NextResponse.json({ ok: true, message: "Livestock counts updated successfully.", livestock: player.livestock });
+    }
+
+    if (action === "run_kisan_agent") {
+      const minTarget = Math.max(1, Number(body.min_target) || 5);
+      const report = await KisanAgentManager.tickUserFarmingAgent(player, catalogs, minTarget);
+      await savePlayer(player);
+      return NextResponse.json({
+        ok: true,
+        message: report.actionsTaken.length > 0 ? report.actionsTaken.join("; ") : "Stock levels optimal. Target ≥5 maintained across all categories.",
+        report,
+        plots: player.plots,
+        inventory: player.inventory,
+        farm_barn: player.farm_barn
+      });
+    }
+
+    if (action === "get_kisan_report") {
+      const minTarget = Math.max(1, Number(body.min_target) || 5);
+      const agent = KisanAgentManager.getAgentForUser(player.user_id, minTarget);
+      const deficits = agent.checkStocksAndDeficits(player, catalogs);
+      return NextResponse.json({
+        ok: true,
+        report: agent.lastReport,
+        history: agent.executionHistory,
+        deficits,
+        minTarget
+      });
+    }
+
+    if (action === "refine_petrol") {
+      if (!player.industry) {
+        player.industry = {
+          oil_refinery: { crude_oil: 120, refined_petrol: 85, diesel: 60, marine_fuel: 40, is_active: true, efficiency: 95, daily_crude_input: 40, daily_fuel_output: 35 },
+          petrol_pump: { fuel_stock: 450, diesel_stock: 350, price_per_liter: 15, daily_sales_liters: 120, revenue: 1800, ev_charging_active: true },
+          shipyard: { ships_docked: 3, ships_under_construction: 1, fleet: [ { id: "ship_1", name: "INS Navsari Express", type: "cargo_ship", fuel: 80, status: "Active Maritime Freight", cargo: { wheat: 20, steel_beam: 10 } }, { id: "ship_2", name: "Surat Gulf Ferry", type: "passenger_ferry", fuel: 65, status: "Passenger Transit to Gulf" }, { id: "ship_3", name: "Arabian Sea Trawler 09", type: "fishing_trawler", fuel: 90, status: "Commercial Deep Sea Harvest" } ] },
+          heavy_manufacturing: { iron_ore_stock: 75, steel_beams: 45, concrete_stock: 90, active_smelters: 2 }
+        };
+      }
+      const ref = player.industry.oil_refinery;
+      const barrelsToRefine = Math.min(ref.crude_oil, Number(body.barrels || 20));
+      if (barrelsToRefine < 1) {
+        return NextResponse.json({ ok: false, message: "Insufficient crude oil in refinery tanks." });
+      }
+      ref.crude_oil -= barrelsToRefine;
+      const petrolYield = Math.floor(barrelsToRefine * 0.7);
+      const dieselYield = Math.floor(barrelsToRefine * 0.5);
+      const bunkerYield = Math.floor(barrelsToRefine * 0.3);
+      ref.refined_petrol += petrolYield;
+      ref.diesel += dieselYield;
+      ref.marine_fuel += bunkerYield;
+      player.industry.petrol_pump.fuel_stock += petrolYield;
+      player.industry.petrol_pump.diesel_stock += dieselYield;
+
+      player.agent_logs.push(`Refinery: Distilled ${barrelsToRefine} barrels crude into +${petrolYield}L Petrol, +${dieselYield}L Diesel, +${bunkerYield}L Marine Fuel.`);
+      await savePlayer(player);
+      return NextResponse.json({ ok: true, message: `Refined ${barrelsToRefine} crude barrels into +${petrolYield}L Petrol & +${dieselYield}L Diesel.`, industry: player.industry });
+    }
+
+    if (action === "set_fuel_price") {
+      if (!player.industry) return NextResponse.json({ ok: false, message: "Industry state uninitialized." });
+      const newPrice = Math.max(1, Number(body.price_per_liter || 15));
+      player.industry.petrol_pump.price_per_liter = newPrice;
+      player.agent_logs.push(`Petrol Pump: Highway 48 fuel price set to $${newPrice}/L.`);
+      await savePlayer(player);
+      return NextResponse.json({ ok: true, message: `Fuel price updated to $${newPrice}/L.`, industry: player.industry });
+    }
+
+    if (action === "commission_ship") {
+      if (!player.industry) return NextResponse.json({ ok: false, message: "Industry state uninitialized." });
+      const shipType = body.type || "cargo_ship";
+      const shipCost = shipType === "cargo_ship" ? 150 : shipType === "passenger_ferry" ? 100 : 75;
+      
+      let fundedMethod = "Personal Cash";
+      if (player.money >= shipCost) {
+        player.money -= shipCost;
+        fundedMethod = `Personal Cash ($${shipCost})`;
+      } else if ((player.money + (player.city_treasury || 0)) >= shipCost) {
+        const fromWallet = player.money;
+        const fromTreasury = shipCost - fromWallet;
+        player.money = 0;
+        player.city_treasury = Math.max(0, (player.city_treasury || 0) - fromTreasury);
+        fundedMethod = `Personal Cash ($${fromWallet}) + City Treasury Grant ($${fromTreasury})`;
+      } else {
+        // Automatic Municipal Maritime Development Grant
+        player.city_treasury = (player.city_treasury || 0) + 100;
+        fundedMethod = "Municipal Maritime Pioneer Development Grant";
+      }
+
+      const shipId = `ship_${Date.now().toString().slice(-4)}`;
+      const shipName = body.name || `Navsari Maritime ${shipType === "cargo_ship" ? "Freighter" : shipType === "passenger_ferry" ? "Cruiser" : "Trawler"} ${shipId.slice(-3)}`;
+      player.industry.shipyard.fleet.push({
+        id: shipId,
+        name: shipName,
+        type: shipType,
+        fuel: 100,
+        status: "Docked at Port",
+        cargo: shipType === "cargo_ship" ? { wheat: 10, wood: 10 } : undefined
+      });
+      player.industry.shipyard.ships_docked += 1;
+      player.agent_logs.push(`Shipyard: Commissioned new vessel '${shipName}' (${shipType.replace(/_/g, " ")}) funded via ${fundedMethod}.`);
+      await savePlayer(player);
+      return NextResponse.json({
+        ok: true,
+        message: `Successfully commissioned '${shipName}' via ${fundedMethod}!`,
+        industry: player.industry,
+        money: player.money,
+        city_treasury: player.city_treasury
+      });
+    }
+
+    if (action === "dispatch_ship_voyage") {
+      if (!player.industry) return NextResponse.json({ ok: false, message: "Industry state uninitialized." });
+      const ship = player.industry.shipyard.fleet.find(s => s.id === body.ship_id);
+      if (!ship) return NextResponse.json({ ok: false, message: "Vessel not found in shipyard registry." });
+      if (ship.fuel < 20) return NextResponse.json({ ok: false, message: `Vessel '${ship.name}' has low bunker fuel (${ship.fuel}%). Refuel required.` });
+      
+      ship.fuel -= 20;
+      ship.status = "At High Seas (Trade Voyage)";
+      const voyageEarnings = ship.type === "cargo_ship" ? 85 : ship.type === "passenger_ferry" ? 55 : 40;
+      player.money += voyageEarnings;
+      player.agent_logs.push(`Shipyard: '${ship.name}' returned from maritime voyage earning +$${voyageEarnings} trade revenue.`);
+      await savePlayer(player);
+      return NextResponse.json({ ok: true, message: `'${ship.name}' completed maritime route earning +$${voyageEarnings}!`, industry: player.industry, money: player.money });
+    }
+
+    if (action === "smelt_steel") {
+      if (!player.industry) return NextResponse.json({ ok: false, message: "Industry state uninitialized." });
+      const heavy = player.industry.heavy_manufacturing;
+      if (heavy.iron_ore_stock < 5) return NextResponse.json({ ok: false, message: "Insufficient Iron Ore in foundry stock (need at least 5)." });
+      heavy.iron_ore_stock -= 5;
+      heavy.steel_beams += 2;
+      player.agent_logs.push("Foundry: Smelted 5x Iron Ore into +2x Industrial Steel Beams.");
+      await savePlayer(player);
+      return NextResponse.json({ ok: true, message: "Smelted +2x Industrial Steel Beams.", industry: player.industry });
+    }
+
+    if (action === "run_industrial_agent") {
+      if (!player.industry) {
+        player.industry = {
+          oil_refinery: { crude_oil: 120, refined_petrol: 85, diesel: 60, marine_fuel: 40, is_active: true, efficiency: 95, daily_crude_input: 40, daily_fuel_output: 35 },
+          petrol_pump: { fuel_stock: 450, diesel_stock: 350, price_per_liter: 15, daily_sales_liters: 120, revenue: 1800, ev_charging_active: true },
+          shipyard: { ships_docked: 3, ships_under_construction: 1, fleet: [ { id: "ship_1", name: "INS Navsari Express", type: "cargo_ship", fuel: 80, status: "Active Maritime Freight", cargo: { wheat: 20, steel_beam: 10 } }, { id: "ship_2", name: "Surat Gulf Ferry", type: "passenger_ferry", fuel: 65, status: "Passenger Transit to Gulf" }, { id: "ship_3", name: "Arabian Sea Trawler 09", type: "fishing_trawler", fuel: 90, status: "Commercial Deep Sea Harvest" } ] },
+          heavy_manufacturing: { iron_ore_stock: 75, steel_beams: 45, concrete_stock: 90, active_smelters: 2 }
+        };
+      }
+      const ind = player.industry;
+      const actionsTaken: string[] = [];
+
+      // 1. Distill crude
+      if (ind.oil_refinery.crude_oil >= 10) {
+        const bbl = Math.min(25, ind.oil_refinery.crude_oil);
+        ind.oil_refinery.crude_oil -= bbl;
+        const petrolYield = Math.floor(bbl * 0.7);
+        const dieselYield = Math.floor(bbl * 0.5);
+        const bunkerYield = Math.floor(bbl * 0.3);
+        ind.oil_refinery.refined_petrol += petrolYield;
+        ind.oil_refinery.diesel += dieselYield;
+        ind.oil_refinery.marine_fuel += bunkerYield;
+        actionsTaken.push(`Distilled ${bbl} crude barrels into +${petrolYield}L Petrol & +${dieselYield}L Diesel`);
+      }
+
+      // 2. Refuel & Replenish Petrol Pump
+      if (ind.petrol_pump.fuel_stock < 500 && ind.oil_refinery.refined_petrol >= 20) {
+        const transfer = Math.min(50, ind.oil_refinery.refined_petrol);
+        ind.oil_refinery.refined_petrol -= transfer;
+        ind.petrol_pump.fuel_stock += transfer;
+        actionsTaken.push(`Replenished Petrol Pump with +${transfer}L fuel`);
+      }
+
+      // 3. Refuel & Dispatch Shipyard Fleet
+      for (const ship of ind.shipyard.fleet) {
+        if (ship.fuel < 40 && ind.oil_refinery.marine_fuel >= 20) {
+          ind.oil_refinery.marine_fuel -= 20;
+          ship.fuel = 100;
+          actionsTaken.push(`Refueled vessel '${ship.name}'`);
+        }
+        if (ship.fuel >= 60) {
+          ship.fuel -= 20;
+          ship.status = "At High Seas (Trade Voyage)";
+          const earned = ship.type === "cargo_ship" ? 85 : ship.type === "passenger_ferry" ? 55 : 40;
+          player.money += earned;
+          actionsTaken.push(`Dispatched '${ship.name}' on trade voyage (earned +$${earned})`);
+        }
+      }
+
+      // 4. Heavy Foundry Smelting
+      if (ind.heavy_manufacturing.iron_ore_stock >= 10) {
+        ind.heavy_manufacturing.iron_ore_stock -= 10;
+        ind.heavy_manufacturing.steel_beams += 4;
+        actionsTaken.push("Smelted 10x Iron Ore into +4x Steel Beams");
+      }
+
+      const summaryMsg = actionsTaken.length > 0 ? actionsTaken.join("; ") : "Refineries and pumps operating at peak equilibrium.";
+      player.agent_logs.push(`Industrial Agent: ${summaryMsg}`);
+      await savePlayer(player);
+      return NextResponse.json({ ok: true, message: summaryMsg, industry: player.industry, money: player.money });
     }
 
     return NextResponse.json({ ok: false, message: "Action not recognized." }, { status: 400 });

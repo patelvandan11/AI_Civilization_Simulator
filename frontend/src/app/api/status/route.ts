@@ -28,42 +28,60 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // Ensure prices are initialized
-    if (!player.item_prices || Object.keys(player.item_prices).length === 0) {
+    // Ensure prices are initialized and contain all catalog items
+    if (!player.item_prices || Object.keys(player.item_prices).length < Object.keys(catalogs.items).length) {
       fluctuatePrices(player, catalogs.items);
       await savePlayer(player);
     }
 
     // Map output to match original python REST response exactly
     const plotsMapped = player.plots.map((p) => {
-      const crop = catalogs.crops[p.crop_id || ""];
+      let cropKey = String(p.crop_id || "").trim().toLowerCase().replace(/^crop_/, "");
+      if (cropKey === "broccoli") cropKey = "brokeli";
+      if (cropKey === "cabbage") cropKey = "cabbige";
+      if (cropKey === "chili") cropKey = "chilly";
+      if (cropKey === "radish") cropKey = "reddies";
+
+      const crop = catalogs.crops[cropKey] || catalogs.crops[p.crop_id || ""];
       let state = "empty";
-      let label = "Empty";
+      let label = "Empty Plot";
       let remaining = 0;
+      let progress = 0;
 
       if (p.crop_id && p.planted_at) {
-        const planted = new Date(p.planted_at).getTime();
-        const elapsed = (Date.now() - planted) / 1000;
-        const needed = Number(crop?.growth_seconds || 5);
+        const needed = Number(crop?.growth_seconds || 20);
+        const realElapsed = (Date.now() - new Date(p.planted_at).getTime()) / 1000;
+        const rawP = p as any;
+        const inGameElapsed = (rawP.planted_game_seconds !== undefined && player.clock?.total_seconds !== undefined)
+          ? Math.max(0, player.clock.total_seconds - rawP.planted_game_seconds)
+          : 0;
+        const elapsed = Math.max(realElapsed, inGameElapsed);
         remaining = Math.max(0, needed - elapsed);
-        if (remaining <= 0) {
+        progress = Math.min(100, Math.max(0, Math.floor((elapsed / needed) * 100)));
+
+        if (remaining <= 0 || elapsed >= needed) {
           state = "ready";
-          label = `${crop?.name || p.crop_id} READY`;
+          label = `${crop?.name || cropKey || "Crop"} READY`;
           remaining = 0;
+          progress = 100;
         } else {
           state = "growing";
           const m = Math.floor(remaining / 60);
           const s = Math.floor(remaining % 60);
-          label = `${crop?.name || p.crop_id} ${m}:${s.toString().padStart(2, "0")}`;
+          label = `${crop?.name || cropKey} ${m > 0 ? `${m}m ` : ""}${s}s`;
         }
       }
 
       return {
         index: p.index,
-        crop_id: p.crop_id,
+        crop_id: cropKey || p.crop_id,
+        crop_name: crop?.name || (cropKey ? cropKey.replace(/_/g, " ") : "Empty Plot"),
+        yield_id: crop?.yield_id || cropKey || p.crop_id,
         planted_at: p.planted_at,
+        growth_seconds: crop?.growth_seconds || 20,
         state,
         label,
+        progress,
         remaining
       };
     });
@@ -108,7 +126,12 @@ export async function GET(req: NextRequest) {
       }
     } catch {}
 
-    const formattedClock = `Day ${clockDay}  ${clockHour.toString().padStart(2, "0")}:${clockMinute.toString().padStart(2, "0")}`;
+    const formattedClock = `Day ${clockDay} • ${clockHour.toString().padStart(2, "0")}:${clockMinute.toString().padStart(2, "0")} hrs (IST)`;
+    const dayOffset = Math.floor(player.clock.total_seconds / (24 * 60));
+    const baseDate = new Date(2026, 0, 1);
+    baseDate.setDate(baseDate.getDate() + dayOffset);
+    const indianDate = `${baseDate.getDate().toString().padStart(2, "0")}/${(baseDate.getMonth() + 1).toString().padStart(2, "0")}/${baseDate.getFullYear()}`;
+
     const adminEmail = (process.env.ADMIN_EMAIL || "vandan11patel@gmail.com").toLowerCase().trim();
     const isAdmin = userId.toLowerCase() === "vandan_11" || userId.toLowerCase().trim() === adminEmail;
 
@@ -140,7 +163,9 @@ export async function GET(req: NextRequest) {
         day: clockDay,
         hour: clockHour,
         minute: clockMinute,
+        total_seconds: player.clock.total_seconds,
         formatted: formattedClock,
+        indian_date: indianDate,
         is_night: isNight,
         weather: player.clock.weather
       },
@@ -164,6 +189,9 @@ export async function GET(req: NextRequest) {
       government: player.government,
       cabinet: player.cabinet,
       news_feed: player.news_feed,
+      livestock: player.livestock || { cows: 4, sheep: 6, chickens: 10 },
+      farm_barn: player.farm_barn || { milk: 20, wool: 15, egg: 30, wheat: 50, carrot: 30, apple: 25 },
+      automated_farming_enabled: player.automated_farming_enabled !== false,
       city_manager_enabled: player.city_manager_enabled,
       zone_locations: player.zone_locations
     });

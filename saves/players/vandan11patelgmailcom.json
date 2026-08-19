@@ -1,65 +1,99 @@
 {
   "user_id": "vandan11patel@gmail.com",
-  "money": 450,
+  "money": 1263,
   "inventory": {
-    "wood": 10,
+    "wood": 0,
     "stone": 5,
-    "fiber": 5,
+    "fiber": 6,
     "apple_seed": 5,
     "wheat_seed": 5,
-    "wooden_axe": 1,
-    "stone_pick": 1
+    "wooden_axe": 3,
+    "stone_pick": 3,
+    "carrot": 90,
+    "tomato_ketch": 0,
+    "apple": 30,
+    "cabbige_seed": 5,
+    "carrot_seed": 5,
+    "corn_seed": 5,
+    "brokeli_seed": 5,
+    "chilly_seed": 5,
+    "wheat": 60,
+    "corn": 148,
+    "brokeli": 145,
+    "cabbige": 157,
+    "strawberry": 140,
+    "banana_seed": 5,
+    "pumpkin_seed": 5,
+    "cucumber": 176,
+    "chilly": 184,
+    "milk": 0,
+    "banana": 153,
+    "pumpkin": 152,
+    "cucumber_seed": 5,
+    "strawberry_seed": 5,
+    "watermelon_seed": 5,
+    "watermelon": 159,
+    "torch": 1
   },
   "clock": {
-    "total_seconds": 2131,
+    "total_seconds": 23697,
     "speed": 1,
     "weather": "Clear"
   },
   "plots": [
     {
       "index": 0,
-      "crop_id": null,
-      "planted_at": null
+      "crop_id": "apple",
+      "planted_at": "2026-08-19T13:28:37.313Z",
+      "planted_game_seconds": 23683
     },
     {
       "index": 1,
-      "crop_id": null,
-      "planted_at": null
+      "crop_id": "apple",
+      "planted_at": "2026-08-19T13:28:43.312Z",
+      "planted_game_seconds": 23688
     },
     {
       "index": 2,
-      "crop_id": null,
-      "planted_at": null
+      "crop_id": "corn",
+      "planted_at": "2026-08-19T13:28:34.320Z",
+      "planted_game_seconds": 23680
     },
     {
       "index": 3,
-      "crop_id": null,
-      "planted_at": null
+      "crop_id": "apple",
+      "planted_at": "2026-08-19T13:28:34.320Z",
+      "planted_game_seconds": 23680
     },
     {
       "index": 4,
-      "crop_id": null,
-      "planted_at": null
+      "crop_id": "brokeli",
+      "planted_at": "2026-08-19T13:28:34.320Z",
+      "planted_game_seconds": 23680
     },
     {
       "index": 5,
-      "crop_id": null,
-      "planted_at": null
+      "crop_id": "apple",
+      "planted_at": "2026-08-19T13:28:47.828Z",
+      "planted_game_seconds": 23690
     },
     {
       "index": 6,
-      "crop_id": null,
-      "planted_at": null
+      "crop_id": "apple",
+      "planted_at": "2026-08-19T13:28:40.314Z",
+      "planted_game_seconds": 23685
     },
     {
       "index": 7,
-      "crop_id": null,
-      "planted_at": null
+      "crop_id": "pumpkin",
+      "planted_at": "2026-08-19T13:28:34.320Z",
+      "planted_game_seconds": 23680
     },
     {
       "index": 8,
-      "crop_id": null,
-      "planted_at": null
+      "crop_id": "wheat",
+      "planted_at": "2026-08-19T13:28:34.320Z",
+      "planted_game_seconds": 23680
     }
   ],
   "buildings": [],
@@ -515,119 +549,224 @@
     }
   },
   "agent_logs": [
-    "System: Brand new colony initialized.",
-    "System: Dynamic market prices fluctuated for Day 1!",
-    "Government: Cabinet PMO approved $50 funding allocation for 'Community School'.",
-    "Household: Thakorbhai purchased a utility torch from Rajesh at the Electronics Hub.",
-    "Household: Mother purchased daily food requirements for Rameshbhai's Residence from Amina's Dairy Store.",
-    "System: Day 1 operations summary logged.",
-    "System: Dynamic market prices fluctuated for Day 2!",
-    "Government: Collected $50 in corporate taxes from Player Brokerage.",
-    "Government: Collected $7 in income tax from Thakorbhai's Residence.",
-    "Government: Collected $8 in income tax from Bharatbhai's Residence.",
-    "Government: Collected $3 in income tax from Rameshbhai's Residence."
+    "🌾 Kisan AI Agent: Auto-procured 1x chilly seed, 1x strawberry seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan LangChain AI: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [chilly].",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [chilly].",
+    "🌾 Kisan LangChain AI: Auto-procured 1x chilly seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Auto-procured 1x chilly seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan LangChain AI: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [chilly].",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [chilly].",
+    "🌾 Kisan LangChain AI: Auto-procured 1x chilly seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Auto-procured 1x chilly seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan LangChain AI: Harvested 2 mature plot(s); Planted 2 empty plot(s) with priority crops: [chilly, strawberry].",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Planted 2 empty plot(s) with priority crops: [chilly, strawberry].",
+    "🌾 Kisan LangChain AI: Auto-procured 1x chilly seed, 1x strawberry seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Auto-procured 1x chilly seed, 1x strawberry seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan LangChain AI: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [watermelon].",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [watermelon].",
+    "🌾 Kisan LangChain AI: Auto-procured 1x watermelon seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Auto-procured 1x watermelon seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan LangChain AI: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [watermelon].",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [watermelon].",
+    "🌾 Kisan LangChain AI: Auto-procured 1x watermelon seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Auto-procured 1x watermelon seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan LangChain AI: Harvested 2 mature plot(s); Planted 2 empty plot(s) with priority crops: [watermelon, wheat].",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Planted 2 empty plot(s) with priority crops: [watermelon, wheat].",
+    "🌾 Kisan LangChain AI: Auto-procured 1x wheat seed, 1x watermelon seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Auto-procured 1x wheat seed, 1x watermelon seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan LangChain AI: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [watermelon].",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [watermelon].",
+    "🌾 Kisan LangChain AI: Auto-procured 1x watermelon seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Auto-procured 1x watermelon seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan LangChain AI: Harvested 2 mature plot(s); Planted 2 empty plot(s) with priority crops: [watermelon, wheat].",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Planted 2 empty plot(s) with priority crops: [watermelon, wheat].",
+    "🌾 Kisan LangChain AI: Auto-procured 1x wheat seed, 1x watermelon seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Auto-procured 1x wheat seed, 1x watermelon seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan LangChain AI: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [watermelon].",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [watermelon].",
+    "🌾 Kisan LangChain AI: Auto-procured 1x watermelon seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Auto-procured 1x watermelon seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan LangChain AI: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [watermelon].",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [watermelon].",
+    "🌾 Kisan LangChain AI: Auto-procured 1x watermelon seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Auto-procured 1x watermelon seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan LangChain AI: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [watermelon].",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [watermelon].",
+    "🌾 Kisan LangChain AI: Auto-procured 1x watermelon seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Auto-procured 1x watermelon seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan LangChain AI: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [watermelon].",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [watermelon].",
+    "🌾 Kisan LangChain AI: Auto-procured 1x watermelon seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Auto-procured 1x watermelon seed to maintain ≥5 seed buffer.",
+    "Petrol Pump: Highway 48 fuel price set to $150/L.",
+    "Industrial Agent: Replenished Petrol Pump with +28L fuel; Dispatched 'Surat Gulf Ferry' on trade voyage (earned +$55); Refueled vessel 'Arabian Sea Trawler 09'; Dispatched 'Arabian Sea Trawler 09' on trade voyage (earned +$40); Dispatched 'vandan' on trade voyage (earned +$85)",
+    "🌾 Kisan LangChain AI: Harvested 2 mature plot(s); Planted 2 empty plot(s) with priority crops: [watermelon, corn].",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Planted 2 empty plot(s) with priority crops: [watermelon, corn].",
+    "🌾 Kisan LangChain AI: Auto-procured 1x corn seed, 1x watermelon seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Auto-procured 1x corn seed, 1x watermelon seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan LangChain AI: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [corn].",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [corn].",
+    "🌾 Kisan LangChain AI: Auto-procured 1x corn seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Auto-procured 1x corn seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan LangChain AI: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [corn].",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [corn].",
+    "🌾 Kisan LangChain AI: Auto-procured 1x corn seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Auto-procured 1x corn seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan LangChain AI: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [corn].",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [corn].",
+    "🌾 Kisan LangChain AI: Auto-procured 1x corn seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Auto-procured 1x corn seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan LangChain AI: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [corn].",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [corn].",
+    "🌾 Kisan LangChain AI: Auto-procured 1x corn seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Auto-procured 1x corn seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan LangChain AI: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [corn].",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [corn].",
+    "🌾 Kisan LangChain AI: Auto-procured 1x corn seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Auto-procured 1x corn seed to maintain ≥5 seed buffer.",
+    "Industrial Agent: Dispatched 'Arabian Sea Trawler 09' on trade voyage (earned +$40)",
+    "Industrial Agent: Dispatched 'Arabian Sea Trawler 09' on trade voyage (earned +$40)",
+    "Industrial Agent: Refineries and pumps operating at peak equilibrium.",
+    "Industrial Agent: Refineries and pumps operating at peak equilibrium.",
+    "🌾 Kisan LangChain AI: Harvested 5 mature plot(s); Planted 5 empty plot(s) with priority crops: [corn, apple, brokeli, pumpkin, wheat].",
+    "🌾 Kisan AI Agent: Harvested 5 mature plot(s); Planted 5 empty plot(s) with priority crops: [corn, apple, brokeli, pumpkin, wheat].",
+    "🌾 Kisan LangChain AI: Auto-procured 1x wheat seed, 1x corn seed, 1x brokeli seed, 1x apple seed, 1x pumpkin seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Auto-procured 1x wheat seed, 1x corn seed, 1x brokeli seed, 1x apple seed, 1x pumpkin seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan LangChain AI: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [apple].",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [apple].",
+    "🌾 Kisan LangChain AI: Auto-procured 1x apple seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Auto-procured 1x apple seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan LangChain AI: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [apple].",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [apple].",
+    "🌾 Kisan LangChain AI: Auto-procured 1x apple seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Auto-procured 1x apple seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan LangChain AI: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [apple].",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [apple].",
+    "🌾 Kisan LangChain AI: Auto-procured 1x apple seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Auto-procured 1x apple seed to maintain ≥5 seed buffer.",
+    "System: Purchased 1x torch from Rajesh's Electronic Hub for $10.",
+    "🌾 Kisan LangChain AI: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [apple].",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [apple].",
+    "🌾 Kisan LangChain AI: Auto-procured 1x apple seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Auto-procured 1x apple seed to maintain ≥5 seed buffer."
   ],
   "item_prices": {
     "wood": 2,
     "stone": 3,
     "fiber": 1,
     "apple_seed": 4,
-    "apple": 6,
+    "apple": 8,
     "wheat_seed": 3,
     "wheat": 4,
-    "rope": 10,
-    "torch": 10,
-    "bread": 13,
-    "wooden_axe": 22,
-    "stone_pick": 33,
+    "rope": 9,
+    "torch": 11,
+    "bread": 16,
+    "wooden_axe": 23,
+    "stone_pick": 34,
     "banana_seed": 3,
     "banana": 7,
     "cherry_seed": 4,
     "cherry": 5,
-    "grape_seed": 3,
-    "grapes": 8,
+    "grape_seed": 4,
+    "grapes": 6,
     "orange_seed": 4,
-    "orange": 8,
-    "strawberry_seed": 5,
-    "strawberry": 12,
-    "watermelon_seed": 6,
-    "watermelon": 15,
+    "orange": 6,
+    "strawberry_seed": 6,
+    "strawberry": 10,
+    "watermelon_seed": 9,
+    "watermelon": 17,
     "avacado_seed": 6,
     "avacado": 10,
-    "peach_seed": 4,
-    "peach": 7,
+    "peach_seed": 5,
+    "peach": 9,
     "blue_berry_seed": 4,
     "blue_berry": 7,
-    "carrot_seed": 3,
-    "carrot": 5,
+    "carrot_seed": 4,
+    "carrot": 6,
     "pumpkin_seed": 6,
-    "pumpkin": 15,
+    "pumpkin": 17,
     "mushroom_seed": 2,
     "mushroom": 6,
-    "corn_seed": 4,
-    "corn": 7,
-    "cucumber_seed": 2,
+    "corn_seed": 5,
+    "corn": 9,
+    "cucumber_seed": 3,
     "cucumber": 8,
-    "brokeli_seed": 3,
-    "brokeli": 8,
+    "brokeli_seed": 4,
+    "brokeli": 7,
     "cabbige_seed": 4,
-    "cabbige": 8,
-    "chilly_seed": 4,
-    "chilly": 6,
+    "cabbige": 10,
+    "chilly_seed": 5,
+    "chilly": 9,
     "reddies_seed": 2,
-    "reddies": 6,
-    "orange_juice": 34,
-    "strawberry_cake": 50,
-    "cherry_cake": 39,
-    "cake": 45,
-    "wine": 47,
-    "pizza": 62,
-    "burger": 34,
-    "cherry_jam": 22,
-    "chess": 20,
-    "tomato_ketch": 17,
-    "iron": 10,
-    "copper": 6,
-    "steel": 18,
+    "reddies": 4,
+    "orange_juice": 33,
+    "strawberry_cake": 36,
+    "cherry_cake": 35,
+    "cake": 47,
+    "wine": 54,
+    "pizza": 56,
+    "burger": 38,
+    "cherry_jam": 30,
+    "chess": 24,
+    "tomato_ketch": 14,
+    "iron": 7,
+    "copper": 8,
+    "steel": 14,
     "glass": 10,
     "water": 2,
     "food": 6,
-    "fuel": 10,
+    "fuel": 11,
     "concrete": 7,
-    "rubber": 8,
-    "trofy": 437
+    "rubber": 11,
+    "trofy": 588,
+    "milk": 5,
+    "cow_milk": 4,
+    "egg": 4,
+    "wool": 8,
+    "tomato": 5,
+    "fish": 9,
+    "iron_ore": 4,
+    "copper_ore": 4,
+    "dragonfruit": 12,
+    "crude_oil": 7,
+    "petrol": 16,
+    "diesel": 17,
+    "marine_fuel": 14,
+    "steel_beam": 30,
+    "cargo_ship": 1057,
+    "fishing_boat": 440
   },
-  "last_price_update_day": 2,
+  "last_price_update_day": 17,
   "city_name": "Rumla",
-  "city_treasury": 118,
-  "tax_rate": 10,
+  "city_treasury": 2822,
+  "tax_rate": 29,
   "city_projects": [
     {
       "id": "school",
       "name": "Community School",
       "cost": 500,
-      "allocated": 50,
-      "completed": false
+      "allocated": 500,
+      "completed": true
     },
     {
       "id": "hospital",
       "name": "General Hospital",
       "cost": 1000,
-      "allocated": 0,
+      "allocated": 500,
       "completed": false
     },
     {
       "id": "park",
       "name": "Leisure Park",
       "cost": 300,
-      "allocated": 0,
+      "allocated": 100,
       "completed": false
     },
     {
       "id": "roads",
       "name": "Paved Highways",
       "cost": 400,
-      "allocated": 0,
+      "allocated": 250,
       "completed": false
     }
   ],
@@ -641,133 +780,333 @@
     {
       "id": "house_1",
       "name": "Thakorbhai's Residence",
-      "budget": 68,
+      "budget": 17,
       "inventory": {
-        "milk": 3,
-        "wheat": 3,
-        "apple": 3,
-        "torch": 1
+        "milk": 10,
+        "wheat": 5,
+        "apple": 7,
+        "torch": 1,
+        "carrot": 2,
+        "cucumber": 7,
+        "brokeli": 3,
+        "chilly": 3,
+        "cabbige": 3,
+        "corn": 9,
+        "strawberry": 9,
+        "egg": 12
       },
       "members": [
         {
           "name": "Thakorbhai",
           "role": "father",
           "relation": "Main Person",
-          "state": "Working at Farms"
+          "state": "Household Management & Operations",
+          "vehicle": "tractor"
         },
         {
           "name": "vasantiben",
           "role": "mother",
           "relation": "Wife of Thakorbhai",
-          "state": "Home Chores / Baking"
+          "state": "Home Chores & Meal Prep",
+          "vehicle": "scooter"
         },
         {
           "name": "vandan",
           "role": "son",
           "relation": "Son of Thakorbhai",
-          "state": "Working at Factory"
+          "state": "Working at Factory",
+          "vehicle": "car"
         },
         {
           "name": "hetvi",
           "role": "daughter",
           "relation": "Daughter of Thakorbhai",
-          "state": "Home Playing"
-        },
-        {
-          "name": "Kiran",
-          "role": "worker",
-          "relation": "Tailor Shop Assistant",
-          "state": "Working at Savita's Clothiers"
+          "state": "Schooling at Community School",
+          "vehicle": "bicycle"
         }
-      ]
+      ],
+      "type": "house",
+      "capacity": 4
     },
     {
       "id": "house_2",
       "name": "Bharatbhai's Residence",
-      "budget": 77,
+      "budget": 6,
       "inventory": {
-        "milk": 2,
+        "milk": 10,
         "wheat": 2,
-        "apple": 2
+        "apple": 7,
+        "carrot": 2,
+        "cucumber": 6,
+        "brokeli": 3,
+        "chilly": 3,
+        "cabbige": 3,
+        "corn": 9,
+        "strawberry": 9,
+        "egg": 12
       },
       "members": [
         {
           "name": "bharatbhai",
           "role": "father",
           "relation": "Brother of Vasantiben",
-          "state": "Working at General Store"
+          "state": "Household Management & Operations",
+          "vehicle": "tractor"
         },
         {
           "name": "mayuriben",
           "role": "mother",
           "relation": "Wife of Bharatbhai",
-          "state": "Home Chores / Gardening"
+          "state": "Home Chores & Meal Prep",
+          "vehicle": "scooter"
         },
         {
           "name": "vainavi",
           "role": "daughter",
           "relation": "Daughter of Bharatbhai",
-          "state": "Home Playing"
+          "state": "Schooling at Community School",
+          "vehicle": "bicycle"
         },
         {
           "name": "prathav",
           "role": "son",
           "relation": "Son of Bharatbhai",
-          "state": "Working at Factory"
-        },
-        {
-          "name": "Dinesh",
-          "role": "worker",
-          "relation": "Farmer Assistant",
-          "state": "Working at Farms"
-        },
-        {
-          "name": "Geeta",
-          "role": "worker",
-          "relation": "Grocery Shop Assistant",
-          "state": "Working at Amina's Dairy Store"
+          "state": "Working at Factory",
+          "vehicle": "car"
         }
-      ]
+      ],
+      "type": "house"
     },
     {
       "id": "house_3",
       "name": "Rameshbhai's Residence",
-      "budget": 30,
+      "budget": 0,
       "inventory": {
-        "milk": 4,
-        "wheat": 4,
-        "apple": 4
+        "milk": 5,
+        "wheat": 0,
+        "apple": 7,
+        "carrot": 4,
+        "cucumber": 9,
+        "brokeli": 3,
+        "chilly": 3,
+        "cabbige": 3,
+        "corn": 9,
+        "strawberry": 6,
+        "egg": 6
       },
       "members": [
         {
           "name": "rameshbhai",
           "role": "father",
           "relation": "Husband of Hemuben",
-          "state": "Working at Electronic Hub"
+          "state": "Household Management & Operations",
+          "vehicle": "tractor"
         },
         {
           "name": "hemuben",
           "role": "mother",
           "relation": "Sister of Vasantiben",
-          "state": "Home Chores / Cleaning"
+          "state": "Home Chores & Meal Prep",
+          "vehicle": "scooter"
         },
         {
           "name": "krushil",
           "role": "son",
           "relation": "Son of Rameshbhai",
-          "state": "Home Playing"
+          "state": "Schooling at Community School",
+          "vehicle": "car"
         },
         {
           "name": "harshil",
           "role": "son",
           "relation": "Son of Rameshbhai",
-          "state": "Home Playing"
+          "state": "Schooling at Community School",
+          "vehicle": "car"
+        }
+      ],
+      "type": "house"
+    },
+    {
+      "id": "hostel_central",
+      "name": "Navsari Central Workers Hostel",
+      "type": "hostel",
+      "capacity": 12,
+      "budget": 16,
+      "inventory": {
+        "milk": 8,
+        "wheat": 5,
+        "apple": 8,
+        "carrot": 10,
+        "cucumber": 3,
+        "brokeli": 3,
+        "chilly": 3,
+        "cabbige": 3,
+        "corn": 3,
+        "egg": 5,
+        "strawberry": 5
+      },
+      "members": []
+    },
+    {
+      "id": "house_1787138630700",
+      "name": "pramodbhai",
+      "type": "house",
+      "capacity": 4,
+      "budget": 10,
+      "inventory": {
+        "milk": 5,
+        "wheat": 0,
+        "apple": 5,
+        "carrot": 4,
+        "cucumber": 9,
+        "brokeli": 3,
+        "chilly": 3,
+        "cabbige": 3,
+        "corn": 6,
+        "strawberry": 6,
+        "egg": 6
+      },
+      "members": [
+        {
+          "name": "hasumatiben",
+          "role": "mother",
+          "relation": "mother of archit and meshvi",
+          "vehicle": "scooter",
+          "state": "Home Chores & Meal Prep"
         },
         {
-          "name": "Sanjay",
-          "role": "worker",
-          "relation": "Factory Operator",
-          "state": "Working at Factory"
+          "name": "Pramodbhai",
+          "role": "father",
+          "relation": "Family Member",
+          "vehicle": "car",
+          "state": "Household Management & Operations"
+        },
+        {
+          "name": "Archit",
+          "role": "son",
+          "relation": "Family Member",
+          "vehicle": "walk",
+          "state": "Active Working in Civilization"
+        },
+        {
+          "name": "Meshvi",
+          "role": "daughter",
+          "relation": "11Th science student study in school",
+          "vehicle": "bicycle",
+          "state": "Active Working in Civilization"
+        }
+      ]
+    },
+    {
+      "id": "house_maritime",
+      "name": "Port Captain's Naval Quarters",
+      "type": "house",
+      "budget": 10,
+      "inventory": {
+        "milk": 5,
+        "wheat": 7,
+        "apple": 5,
+        "fish": 12
+      },
+      "members": [
+        {
+          "name": "Captain Vikram",
+          "role": "captain",
+          "relation": "Shipyard Harbor Master",
+          "state": "Active Working in Civilization",
+          "vehicle": "car"
+        },
+        {
+          "name": "Priya Sharma",
+          "role": "navigator",
+          "relation": "First Navigation Officer",
+          "state": "Active Working in Civilization",
+          "vehicle": "scooter"
+        },
+        {
+          "name": "Rahul Tandel",
+          "role": "deck_officer",
+          "relation": "Maritime Cargo Pilot",
+          "state": "Active Working in Civilization",
+          "vehicle": "truck"
+        }
+      ]
+    },
+    {
+      "id": "hostel_refinery",
+      "name": "PetroChem Industrial Workers Dormitory",
+      "type": "hostel",
+      "capacity": 10,
+      "budget": 12,
+      "inventory": {
+        "milk": 7,
+        "wheat": 11,
+        "apple": 7,
+        "bread": 10
+      },
+      "members": [
+        {
+          "name": "Arjun Patel",
+          "role": "engineer",
+          "relation": "Chief Refinery Engineer",
+          "state": "Working at Electronic Hub",
+          "vehicle": "truck"
+        },
+        {
+          "name": "Deepa Shah",
+          "role": "chemist",
+          "relation": "Petroleum Chemist",
+          "state": "Active Working in Civilization",
+          "vehicle": "scooter"
+        },
+        {
+          "name": "Rohan Mistri",
+          "role": "technician",
+          "relation": "Petrol Pump Supervisor",
+          "state": "Active Working in Civilization",
+          "vehicle": "scooter"
+        },
+        {
+          "name": "Meera Dave",
+          "role": "inspector",
+          "relation": "Industrial Safety Inspector",
+          "state": "Active Working in Civilization",
+          "vehicle": "car"
+        }
+      ]
+    },
+    {
+      "id": "house_merchant",
+      "name": "Market Square Traders Manor",
+      "type": "house",
+      "budget": 1,
+      "inventory": {
+        "milk": 5,
+        "wheat": 9,
+        "carrot": 10,
+        "apple": 9
+      },
+      "members": [
+        {
+          "name": "Kisan Mandi",
+          "role": "merchant",
+          "relation": "Farmers Market Proprietor",
+          "state": "Working at Commercial Stores",
+          "vehicle": "car"
+        },
+        {
+          "name": "Sunil Varma",
+          "role": "grocer",
+          "relation": "Wholesale Grocery Manager",
+          "state": "Active Working in Civilization",
+          "vehicle": "truck"
+        },
+        {
+          "name": "Anita Ben",
+          "role": "cashier",
+          "relation": "Dairy Depot Cashier",
+          "state": "Active Working in Civilization",
+          "vehicle": "scooter"
         }
       ]
     }
@@ -778,83 +1117,446 @@
     "sales_tax": 5,
     "welfare_threshold": 15,
     "welfare_payout": 15,
-    "welfare_checks_payouts": 0
+    "welfare_checks_payouts": 45
   },
   "cabinet": {
-    "prime_minister": "Thakorbhai",
-    "district_magistrate": "Bharatbhai",
+    "prime_minister": "Mayuriben",
+    "district_magistrate": "Vasantiben",
     "ministers": {
-      "finance": "Rameshbhai",
-      "education": "Vasantiben",
-      "infrastructure": "Mayuriben"
+      "finance": "Hemuben",
+      "education": "Rameshbhai",
+      "infrastructure": "Bharatbhai"
     }
   },
   "news_feed": [
     {
       "timestamp": "12:00 PM",
-      "headline": "Weather Alert: Heavy monsoons expected over Valsad region. Rumla Farms report high mud saturation.",
+      "headline": "Local Warning: Food shortages reported at Rameshbhai's Residence. Residents plead for deliveries.",
+      "category": "LOCAL"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Farm Report: Kisan Livestock barn gathered 10x Milk, 6x Wool, 20x Eggs for town markets.",
+      "category": "ECONOMY"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Weather Alert: Heatwave warning: Power grids at maximum load. Citizens stay hydrated.",
       "category": "WEATHER"
     },
     {
       "timestamp": "12:00 PM",
-      "headline": "Finance Ministry: Collected $3 in income tax from Rameshbhai's Residence.",
+      "headline": "Finance Ministry: Collected $16 in income tax from Market Square Traders Manor.",
       "category": "ECONOMY"
     },
     {
       "timestamp": "12:00 PM",
-      "headline": "Finance Ministry: Collected $8 in income tax from Bharatbhai's Residence.",
+      "headline": "Finance Ministry: Collected $18 in income tax from PetroChem Industrial Workers Dormitory.",
       "category": "ECONOMY"
     },
     {
       "timestamp": "12:00 PM",
-      "headline": "Finance Ministry: Collected $7 in income tax from Thakorbhai's Residence.",
+      "headline": "Finance Ministry: Collected $12 in income tax from Port Captain's Naval Quarters.",
       "category": "ECONOMY"
     },
     {
       "timestamp": "12:00 PM",
-      "headline": "Finance Ministry: Collected $50 in corporate taxes from Player Brokerage.",
+      "headline": "Finance Ministry: Collected $3 in income tax from pramodbhai.",
       "category": "ECONOMY"
     },
     {
       "timestamp": "12:00 PM",
-      "headline": "Local: Mother purchased daily food requirements for Rameshbhai's Residence from Amina's Dairy Store.",
+      "headline": "Finance Ministry: Collected $1 in income tax from Navsari Central Workers Hostel.",
+      "category": "ECONOMY"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Finance Ministry: Collected $2 in income tax from Rameshbhai's Residence.",
+      "category": "ECONOMY"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Finance Ministry: Collected $14 in income tax from Bharatbhai's Residence.",
+      "category": "ECONOMY"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Finance Ministry: Collected $4 in income tax from Thakorbhai's Residence.",
+      "category": "ECONOMY"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Finance Ministry: Collected $76 in corporate taxes from Player Brokerage.",
+      "category": "ECONOMY"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Cabinet Decision: PM Mayuriben approved $50 treasury allocation to 'General Hospital'.",
+      "category": "POLITICS"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Local Warning: Food shortages reported at Bharatbhai's Residence. Residents plead for deliveries.",
       "category": "LOCAL"
     },
     {
       "timestamp": "12:00 PM",
-      "headline": "Market Report: Thakorbhai purchased a utility torch from Rajesh's Electronics Hub.",
+      "headline": "Farm Report: Kisan Livestock barn gathered 10x Milk, 6x Wool, 20x Eggs for town markets.",
+      "category": "ECONOMY"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Market Report: 'Rumla Dairy & Groceries' owner Amina replenished shelves from Player Brokerage.",
       "category": "LOCAL"
     },
     {
       "timestamp": "12:00 PM",
-      "headline": "Cabinet Decision: PM Thakorbhai approved $50 treasury allocation to 'Community School'.",
+      "headline": "Weather Alert: Monsoonal breeze sweeps through the town plaza.",
+      "category": "WEATHER"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Welfare Program: Cabinet Finance Minister Hemuben approved $15 subsidy check for pramodbhai.",
+      "category": "ECONOMY"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Welfare Program: Cabinet Finance Minister Hemuben approved $15 subsidy check for Navsari Central Workers Hostel.",
+      "category": "ECONOMY"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Welfare Program: Cabinet Finance Minister Hemuben approved $15 subsidy check for Rameshbhai's Residence.",
+      "category": "ECONOMY"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Finance Ministry: Collected $11 in income tax from Bharatbhai's Residence.",
+      "category": "ECONOMY"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Finance Ministry: Collected $3 in income tax from Thakorbhai's Residence.",
+      "category": "ECONOMY"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "🏛️ DEMOCRACY (Year 1): Citizens elected Mayuriben as Prime Minister & Vasantiben as District Magistrate!",
       "category": "POLITICS"
     },
     {
-      "timestamp": "08:00 AM",
-      "headline": "Prime Minister Thakorbhai announces the Rumla Cabinet Coalition formation.",
+      "timestamp": "12:00 PM",
+      "headline": "Cabinet Decision: PM Mayuriben approved $50 treasury allocation to 'General Hospital'.",
       "category": "POLITICS"
     },
     {
-      "timestamp": "09:00 AM",
-      "headline": "Decentralized Markets open: Amina Groceries reports steady supplies.",
+      "timestamp": "12:00 PM",
+      "headline": "Local Warning: Food shortages reported at Rameshbhai's Residence. Residents plead for deliveries.",
+      "category": "LOCAL"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Local Warning: Food shortages reported at Bharatbhai's Residence. Residents plead for deliveries.",
+      "category": "LOCAL"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Local Warning: Food shortages reported at Thakorbhai's Residence. Residents plead for deliveries.",
+      "category": "LOCAL"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Farm Report: Kisan Livestock barn gathered 10x Milk, 6x Wool, 20x Eggs for town markets.",
+      "category": "ECONOMY"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Market Report: 'Rumla Dairy & Groceries' owner Amina replenished shelves from Player Brokerage.",
+      "category": "LOCAL"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Weather Alert: Heatwave warning: Power grids at maximum load. Citizens stay hydrated.",
+      "category": "WEATHER"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Finance Ministry: Collected $6 in income tax from pramodbhai.",
+      "category": "ECONOMY"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Finance Ministry: Collected $7 in income tax from Navsari Central Workers Hostel.",
+      "category": "ECONOMY"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Finance Ministry: Collected $6 in income tax from Rameshbhai's Residence.",
+      "category": "ECONOMY"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Finance Ministry: Collected $20 in income tax from Bharatbhai's Residence.",
+      "category": "ECONOMY"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Finance Ministry: Collected $11 in income tax from Thakorbhai's Residence.",
+      "category": "ECONOMY"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Finance Ministry: Collected $7 in corporate taxes from Player Brokerage.",
+      "category": "ECONOMY"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Cabinet Decision: PM Mayuriben approved $50 treasury allocation to 'General Hospital'.",
+      "category": "POLITICS"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Local Warning: Food shortages reported at Rameshbhai's Residence. Residents plead for deliveries.",
+      "category": "LOCAL"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Local Warning: Food shortages reported at Bharatbhai's Residence. Residents plead for deliveries.",
+      "category": "LOCAL"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Local Warning: Food shortages reported at Thakorbhai's Residence. Residents plead for deliveries.",
+      "category": "LOCAL"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Farm Report: Kisan Livestock barn gathered 10x Milk, 6x Wool, 20x Eggs for town markets.",
+      "category": "ECONOMY"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Market Report: 'Rumla Dairy & Groceries' owner Amina replenished shelves from Player Brokerage.",
+      "category": "LOCAL"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Weather Alert: Heatwave warning: Power grids at maximum load. Citizens stay hydrated.",
+      "category": "WEATHER"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Finance Ministry: Collected $5 in income tax from pramodbhai.",
+      "category": "ECONOMY"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Finance Ministry: Collected $9 in income tax from Navsari Central Workers Hostel.",
+      "category": "ECONOMY"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Finance Ministry: Collected $14 in income tax from Rameshbhai's Residence.",
+      "category": "ECONOMY"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Finance Ministry: Collected $29 in income tax from Bharatbhai's Residence.",
+      "category": "ECONOMY"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Finance Ministry: Collected $22 in income tax from Thakorbhai's Residence.",
+      "category": "ECONOMY"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Finance Ministry: Collected $2 in corporate taxes from Player Brokerage.",
+      "category": "ECONOMY"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Market Report: pramodbhai purchased fresh produce from Kisan Mandi at the Central Farmers Market.",
       "category": "LOCAL"
     }
   ],
   "city_manager_enabled": true,
   "shops": [
     {
+      "id": "farmers_market",
+      "name": "Navsari Fresh Farmers & Vegetable Market",
+      "owner": "Kisan Mandi",
+      "inventory": {
+        "carrot": 40,
+        "brokeli": 40,
+        "cabbige": 40,
+        "cucumber": 40,
+        "chilly": 40,
+        "corn": 40,
+        "apple": 40,
+        "banana": 40,
+        "strawberry": 40,
+        "watermelon": 40,
+        "wheat": 40,
+        "milk": 40,
+        "egg": 40,
+        "wool": 40,
+        "pumpkin": 40,
+        "fish": 40
+      },
+      "prices": {
+        "carrot": 3,
+        "brokeli": 4,
+        "cabbige": 3,
+        "cucumber": 2,
+        "chilly": 2,
+        "corn": 3,
+        "apple": 4,
+        "banana": 3,
+        "strawberry": 6,
+        "watermelon": 8,
+        "wheat": 3
+      },
+      "revenue": 1287,
+      "sales_history": [
+        "Day 12 17:00 - Sold 3x carrot to Thakorbhai's Residence for $9",
+        "Day 12 17:00 - Sold 3x cucumber to Thakorbhai's Residence for $6",
+        "Day 12 17:00 - Sold 3x brokeli to Thakorbhai's Residence for $12",
+        "Day 12 17:00 - Sold 3x chilly to Thakorbhai's Residence for $6",
+        "Day 12 17:00 - Sold 3x cabbige to Thakorbhai's Residence for $9",
+        "Day 12 17:00 - Sold 3x corn to Thakorbhai's Residence for $9",
+        "Day 12 17:00 - Sold 3x carrot to Bharatbhai's Residence for $9",
+        "Day 12 17:00 - Sold 3x cucumber to Bharatbhai's Residence for $6",
+        "Day 12 17:00 - Sold 3x brokeli to Bharatbhai's Residence for $12",
+        "Day 12 17:00 - Sold 3x chilly to Bharatbhai's Residence for $6",
+        "Day 12 17:00 - Sold 3x cabbige to Bharatbhai's Residence for $9",
+        "Day 12 17:00 - Sold 3x corn to Bharatbhai's Residence for $9",
+        "Day 12 17:00 - Sold 3x carrot to Rameshbhai's Residence for $9",
+        "Day 12 17:00 - Sold 3x cucumber to Rameshbhai's Residence for $6",
+        "Day 12 17:00 - Sold 3x brokeli to Rameshbhai's Residence for $12",
+        "Day 12 17:00 - Sold 3x chilly to Rameshbhai's Residence for $6",
+        "Day 12 17:00 - Sold 3x cabbige to Rameshbhai's Residence for $9",
+        "Day 12 17:00 - Sold 3x corn to Rameshbhai's Residence for $9",
+        "Day 12: Sold 1x carrot to Player for $3",
+        "Day 12: Sold 1x carrot to Player for $3",
+        "Day 12: Sold 1x carrot to Player for $3",
+        "Day 12: Sold 1x carrot to Player for $3",
+        "Day 12: Sold 1x carrot to Player for $3",
+        "Day 12: Sold 1x carrot to Player for $3",
+        "Day 13 17:00 - Sold 3x cucumber to Navsari Central Workers Hostel for $6",
+        "Day 13 17:00 - Sold 3x brokeli to Navsari Central Workers Hostel for $12",
+        "Day 13 17:00 - Sold 3x chilly to Navsari Central Workers Hostel for $6",
+        "Day 13 17:00 - Sold 3x cabbige to Navsari Central Workers Hostel for $9",
+        "Day 13 17:00 - Sold 3x corn to Navsari Central Workers Hostel for $9",
+        "Day 13 17:00 - Sold 3x cucumber to pramodbhai for $6",
+        "Day 13 17:00 - Sold 3x brokeli to pramodbhai for $12",
+        "Day 13 17:00 - Sold 3x chilly to pramodbhai for $6",
+        "Day 13 17:00 - Sold 3x cabbige to pramodbhai for $9",
+        "Day 13 17:00 - Sold 3x corn to pramodbhai for $9",
+        "Day 14 17:00 - Sold 3x carrot to Thakorbhai for $9",
+        "Day 14 17:00 - Sold 3x cucumber to Thakorbhai for $6",
+        "Day 14 17:00 - Sold 3x corn to Thakorbhai for $9",
+        "Day 14 17:00 - Sold 6x apple to Thakorbhai for $24",
+        "Day 14 17:00 - Sold 6x strawberry to Thakorbhai for $36",
+        "Day 14 17:00 - Sold 6x egg to Thakorbhai for $18",
+        "Day 14 17:00 - Sold 3x milk to Thakorbhai for $9",
+        "Day 14 17:00 - Sold 3x carrot to bharatbhai for $9",
+        "Day 14 17:00 - Sold 3x cucumber to bharatbhai for $6",
+        "Day 14 17:00 - Sold 3x corn to bharatbhai for $9",
+        "Day 14 17:00 - Sold 6x apple to bharatbhai for $24",
+        "Day 14 17:00 - Sold 6x strawberry to bharatbhai for $36",
+        "Day 14 17:00 - Sold 4x egg to bharatbhai for $12",
+        "Day 14 17:00 - Sold 3x carrot to rameshbhai for $9",
+        "Day 14 17:00 - Sold 3x cucumber to rameshbhai for $6",
+        "Day 14 17:00 - Sold 3x corn to rameshbhai for $9",
+        "Day 14 17:00 - Sold 6x apple to rameshbhai for $24",
+        "Day 14 17:00 - Sold 3x strawberry to rameshbhai for $18",
+        "Day 14 17:00 - Sold 1x carrot to hasumatiben for $3",
+        "Day 14 17:00 - Sold 1x cucumber to hasumatiben for $2",
+        "Day 14 17:00 - Sold 3x corn to hasumatiben for $9",
+        "Day 14 17:00 - Sold 3x apple to hasumatiben for $12",
+        "Day 15: Bought 1x carrot from Player for $3",
+        "Day 15: Bought 1x carrot from Player for $3",
+        "Day 15: Bought 1x carrot from Player for $3",
+        "Day 15: Bought 1x carrot from Player for $3",
+        "Day 15: Bought 1x carrot from Player for $3",
+        "Day 15: Bought 1x carrot from Player for $3",
+        "Day 15: Bought 1x carrot from Player for $3",
+        "Day 15: Sold 1x milk to Player for $5",
+        "Day 15 17:00 - Sold 4x carrot to Thakorbhai for $12",
+        "Day 15 17:00 - Sold 1x apple to Thakorbhai for $4",
+        "Day 15 17:00 - Sold 1x milk to Thakorbhai for $3",
+        "Day 15 17:00 - Sold 4x carrot to bharatbhai for $12",
+        "Day 15 17:00 - Sold 1x apple to bharatbhai for $4",
+        "Day 15 17:00 - Sold 3x milk to bharatbhai for $9",
+        "Day 15 17:00 - Sold 4x carrot to rameshbhai for $12",
+        "Day 15 17:00 - Sold 1x apple to rameshbhai for $4",
+        "Day 15 17:00 - Sold 3x strawberry to rameshbhai for $18",
+        "Day 15 17:00 - Sold 6x milk to rameshbhai for $18",
+        "Day 15 17:00 - Sold 2x strawberry to Family Head for $12",
+        "Day 15 17:00 - Sold 4x carrot to hasumatiben for $12",
+        "Day 15 17:00 - Sold 2x cucumber to hasumatiben for $4",
+        "Day 15 17:00 - Sold 1x apple to hasumatiben for $4",
+        "Day 15 17:00 - Sold 6x strawberry to hasumatiben for $36",
+        "Day 15 17:00 - Sold 6x egg to hasumatiben for $18",
+        "Day 15 17:00 - Sold 4x milk to hasumatiben for $12",
+        "Day 15: Sold 1x carrot to Player for $3",
+        "Day 15: Sold 5x milk to Player for $25",
+        "Day 16: Bought 1x carrot from Player for $3",
+        "Day 16: Bought 1x carrot from Player for $3",
+        "Day 16: Bought 1x carrot from Player for $3",
+        "Day 16: Bought 1x carrot from Player for $3",
+        "Day 16: Bought 1x carrot from Player for $3",
+        "Day 16: Bought 1x carrot from Player for $3",
+        "Day 16: Bought 1x carrot from Player for $3",
+        "Day 16: Bought 1x brokeli from Player for $4",
+        "Day 16: Bought 1x brokeli from Player for $4",
+        "Day 16: Bought 1x brokeli from Player for $4",
+        "Day 16: Bought 1x brokeli from Player for $4",
+        "Day 16: Bought 1x brokeli from Player for $4",
+        "Day 16: Sold 5x apple to Player for $20",
+        "Day 16: Sold 5x apple to Player for $20",
+        "Day 16: Sold 5x apple to Player for $20",
+        "Day 16: Bought 1x apple from Player for $4",
+        "Day 16: Bought 1x apple from Player for $4",
+        "Day 16: Bought 1x apple from Player for $4",
+        "Day 16: Bought 1x apple from Player for $4",
+        "Day 16: Bought 1x corn from Player for $3",
+        "Day 16: Bought 1x corn from Player for $3",
+        "Day 16: Bought 1x corn from Player for $3",
+        "Day 16: Bought 1x corn from Player for $3",
+        "Day 16: Bought 1x corn from Player for $3",
+        "Day 16: Bought 1x corn from Player for $3",
+        "Day 16: Bought 1x corn from Player for $3",
+        "Day 16: Bought 1x corn from Player for $3",
+        "Day 16: Bought 1x corn from Player for $3",
+        "Day 16: Bought 1x corn from Player for $3",
+        "Day 16: Bought 1x corn from Player for $3",
+        "Day 16: Bought 1x corn from Player for $3",
+        "Day 16: Bought 1x corn from Player for $3",
+        "Day 16: Bought 1x corn from Player for $3",
+        "Day 16: Bought 1x corn from Player for $3",
+        "Day 16: Bought 1x corn from Player for $3",
+        "Day 16: Bought 1x corn from Player for $3",
+        "Day 16 17:00 - Sold 1x carrot to Thakorbhai for $3",
+        "Day 16 17:00 - Sold 1x carrot to bharatbhai for $3",
+        "Day 16 17:00 - Sold 1x apple to hasumatiben for $4",
+        "Day 16 17:00 - Sold 1x milk to hasumatiben for $5"
+      ]
+    },
+    {
       "id": "dairy",
       "name": "Rumla Dairy & Groceries",
       "owner": "Amina",
       "inventory": {
-        "milk": 7,
-        "wheat": 7,
-        "apple": 7,
+        "milk": 20,
+        "wheat": 5,
+        "apple": 24,
         "bread": 5,
         "tomato_ketch": 5,
         "pizza": 2,
-        "burger": 2
+        "burger": 2,
+        "egg": 24
       },
       "prices": {
         "milk": 2,
@@ -865,11 +1567,60 @@
         "pizza": 45,
         "burger": 35
       },
-      "revenue": 127,
+      "revenue": 92,
       "sales_history": [
         "Day 1 17:00 - Sold 3x milk to hemuben for $6",
         "Day 1 17:00 - Sold 3x wheat to hemuben for $9",
-        "Day 1 17:00 - Sold 3x apple to hemuben for $12"
+        "Day 1 17:00 - Sold 3x apple to hemuben for $12",
+        "Day 2 17:00 - Sold 3x milk to mayuriben for $6",
+        "Day 2 17:00 - Sold 3x wheat to mayuriben for $9",
+        "Day 2 17:00 - Sold 3x apple to mayuriben for $12",
+        "Day 3 17:00 - Sold 3x milk to vasantiben for $6",
+        "Day 3 17:00 - Sold 3x wheat to vasantiben for $9",
+        "Day 3 17:00 - Sold 3x apple to vasantiben for $12",
+        "Day 4 17:00 - Sold 1x milk to hemuben for $2",
+        "Day 4 17:00 - Sold 1x wheat to hemuben for $3",
+        "Day 4 17:00 - Sold 1x apple to hemuben for $4",
+        "Day 12: Sold 1x tomato_ketch to Player for $10",
+        "Day 13 06:00 - Restocked 1x tomato_ketch from Player for $17",
+        "Day 14: Bought 1x apple from Player for $4",
+        "Day 14: Bought 1x apple from Player for $4",
+        "Day 14: Bought 1x apple from Player for $4",
+        "Day 14: Bought 1x apple from Player for $4",
+        "Day 14 06:00 - Restocked 10x apple from Player for $60",
+        "Day 14 17:00 - Sold 3x milk to Thakorbhai for $6",
+        "Day 14 17:00 - Sold 4x milk to bharatbhai for $8",
+        "Day 14 17:00 - Sold 2x egg to bharatbhai for $6",
+        "Day 14 17:00 - Sold 6x egg to rameshbhai for $18",
+        "Day 14 17:00 - Sold 2x egg to Family Head for $6",
+        "Day 15 06:00 - Restocked 2x wheat from Player for $8",
+        "Day 15 17:00 - Sold 2x wheat to Thakorbhai for $6",
+        "Day 15: Bought 1x wheat from Player for $3",
+        "Day 15: Bought 1x milk from Player for $2",
+        "Day 15: Sold 1x milk to Player for $2",
+        "Day 15: Bought 1x milk from Player for $2",
+        "Day 15: Bought 1x milk from Player for $2",
+        "Day 15: Bought 1x milk from Player for $2",
+        "Day 15: Bought 1x milk from Player for $2",
+        "Day 16 06:00 - Restocked 2x milk from Player for $10",
+        "Day 16 06:00 - Restocked 8x wheat from Player for $40",
+        "Day 16: Bought 1x apple from Player for $4",
+        "Day 16: Bought 1x apple from Player for $4",
+        "Day 16: Bought 1x apple from Player for $4",
+        "Day 16: Bought 1x apple from Player for $4",
+        "Day 16: Bought 1x apple from Player for $4",
+        "Day 16: Bought 1x apple from Player for $4",
+        "Day 16: Bought 1x apple from Player for $4",
+        "Day 16: Bought 1x apple from Player for $4",
+        "Day 16: Bought 1x apple from Player for $4",
+        "Day 16: Bought 1x apple from Player for $4",
+        "Day 16 17:00 - Sold 5x wheat to Thakorbhai for $15",
+        "Day 16 17:00 - Sold 3x wheat to bharatbhai for $9",
+        "Day 16: Bought 1x wheat from Player for $3",
+        "Day 16: Bought 1x wheat from Player for $3",
+        "Day 16: Bought 1x wheat from Player for $3",
+        "Day 16: Bought 1x wheat from Player for $3",
+        "Day 16: Bought 1x wheat from Player for $3"
       ]
     },
     {
@@ -898,8 +1649,8 @@
       "name": "Savita's Clothiers",
       "owner": "Savita",
       "inventory": {
-        "fiber": 30,
-        "wool": 20,
+        "fiber": 29,
+        "wool": 44,
         "rubber": 10
       },
       "prices": {
@@ -907,15 +1658,21 @@
         "wool": 4,
         "rubber": 8
       },
-      "revenue": 120,
-      "sales_history": []
+      "revenue": 121,
+      "sales_history": [
+        "Day 14: Bought 1x fiber from Player for $1",
+        "Day 14: Bought 1x fiber from Player for $1",
+        "Day 14: Sold 1x fiber to Player for $1",
+        "Day 14: Sold 1x fiber to Player for $1",
+        "Day 14: Sold 1x fiber to Player for $1"
+      ]
     },
     {
       "id": "electronics",
       "name": "Rajesh's Electronic Hub",
       "owner": "Rajesh",
       "inventory": {
-        "torch": 4,
+        "torch": 3,
         "copper": 10,
         "iron": 10,
         "steel": 5
@@ -926,67 +1683,728 @@
         "iron": 8,
         "steel": 12
       },
-      "revenue": 210,
+      "revenue": 220,
       "sales_history": [
-        "Day 1 17:00 - Sold 1x torch to Thakorbhai for $10"
+        "Day 1 17:00 - Sold 1x torch to Thakorbhai for $10",
+        "Day 17: Sold 1x torch to Player for $10"
       ]
     }
   ],
   "zone_locations": {
+    "4": [
+      20.9465,
+      72.952
+    ],
     "house_1": [
-      20.6732,
-      73.08
+      20.680375870583823,
+      73.16612589798125
     ],
     "house_2": [
-      20.672,
-      73.0815
+      20.75884223623876,
+      73.05740208101352
     ],
     "house_3": [
-      20.6715,
-      73.0795
+      20.754638631128497,
+      73.0542692846168
+    ],
+    "house_maritime": [
+      20.938,
+      72.93
+    ],
+    "hostel_refinery": [
+      20.962,
+      72.968
+    ],
+    "house_merchant": [
+      20.949,
+      72.954
+    ],
+    "hostel_central": [
+      20.9485,
+      72.9525
+    ],
+    "farmers_market": [
+      20.9458,
+      72.9518
     ],
     "dairy": [
-      20.6728,
-      73.0805
+      20.9468,
+      72.952
     ],
     "general": [
-      20.6725,
-      73.081
+      20.9465,
+      72.9525
     ],
     "clothing": [
-      20.6722,
-      73.0808
+      20.9462,
+      72.9523
     ],
     "electronics": [
-      20.673,
-      73.0812
+      20.947,
+      72.9527
     ],
     "farms": [
-      20.6705,
-      73.078
+      20.9445,
+      72.9495
     ],
     "factory": [
-      20.674,
-      73.082
+      20.948,
+      72.9535
     ],
     "school": [
-      20.6735,
-      73.079
+      20.9475,
+      72.9505
     ],
     "hospital": [
-      20.671,
-      73.0825
+      20.945,
+      72.954
     ],
     "park": [
-      20.6725,
-      73.083
+      20.9465,
+      72.9545
+    ],
+    "roads": [
+      20.9465,
+      72.952
+    ],
+    "shipyard": [
+      20.935,
+      72.925
+    ],
+    "refinery": [
+      20.965,
+      72.97
+    ],
+    "petrol_pump": [
+      20.952,
+      72.948
+    ],
+    "steel_mill": [
+      20.958,
+      72.96
+    ],
+    "house_1787138630700": [
+      20.768431566477535,
+      73.01823960417397
     ]
   },
-  "last_saved_at": "2026-08-18T19:24:33.317Z",
-  "logs_this_day": [],
-  "last_tax_collected_day": 2,
-  "last_cabinet_meeting_day": 1,
-  "last_routine_hour": 11,
-  "last_election_cycle": 1,
-  "last_restock_day": 2
+  "last_saved_at": "2026-08-19T13:28:53.817Z",
+  "logs_this_day": [
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [apple].",
+    "🌾 Kisan AI Agent: Liquidated surplus crops for +$12 to maintain personal cash reserve ($201 in wallet); Auto-procured 1x apple seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Liquidated surplus crops for +$4 to maintain personal cash reserve ($201 in wallet); Planted 1 empty plot(s) with priority crops: [wheat].",
+    "🌾 Kisan AI Agent: Auto-procured 1x wheat seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Liquidated surplus crops for +$4 to maintain personal cash reserve ($202 in wallet).",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [wheat].",
+    "🌾 Kisan AI Agent: Auto-procured 1x wheat seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Liquidated surplus crops for +$4 to maintain personal cash reserve ($203 in wallet); Planted 2 empty plot(s) with priority crops: [wheat, brokeli].",
+    "🌾 Kisan AI Agent: Auto-procured 1x wheat seed, 1x brokeli seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Liquidated surplus crops for +$4 to maintain personal cash reserve ($200 in wallet).",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [wheat].",
+    "🌾 Kisan AI Agent: Auto-procured 1x wheat seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Liquidated surplus crops for +$4 to maintain personal cash reserve ($201 in wallet).",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Planted 2 empty plot(s) with priority crops: [wheat, brokeli].",
+    "🌾 Kisan AI Agent: Auto-procured 1x wheat seed, 1x brokeli seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Liquidated surplus crops for +$8 to maintain personal cash reserve ($202 in wallet).",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Planted 2 empty plot(s) with priority crops: [wheat, brokeli].",
+    "🌾 Kisan AI Agent: Auto-procured 1x wheat seed, 1x brokeli seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Liquidated surplus crops for +$8 to maintain personal cash reserve ($203 in wallet).",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Planted 2 empty plot(s) with priority crops: [wheat, brokeli].",
+    "🌾 Kisan AI Agent: Auto-procured 1x wheat seed, 1x brokeli seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Liquidated surplus crops for +$4 to maintain personal cash reserve ($200 in wallet); Planted 2 empty plot(s) with priority crops: [brokeli, cabbige].",
+    "🌾 Kisan AI Agent: Auto-procured 1x brokeli seed, 1x cabbige seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Liquidated surplus crops for +$12 to maintain personal cash reserve ($203 in wallet).",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [brokeli].",
+    "🌾 Kisan AI Agent: Auto-procured 1x brokeli seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Liquidated surplus crops for +$4 to maintain personal cash reserve ($203 in wallet).",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [brokeli].",
+    "🌾 Kisan AI Agent: Auto-procured 1x brokeli seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Liquidated surplus crops for +$4 to maintain personal cash reserve ($203 in wallet); Planted 1 empty plot(s) with priority crops: [brokeli].",
+    "🌾 Kisan AI Agent: Auto-procured 1x brokeli seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Liquidated surplus crops for +$4 to maintain personal cash reserve ($203 in wallet).",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [brokeli].",
+    "🌾 Kisan AI Agent: Auto-procured 1x brokeli seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Liquidated surplus crops for +$4 to maintain personal cash reserve ($203 in wallet); Planted 1 empty plot(s) with priority crops: [brokeli].",
+    "🌾 Kisan AI Agent: Auto-procured 1x brokeli seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Liquidated surplus crops for +$4 to maintain personal cash reserve ($203 in wallet); Planted 1 empty plot(s) with priority crops: [cabbige].",
+    "🌾 Kisan AI Agent: Auto-procured 1x cabbige seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Liquidated surplus crops for +$4 to maintain personal cash reserve ($202 in wallet); Planted 1 empty plot(s) with priority crops: [cabbige].",
+    "🌾 Kisan AI Agent: Auto-procured 1x cabbige seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Liquidated surplus crops for +$4 to maintain personal cash reserve ($201 in wallet).",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [cabbige].",
+    "🌾 Kisan AI Agent: Auto-procured 1x cabbige seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Liquidated surplus crops for +$4 to maintain personal cash reserve ($200 in wallet).",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [cabbige].",
+    "🌾 Kisan AI Agent: Auto-procured 1x cabbige seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Liquidated surplus crops for +$8 to maintain personal cash reserve ($203 in wallet).",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [chilly].",
+    "🌾 Kisan AI Agent: Auto-procured 1x chilly seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Liquidated surplus crops for +$4 to maintain personal cash reserve ($203 in wallet); Planted 1 empty plot(s) with priority crops: [chilly].",
+    "🌾 Kisan AI Agent: Auto-procured 1x chilly seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Liquidated surplus crops for +$4 to maintain personal cash reserve ($203 in wallet).",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Planted 2 empty plot(s) with priority crops: [chilly, cabbige].",
+    "🌾 Kisan AI Agent: Auto-procured 1x cabbige seed, 1x chilly seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Liquidated surplus crops for +$8 to maintain personal cash reserve ($202 in wallet).",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [chilly].",
+    "🌾 Kisan AI Agent: Auto-procured 1x chilly seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Liquidated surplus crops for +$4 to maintain personal cash reserve ($202 in wallet).",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Planted 2 empty plot(s) with priority crops: [chilly, cabbige].",
+    "🌾 Kisan AI Agent: Auto-procured 1x cabbige seed, 1x chilly seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Liquidated surplus crops for +$8 to maintain personal cash reserve ($201 in wallet); Planted 2 empty plot(s) with priority crops: [watermelon, pumpkin].",
+    "🌾 Kisan AI Agent: Auto-procured 1x watermelon seed, 1x pumpkin seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Liquidated surplus crops for +$16 to maintain personal cash reserve ($202 in wallet); Planted 2 empty plot(s) with priority crops: [watermelon, pumpkin].",
+    "🌾 Kisan AI Agent: Auto-procured 1x watermelon seed, 1x pumpkin seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Liquidated surplus crops for +$16 to maintain personal cash reserve ($203 in wallet).",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Planted 2 empty plot(s) with priority crops: [watermelon, pumpkin].",
+    "🌾 Kisan AI Agent: Auto-procured 1x watermelon seed, 1x pumpkin seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Liquidated surplus crops for +$12 to maintain personal cash reserve ($200 in wallet).",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [wheat].",
+    "🌾 Kisan AI Agent: Auto-procured 1x wheat seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Liquidated surplus crops for +$4 to maintain personal cash reserve ($201 in wallet).",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [wheat].",
+    "🌾 Kisan AI Agent: Auto-procured 1x wheat seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Liquidated surplus crops for +$4 to maintain personal cash reserve ($202 in wallet).",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [wheat].",
+    "🌾 Kisan AI Agent: Auto-procured 1x wheat seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Liquidated surplus crops for +$4 to maintain personal cash reserve ($203 in wallet).",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [wheat].",
+    "🌾 Kisan AI Agent: Auto-procured 1x wheat seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Planted 2 empty plot(s) with priority crops: [watermelon, pumpkin].",
+    "🌾 Kisan AI Agent: Auto-procured 1x watermelon seed, 1x pumpkin seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Liquidated surplus crops for +$16 to maintain personal cash reserve ($201 in wallet).",
+    "🌾 Kisan AI Agent: Harvested 5 mature plot(s); Planted 5 empty plot(s) with priority crops: [watermelon, corn, strawberry, pumpkin, carrot].",
+    "🌾 Kisan AI Agent: Auto-procured 1x carrot seed, 1x corn seed, 1x strawberry seed, 1x watermelon seed, 1x pumpkin seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Liquidated surplus crops for +$28 to maintain personal cash reserve ($202 in wallet).",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Planted 2 empty plot(s) with priority crops: [corn, strawberry].",
+    "🌾 Kisan AI Agent: Auto-procured 1x corn seed, 1x strawberry seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Liquidated surplus crops for +$8 to maintain personal cash reserve ($201 in wallet).",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Planted 2 empty plot(s) with priority crops: [corn, strawberry].",
+    "🌾 Kisan AI Agent: Auto-procured 1x corn seed, 1x strawberry seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Liquidated surplus crops for +$8 to maintain personal cash reserve ($200 in wallet).",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [corn].",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Auto-procured 1x corn seed to maintain ≥5 seed buffer; Planted 1 empty plot(s) with priority crops: [corn].",
+    "🌾 Kisan AI Agent: Liquidated surplus crops for +$4 to maintain personal cash reserve ($200 in wallet); Auto-procured 1x corn seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Liquidated surplus crops for +$4 to maintain personal cash reserve ($200 in wallet).",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Planted 2 empty plot(s) with priority crops: [corn, pumpkin].",
+    "🌾 Kisan AI Agent: Auto-procured 1x corn seed, 1x pumpkin seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Liquidated surplus crops for +$12 to maintain personal cash reserve ($200 in wallet); Planted 1 empty plot(s) with priority crops: [corn].",
+    "🌾 Kisan AI Agent: Auto-procured 1x corn seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Liquidated surplus crops for +$4 to maintain personal cash reserve ($200 in wallet).",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [wheat].",
+    "🌾 Kisan AI Agent: Auto-procured 1x wheat seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Liquidated surplus crops for +$4 to maintain personal cash reserve ($201 in wallet); Planted 1 empty plot(s) with priority crops: [wheat].",
+    "🌾 Kisan AI Agent: Auto-procured 1x wheat seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Liquidated surplus crops for +$4 to maintain personal cash reserve ($202 in wallet).",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [wheat].",
+    "🌾 Kisan AI Agent: Auto-procured 1x wheat seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Liquidated surplus crops for +$4 to maintain personal cash reserve ($203 in wallet).",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [wheat].",
+    "🌾 Kisan AI Agent: Auto-procured 1x wheat seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Planted 2 empty plot(s) with priority crops: [wheat, carrot].",
+    "🌾 Kisan AI Agent: Auto-procured 1x wheat seed, 1x carrot seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Liquidated surplus crops for +$8 to maintain personal cash reserve ($202 in wallet).",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Planted 2 empty plot(s) with priority crops: [wheat, carrot].",
+    "🌾 Kisan AI Agent: Auto-procured 1x wheat seed, 1x carrot seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Liquidated surplus crops for +$4 to maintain personal cash reserve ($200 in wallet); Planted 2 empty plot(s) with priority crops: [wheat, carrot].",
+    "🌾 Kisan AI Agent: Auto-procured 1x wheat seed, 1x carrot seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Liquidated surplus crops for +$8 to maintain personal cash reserve ($202 in wallet).",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [wheat].",
+    "🌾 Kisan AI Agent: Auto-procured 1x wheat seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Liquidated surplus crops for +$4 to maintain personal cash reserve ($203 in wallet); Planted 2 empty plot(s) with priority crops: [carrot, watermelon].",
+    "🌾 Kisan AI Agent: Auto-procured 1x carrot seed, 1x watermelon seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Liquidated surplus crops for +$8 to maintain personal cash reserve ($201 in wallet).",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Planted 2 empty plot(s) with priority crops: [watermelon, pumpkin].",
+    "🌾 Kisan AI Agent: Auto-procured 1x watermelon seed, 1x pumpkin seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Liquidated surplus crops for +$16 to maintain personal cash reserve ($202 in wallet); Planted 1 empty plot(s) with priority crops: [watermelon].",
+    "🌾 Kisan AI Agent: Auto-procured 1x watermelon seed to maintain ≥5 seed buffer.",
+    "🛢️ Industrial Agent: Auto-distilled 10 crude barrels into +7L Petrol, +5L Diesel, +3L Marine Bunker.",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Liquidated surplus crops for +$8 to maintain personal cash reserve ($203 in wallet); Planted 2 empty plot(s) with priority crops: [watermelon, pumpkin].",
+    "🌾 Kisan AI Agent: Auto-procured 1x watermelon seed, 1x pumpkin seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Liquidated surplus crops for +$12 to maintain personal cash reserve ($200 in wallet).",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [watermelon].",
+    "🌾 Kisan AI Agent: Auto-procured 1x watermelon seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Liquidated surplus crops for +$8 to maintain personal cash reserve ($201 in wallet).",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Planted 2 empty plot(s) with priority crops: [watermelon, pumpkin].",
+    "🌾 Kisan AI Agent: Auto-procured 1x watermelon seed, 1x pumpkin seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Liquidated surplus crops for +$16 to maintain personal cash reserve ($202 in wallet).",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [watermelon].",
+    "🌾 Kisan AI Agent: Auto-procured 1x watermelon seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Liquidated surplus crops for +$8 to maintain personal cash reserve ($203 in wallet).",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [watermelon].",
+    "🌾 Kisan AI Agent: Auto-procured 1x watermelon seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Liquidated surplus crops for +$4 to maintain personal cash reserve ($200 in wallet).",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [watermelon].",
+    "🌾 Kisan AI Agent: Auto-procured 1x watermelon seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Liquidated surplus crops for +$8 to maintain personal cash reserve ($201 in wallet); Planted 2 empty plot(s) with priority crops: [cabbige, watermelon].",
+    "🌾 Kisan AI Agent: Auto-procured 1x cabbige seed, 1x watermelon seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Liquidated surplus crops for +$12 to maintain personal cash reserve ($201 in wallet); Planted 1 empty plot(s) with priority crops: [cabbige].",
+    "🌾 Kisan AI Agent: Auto-procured 1x cabbige seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Liquidated surplus crops for +$4 to maintain personal cash reserve ($200 in wallet).",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Planted 2 empty plot(s) with priority crops: [cabbige, pumpkin].",
+    "🌾 Kisan AI Agent: Auto-procured 1x cabbige seed, 1x pumpkin seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Liquidated surplus crops for +$16 to maintain personal cash reserve ($203 in wallet).",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [cabbige].",
+    "🌾 Kisan AI Agent: Auto-procured 1x cabbige seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Liquidated surplus crops for +$4 to maintain personal cash reserve ($202 in wallet).",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Planted 2 empty plot(s) with priority crops: [cabbige, wheat].",
+    "🌾 Kisan AI Agent: Auto-procured 1x wheat seed, 1x cabbige seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Liquidated surplus crops for +$8 to maintain personal cash reserve ($202 in wallet); Planted 2 empty plot(s) with priority crops: [cabbige, wheat].",
+    "🌾 Kisan AI Agent: Auto-procured 1x wheat seed, 1x cabbige seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Liquidated surplus crops for +$8 to maintain personal cash reserve ($202 in wallet).",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Planted 2 empty plot(s) with priority crops: [wheat, cabbige].",
+    "🌾 Kisan AI Agent: Auto-procured 1x wheat seed, 1x cabbige seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Liquidated surplus crops for +$8 to maintain personal cash reserve ($202 in wallet); Planted 1 empty plot(s) with priority crops: [wheat].",
+    "🌾 Kisan AI Agent: Auto-procured 1x wheat seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Liquidated surplus crops for +$4 to maintain personal cash reserve ($203 in wallet); Planted 2 empty plot(s) with priority crops: [wheat, pumpkin].",
+    "🌾 Kisan AI Agent: Auto-procured 1x wheat seed, 1x pumpkin seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Liquidated surplus crops for +$8 to maintain personal cash reserve ($200 in wallet).",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [wheat].",
+    "🌾 Kisan AI Agent: Auto-procured 1x wheat seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Planted 2 empty plot(s) with priority crops: [wheat, strawberry].",
+    "🌾 Kisan AI Agent: Auto-procured 1x wheat seed, 1x strawberry seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [strawberry].",
+    "🌾 Kisan AI Agent: Auto-procured 1x strawberry seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [strawberry].",
+    "🌾 Kisan AI Agent: Auto-procured 1x strawberry seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Planted 2 empty plot(s) with priority crops: [strawberry, banana].",
+    "🌾 Kisan AI Agent: Auto-procured 1x strawberry seed, 1x banana seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [strawberry].",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Auto-procured 1x strawberry seed to maintain ≥5 seed buffer; Planted 2 empty plot(s) with priority crops: [banana, pumpkin].",
+    "🌾 Kisan AI Agent: Auto-procured 1x banana seed, 1x pumpkin seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [banana].",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Auto-procured 1x banana seed to maintain ≥5 seed buffer; Planted 2 empty plot(s) with priority crops: [banana, pumpkin].",
+    "🌾 Kisan AI Agent: Auto-procured 1x banana seed, 1x pumpkin seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [banana].",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Auto-procured 1x banana seed to maintain ≥5 seed buffer; Planted 1 empty plot(s) with priority crops: [banana].",
+    "🌾 Kisan AI Agent: Auto-procured 1x banana seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [banana].",
+    "🌾 Kisan AI Agent: Auto-procured 1x banana seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [banana].",
+    "🌾 Kisan AI Agent: Auto-procured 1x banana seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [pumpkin].",
+    "🌾 Kisan AI Agent: Auto-procured 1x pumpkin seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [pumpkin].",
+    "🌾 Kisan AI Agent: Auto-procured 1x pumpkin seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Liquidated surplus crops for +$4 to maintain personal cash reserve ($202 in wallet).",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [pumpkin].",
+    "🌾 Kisan AI Agent: Auto-procured 1x pumpkin seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Liquidated surplus crops for +$8 to maintain personal cash reserve ($202 in wallet); Planted 2 empty plot(s) with priority crops: [pumpkin, apple].",
+    "🌾 Kisan AI Agent: Auto-procured 1x apple seed, 1x pumpkin seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Liquidated surplus crops for +$12 to maintain personal cash reserve ($202 in wallet).",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Planted 2 empty plot(s) with priority crops: [pumpkin, apple].",
+    "🌾 Kisan AI Agent: Auto-procured 1x apple seed, 1x pumpkin seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Liquidated surplus crops for +$12 to maintain personal cash reserve ($202 in wallet); Planted 2 empty plot(s) with priority crops: [apple, pumpkin].",
+    "🌾 Kisan AI Agent: Auto-procured 1x apple seed, 1x pumpkin seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Liquidated surplus crops for +$12 to maintain personal cash reserve ($202 in wallet).",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Planted 2 empty plot(s) with priority crops: [apple, cucumber].",
+    "🌾 Kisan AI Agent: Auto-procured 1x cucumber seed, 1x apple seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Liquidated surplus crops for +$8 to maintain personal cash reserve ($203 in wallet).",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [cucumber].",
+    "🌾 Kisan AI Agent: Auto-procured 1x cucumber seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Planted 2 empty plot(s) with priority crops: [cucumber, apple].",
+    "🌾 Kisan AI Agent: Auto-procured 1x cucumber seed, 1x apple seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Liquidated surplus crops for +$8 to maintain personal cash reserve ($201 in wallet).",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Planted 2 empty plot(s) with priority crops: [cucumber, carrot].",
+    "🌾 Kisan AI Agent: Auto-procured 1x carrot seed, 1x cucumber seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Liquidated surplus crops for +$8 to maintain personal cash reserve ($203 in wallet).",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Liquidated surplus crops for +$200 to maintain personal cash reserve ($200 in wallet); Planted 1 empty plot(s) with priority crops: [cucumber].",
+    "🚢 Industrial Agent: Dispatched 'Navsari Maritime Freighter 299' on maritime trade route (earned +$85).",
+    "🚢 Industrial Agent: Dispatched 'Navsari Maritime Freighter 517' on maritime trade route (earned +$85).",
+    "🚢 Industrial Agent: Dispatched 'Navsari Maritime Freighter 485' on maritime trade route (earned +$85).",
+    "🌾 Kisan AI Agent: Auto-procured 1x cucumber seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [wheat].",
+    "🌾 Kisan AI Agent: Auto-procured 1x wheat seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [wheat].",
+    "🌾 Kisan AI Agent: Auto-procured 1x wheat seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Planted 2 empty plot(s) with priority crops: [wheat, carrot].",
+    "🌾 Kisan AI Agent: Auto-procured 1x wheat seed, 1x carrot seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [wheat].",
+    "🌾 Kisan AI Agent: Auto-procured 1x wheat seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Planted 2 empty plot(s) with priority crops: [wheat, cabbige].",
+    "🌾 Kisan AI Agent: Auto-procured 1x wheat seed, 1x cabbige seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 3 mature plot(s); Planted 3 empty plot(s) with priority crops: [wheat, cabbige, watermelon].",
+    "🚢 Industrial Agent: Dispatched 'c' on maritime trade route (earned +$85).",
+    "🌾 Kisan AI Agent: Auto-procured 1x wheat seed, 1x cabbige seed, 1x watermelon seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [wheat].",
+    "🌾 Kisan AI Agent: Auto-procured 1x wheat seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [wheat].",
+    "🌾 Kisan AI Agent: Auto-procured 1x wheat seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [wheat].",
+    "🌾 Kisan AI Agent: Auto-procured 1x wheat seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [wheat].",
+    "🌾 Kisan AI Agent: Auto-procured 1x wheat seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [wheat].",
+    "🌾 Kisan AI Agent: Auto-procured 1x wheat seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [wheat].",
+    "🌾 Kisan AI Agent: Auto-procured 1x wheat seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Planted 2 empty plot(s) with priority crops: [wheat, cabbige].",
+    "🚢 Industrial Agent: Dispatched 'vandan' on maritime trade route (earned +$85).",
+    "🌾 Kisan AI Agent: Auto-procured 1x wheat seed, 1x cabbige seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Planted 2 empty plot(s) with priority crops: [wheat, cabbige].",
+    "🌾 Kisan AI Agent: Auto-procured 1x wheat seed, 1x cabbige seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [watermelon].",
+    "🌾 Kisan AI Agent: Auto-procured 1x watermelon seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [watermelon].",
+    "🌾 Kisan AI Agent: Auto-procured 1x watermelon seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [watermelon].",
+    "🌾 Kisan AI Agent: Auto-procured 1x watermelon seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [watermelon].",
+    "🌾 Kisan AI Agent: Auto-procured 1x watermelon seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Planted 2 empty plot(s) with priority crops: [watermelon, corn].",
+    "🌾 Kisan AI Agent: Auto-procured 1x corn seed, 1x watermelon seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [corn].",
+    "🌾 Kisan AI Agent: Auto-procured 1x corn seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [corn].",
+    "🌾 Kisan AI Agent: Auto-procured 1x corn seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [corn].",
+    "🌾 Kisan AI Agent: Auto-procured 1x corn seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [corn].",
+    "🌾 Kisan AI Agent: Auto-procured 1x corn seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [watermelon].",
+    "🌾 Kisan AI Agent: Auto-procured 1x watermelon seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Planted 2 empty plot(s) with priority crops: [watermelon, brokeli].",
+    "🌾 Kisan AI Agent: Auto-procured 1x brokeli seed, 1x watermelon seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [brokeli].",
+    "🌾 Kisan AI Agent: Auto-procured 1x brokeli seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [brokeli].",
+    "🌾 Kisan AI Agent: Auto-procured 1x brokeli seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 3 mature plot(s); Planted 3 empty plot(s) with priority crops: [brokeli, pumpkin, chilly].",
+    "🌾 Kisan AI Agent: Auto-procured 1x brokeli seed, 1x chilly seed, 1x pumpkin seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [brokeli].",
+    "🌾 Kisan AI Agent: Auto-procured 1x brokeli seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 4 mature plot(s); Planted 4 empty plot(s) with priority crops: [brokeli, pumpkin, chilly, cabbige].",
+    "🌾 Kisan AI Agent: Auto-procured 1x brokeli seed, 1x cabbige seed, 1x chilly seed, 1x pumpkin seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 3 mature plot(s); Planted 3 empty plot(s) with priority crops: [pumpkin, cabbige, chilly].",
+    "🌾 Kisan AI Agent: Auto-procured 1x cabbige seed, 1x chilly seed, 1x pumpkin seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Planted 2 empty plot(s) with priority crops: [pumpkin, cabbige].",
+    "🌾 Kisan AI Agent: Auto-procured 1x cabbige seed, 1x pumpkin seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [pumpkin].",
+    "🌾 Kisan AI Agent: Auto-procured 1x pumpkin seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Planted 2 empty plot(s) with priority crops: [pumpkin, cabbige].",
+    "🌾 Kisan AI Agent: Auto-procured 1x cabbige seed, 1x pumpkin seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [pumpkin].",
+    "🌾 Kisan AI Agent: Auto-procured 1x pumpkin seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Planted 2 empty plot(s) with priority crops: [pumpkin, carrot].",
+    "🌾 Kisan AI Agent: Auto-procured 1x carrot seed, 1x pumpkin seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [pumpkin].",
+    "🌾 Kisan AI Agent: Auto-procured 1x pumpkin seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [carrot].",
+    "🌾 Kisan AI Agent: Auto-procured 1x carrot seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [carrot].",
+    "🌾 Kisan AI Agent: Auto-procured 1x carrot seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [carrot].",
+    "🌾 Kisan AI Agent: Auto-procured 1x carrot seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [pumpkin].",
+    "🌾 Kisan AI Agent: Auto-procured 1x pumpkin seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [cabbige].",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Auto-procured 1x cabbige seed to maintain ≥5 seed buffer; Planted 2 empty plot(s) with priority crops: [cabbige, apple].",
+    "🌾 Kisan AI Agent: Auto-procured 1x cabbige seed, 1x apple seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [cabbige].",
+    "🌾 Kisan AI Agent: Auto-procured 1x cabbige seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [cabbige].",
+    "🌾 Kisan AI Agent: Auto-procured 1x cabbige seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [cabbige].",
+    "🌾 Kisan AI Agent: Auto-procured 1x cabbige seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [cabbige].",
+    "🌾 Kisan AI Agent: Auto-procured 1x cabbige seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [cabbige].",
+    "🌾 Kisan AI Agent: Auto-procured 1x cabbige seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Planted 2 empty plot(s) with priority crops: [cabbige, apple].",
+    "🌾 Kisan AI Agent: Auto-procured 1x cabbige seed, 1x apple seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Planted 2 empty plot(s) with priority crops: [cabbige, cucumber].",
+    "🌾 Kisan AI Agent: Auto-procured 1x cabbige seed, 1x cucumber seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [cucumber].",
+    "🌾 Kisan AI Agent: Auto-procured 1x cucumber seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [cucumber].",
+    "🌾 Kisan AI Agent: Auto-procured 1x cucumber seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [cucumber].",
+    "🌾 Kisan AI Agent: Auto-procured 1x cucumber seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [cucumber].",
+    "🌾 Kisan AI Agent: Auto-procured 1x cucumber seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [cucumber].",
+    "🌾 Kisan AI Agent: Auto-procured 1x cucumber seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [cucumber].",
+    "🌾 Kisan AI Agent: Auto-procured 1x cucumber seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [chilly].",
+    "🌾 Kisan AI Agent: Auto-procured 1x chilly seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [chilly].",
+    "🌾 Kisan AI Agent: Auto-procured 1x chilly seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Planted 2 empty plot(s) with priority crops: [chilly, strawberry].",
+    "🌾 Kisan AI Agent: Auto-procured 1x chilly seed, 1x strawberry seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [chilly].",
+    "🌾 Kisan AI Agent: Auto-procured 1x chilly seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Planted 2 empty plot(s) with priority crops: [chilly, strawberry].",
+    "🌾 Kisan AI Agent: Auto-procured 1x chilly seed, 1x strawberry seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [chilly].",
+    "🌾 Kisan AI Agent: Auto-procured 1x chilly seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [chilly].",
+    "🌾 Kisan AI Agent: Auto-procured 1x chilly seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Planted 2 empty plot(s) with priority crops: [chilly, strawberry].",
+    "🌾 Kisan AI Agent: Auto-procured 1x chilly seed, 1x strawberry seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [watermelon].",
+    "🌾 Kisan AI Agent: Auto-procured 1x watermelon seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [watermelon].",
+    "🌾 Kisan AI Agent: Auto-procured 1x watermelon seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Planted 2 empty plot(s) with priority crops: [watermelon, wheat].",
+    "🌾 Kisan AI Agent: Auto-procured 1x wheat seed, 1x watermelon seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [watermelon].",
+    "🌾 Kisan AI Agent: Auto-procured 1x watermelon seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Planted 2 empty plot(s) with priority crops: [watermelon, wheat].",
+    "🌾 Kisan AI Agent: Auto-procured 1x wheat seed, 1x watermelon seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [watermelon].",
+    "🌾 Kisan AI Agent: Auto-procured 1x watermelon seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [watermelon].",
+    "🌾 Kisan AI Agent: Auto-procured 1x watermelon seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [watermelon].",
+    "🌾 Kisan AI Agent: Auto-procured 1x watermelon seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [watermelon].",
+    "🌾 Kisan AI Agent: Auto-procured 1x watermelon seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Planted 2 empty plot(s) with priority crops: [watermelon, corn].",
+    "🌾 Kisan AI Agent: Auto-procured 1x corn seed, 1x watermelon seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [corn].",
+    "🌾 Kisan AI Agent: Auto-procured 1x corn seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [corn].",
+    "🌾 Kisan AI Agent: Auto-procured 1x corn seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [corn].",
+    "🌾 Kisan AI Agent: Auto-procured 1x corn seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [corn].",
+    "🌾 Kisan AI Agent: Auto-procured 1x corn seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [corn].",
+    "🌾 Kisan AI Agent: Auto-procured 1x corn seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 5 mature plot(s); Planted 5 empty plot(s) with priority crops: [corn, apple, brokeli, pumpkin, wheat].",
+    "🌾 Kisan AI Agent: Auto-procured 1x wheat seed, 1x corn seed, 1x brokeli seed, 1x apple seed, 1x pumpkin seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [apple].",
+    "🌾 Kisan AI Agent: Auto-procured 1x apple seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [apple].",
+    "🌾 Kisan AI Agent: Auto-procured 1x apple seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [apple].",
+    "🌾 Kisan AI Agent: Auto-procured 1x apple seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Planted 1 empty plot(s) with priority crops: [apple].",
+    "🌾 Kisan AI Agent: Auto-procured 1x apple seed to maintain ≥5 seed buffer."
+  ],
+  "last_tax_collected_day": 17,
+  "last_cabinet_meeting_day": 16,
+  "last_routine_hour": 10,
+  "last_election_cycle": 2,
+  "last_restock_day": 17,
+  "livestock": {
+    "cows": 5,
+    "sheep": 6,
+    "chickens": 10,
+    "last_produce_day": 17
+  },
+  "farm_barn": {
+    "milk": 60,
+    "wool": 39,
+    "egg": 110,
+    "wheat": 153,
+    "carrot": 153,
+    "apple": 149,
+    "corn": 165,
+    "brokeli": 150,
+    "cabbige": 157,
+    "strawberry": 160,
+    "cucumber": 176,
+    "chilly": 184,
+    "banana": 153,
+    "pumpkin": 152,
+    "watermelon": 160,
+    "fish": 27
+  },
+  "automated_farming_enabled": true,
+  "industry": {
+    "oil_refinery": {
+      "crude_oil": 2,
+      "refined_petrol": 0,
+      "diesel": 159,
+      "marine_fuel": 35,
+      "is_active": true,
+      "efficiency": 95,
+      "daily_crude_input": 40,
+      "daily_fuel_output": 35
+    },
+    "petrol_pump": {
+      "fuel_stock": 430.90000000000026,
+      "diesel_stock": 416,
+      "price_per_liter": 150,
+      "daily_sales_liters": 463.09999999999974,
+      "revenue": 33221,
+      "ev_charging_active": true,
+      "recent_refuelings": [
+        {
+          "citizen": "mayuriben",
+          "vehicle": "scooter",
+          "liters": 0.15,
+          "cost": 23,
+          "fuel_type": "Petrol",
+          "time": "12:00 PM"
+        },
+        {
+          "citizen": "Anita Ben",
+          "vehicle": "scooter",
+          "liters": 0.15,
+          "cost": 23,
+          "fuel_type": "Petrol",
+          "time": "12:00 PM"
+        },
+        {
+          "citizen": "Kisan Mandi",
+          "vehicle": "car",
+          "liters": 0.3,
+          "cost": 45,
+          "fuel_type": "Petrol",
+          "time": "12:00 PM"
+        },
+        {
+          "citizen": "Priya Sharma",
+          "vehicle": "scooter",
+          "liters": 0.15,
+          "cost": 23,
+          "fuel_type": "Petrol",
+          "time": "12:00 PM"
+        },
+        {
+          "citizen": "hasumatiben",
+          "vehicle": "scooter",
+          "liters": 0.15,
+          "cost": 23,
+          "fuel_type": "Petrol",
+          "time": "12:00 PM"
+        },
+        {
+          "citizen": "hemuben",
+          "vehicle": "scooter",
+          "liters": 0.15,
+          "cost": 23,
+          "fuel_type": "Petrol",
+          "time": "12:00 PM"
+        },
+        {
+          "citizen": "mayuriben",
+          "vehicle": "scooter",
+          "liters": 0.15,
+          "cost": 23,
+          "fuel_type": "Petrol",
+          "time": "12:00 PM"
+        },
+        {
+          "citizen": "vasantiben",
+          "vehicle": "scooter",
+          "liters": 0.15,
+          "cost": 23,
+          "fuel_type": "Petrol",
+          "time": "12:00 PM"
+        },
+        {
+          "citizen": "Anita Ben",
+          "vehicle": "scooter",
+          "liters": 0.15,
+          "cost": 75,
+          "fuel_type": "Petrol",
+          "time": "12:00 PM"
+        },
+        {
+          "citizen": "Rohan Mistri",
+          "vehicle": "scooter",
+          "liters": 0.15,
+          "cost": 75,
+          "fuel_type": "Petrol",
+          "time": "12:00 PM"
+        }
+      ]
+    },
+    "shipyard": {
+      "ships_docked": 8,
+      "ships_under_construction": 1,
+      "fleet": [
+        {
+          "id": "ship_1",
+          "name": "INS Navsari Express",
+          "type": "cargo_ship",
+          "fuel": 48,
+          "status": "At High Seas (Trade Voyage)",
+          "cargo": {
+            "wheat": 20,
+            "steel_beam": 10
+          }
+        },
+        {
+          "id": "ship_2",
+          "name": "Surat Gulf Ferry",
+          "type": "passenger_ferry",
+          "fuel": 52,
+          "status": "At High Seas (Trade Voyage)"
+        },
+        {
+          "id": "ship_3",
+          "name": "Arabian Sea Trawler 09",
+          "type": "fishing_trawler",
+          "fuel": 40,
+          "status": "At High Seas (Trade Voyage)"
+        },
+        {
+          "id": "ship_3299",
+          "name": "Navsari Maritime Freighter 299",
+          "type": "cargo_ship",
+          "fuel": 50,
+          "status": "At High Seas (Trade Voyage)",
+          "cargo": {
+            "wheat": 10,
+            "wood": 10
+          }
+        },
+        {
+          "id": "ship_4517",
+          "name": "Navsari Maritime Freighter 517",
+          "type": "cargo_ship",
+          "fuel": 50,
+          "status": "At High Seas (Trade Voyage)",
+          "cargo": {
+            "wheat": 10,
+            "wood": 10
+          }
+        },
+        {
+          "id": "ship_5485",
+          "name": "Navsari Maritime Freighter 485",
+          "type": "cargo_ship",
+          "fuel": 50,
+          "status": "At High Seas (Trade Voyage)",
+          "cargo": {
+            "wheat": 10,
+            "wood": 10
+          }
+        },
+        {
+          "id": "ship_5203",
+          "name": "c",
+          "type": "cargo_ship",
+          "fuel": 52,
+          "status": "At High Seas (Trade Voyage)",
+          "cargo": {
+            "wheat": 10,
+            "wood": 10
+          }
+        },
+        {
+          "id": "ship_2624",
+          "name": "vandan",
+          "type": "cargo_ship",
+          "fuel": 52,
+          "status": "At High Seas (Trade Voyage)",
+          "cargo": {
+            "wheat": 10,
+            "wood": 10
+          }
+        }
+      ]
+    },
+    "heavy_manufacturing": {
+      "iron_ore_stock": 2,
+      "steel_beams": 73,
+      "concrete_stock": 90,
+      "active_smelters": 2
+    }
+  },
+  "last_industry_hour": 10
 }

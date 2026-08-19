@@ -1,6 +1,6 @@
 {
   "user_id": "vpatelcode@gmail.com",
-  "money": 500,
+  "money": 450,
   "inventory": {
     "wood": 10,
     "stone": 5,
@@ -11,7 +11,7 @@
     "stone_pick": 1
   },
   "clock": {
-    "total_seconds": 893,
+    "total_seconds": 1563,
     "speed": 1,
     "weather": "Clear"
   },
@@ -517,81 +517,90 @@
   "agent_logs": [
     "System: Citizen account created for pramodbhai.",
     "System: Dynamic market prices fluctuated for Day 1!",
-    "Government: Cabinet PMO approved $50 funding allocation for 'Community School'."
+    "Government: Cabinet PMO approved $50 funding allocation for 'Community School'.",
+    "Household: Thakorbhai purchased a utility torch from Rajesh at the Electronics Hub.",
+    "Household: Mother purchased daily food requirements for Rameshbhai's Residence from Amina's Dairy Store.",
+    "System: Day 1 operations summary logged.",
+    "System: Dynamic market prices fluctuated for Day 2!",
+    "Government: Collected $50 in corporate taxes from Player Brokerage.",
+    "Government: Collected $7 in income tax from Thakorbhai's Residence.",
+    "Government: Collected $8 in income tax from Bharatbhai's Residence.",
+    "Government: Collected $3 in income tax from Rameshbhai's Residence.",
+    "Government: Collected $6 in income tax from pramodbhai's Residence."
   ],
   "item_prices": {
     "wood": 2,
-    "stone": 4,
+    "stone": 3,
     "fiber": 1,
     "apple_seed": 3,
     "apple": 9,
     "wheat_seed": 3,
     "wheat": 4,
-    "rope": 13,
-    "torch": 10,
-    "bread": 12,
-    "wooden_axe": 29,
-    "stone_pick": 37,
+    "rope": 12,
+    "torch": 8,
+    "bread": 13,
+    "wooden_axe": 23,
+    "stone_pick": 32,
     "banana_seed": 3,
-    "banana": 5,
-    "cherry_seed": 2,
-    "cherry": 6,
+    "banana": 6,
+    "cherry_seed": 4,
+    "cherry": 5,
     "grape_seed": 5,
-    "grapes": 8,
-    "orange_seed": 4,
-    "orange": 6,
-    "strawberry_seed": 6,
-    "strawberry": 10,
-    "watermelon_seed": 7,
-    "watermelon": 17,
-    "avacado_seed": 6,
-    "avacado": 14,
-    "peach_seed": 4,
+    "grapes": 6,
+    "orange_seed": 5,
+    "orange": 9,
+    "strawberry_seed": 4,
+    "strawberry": 12,
+    "watermelon_seed": 9,
+    "watermelon": 13,
+    "avacado_seed": 7,
+    "avacado": 10,
+    "peach_seed": 5,
     "peach": 8,
-    "blue_berry_seed": 4,
+    "blue_berry_seed": 3,
     "blue_berry": 7,
     "carrot_seed": 2,
-    "carrot": 5,
+    "carrot": 7,
     "pumpkin_seed": 6,
-    "pumpkin": 14,
+    "pumpkin": 22,
     "mushroom_seed": 2,
-    "mushroom": 5,
-    "corn_seed": 4,
+    "mushroom": 4,
+    "corn_seed": 5,
     "corn": 9,
-    "cucumber_seed": 2,
-    "cucumber": 6,
-    "brokeli_seed": 4,
-    "brokeli": 9,
+    "cucumber_seed": 4,
+    "cucumber": 8,
+    "brokeli_seed": 5,
+    "brokeli": 10,
     "cabbige_seed": 6,
-    "cabbige": 11,
-    "chilly_seed": 3,
+    "cabbige": 12,
+    "chilly_seed": 4,
     "chilly": 10,
     "reddies_seed": 2,
     "reddies": 5,
-    "orange_juice": 28,
-    "strawberry_cake": 47,
-    "cherry_cake": 41,
-    "cake": 49,
-    "wine": 38,
-    "pizza": 64,
-    "burger": 31,
-    "cherry_jam": 23,
-    "chess": 21,
-    "tomato_ketch": 16,
-    "iron": 8,
-    "copper": 6,
-    "steel": 15,
-    "glass": 11,
+    "orange_juice": 24,
+    "strawberry_cake": 39,
+    "cherry_cake": 27,
+    "cake": 39,
+    "wine": 39,
+    "pizza": 58,
+    "burger": 32,
+    "cherry_jam": 25,
+    "chess": 18,
+    "tomato_ketch": 12,
+    "iron": 10,
+    "copper": 8,
+    "steel": 18,
+    "glass": 12,
     "water": 2,
-    "food": 6,
-    "fuel": 15,
-    "concrete": 7,
-    "rubber": 10,
-    "trofy": 560
+    "food": 5,
+    "fuel": 13,
+    "concrete": 5,
+    "rubber": 9,
+    "trofy": 424
   },
-  "last_price_update_day": 1,
+  "last_price_update_day": 2,
   "city_name": "Rumla",
-  "city_treasury": 50,
+  "city_treasury": 124,
   "tax_rate": 10,
   "city_projects": [
     {
@@ -662,49 +671,50 @@
     {
       "id": "house_1",
       "name": "Thakorbhai's Residence",
-      "budget": 50,
+      "budget": 68,
       "inventory": {
         "milk": 4,
         "wheat": 4,
-        "apple": 4
+        "apple": 4,
+        "torch": 1
       },
       "members": [
         {
           "name": "Thakorbhai",
           "role": "father",
           "relation": "Main Person",
-          "state": "Working at Farms"
+          "state": "Sleeping in Bed"
         },
         {
           "name": "vasantiben",
           "role": "mother",
           "relation": "Wife of Thakorbhai",
-          "state": "Home Chores / Baking"
+          "state": "Sleeping in Bed"
         },
         {
           "name": "vandan",
           "role": "son",
           "relation": "Son of Thakorbhai",
-          "state": "Working at Factory"
+          "state": "Sleeping in Bed"
         },
         {
           "name": "hetvi",
           "role": "daughter",
           "relation": "Daughter of Thakorbhai",
-          "state": "Home Playing"
+          "state": "Sleeping in Bed"
         },
         {
           "name": "Kiran",
           "role": "worker",
           "relation": "Tailor Shop Assistant",
-          "state": "Working at Savita's Clothiers"
+          "state": "Sleeping in Bed"
         }
       ]
     },
     {
       "id": "house_2",
       "name": "Bharatbhai's Residence",
-      "budget": 40,
+      "budget": 77,
       "inventory": {
         "milk": 3,
         "wheat": 3,
@@ -715,86 +725,86 @@
           "name": "bharatbhai",
           "role": "father",
           "relation": "Brother of Vasantiben",
-          "state": "Working at General Store"
+          "state": "Sleeping in Bed"
         },
         {
           "name": "mayuriben",
           "role": "mother",
           "relation": "Wife of Bharatbhai",
-          "state": "Home Chores / Gardening"
+          "state": "Sleeping in Bed"
         },
         {
           "name": "vainavi",
           "role": "daughter",
           "relation": "Daughter of Bharatbhai",
-          "state": "Home Playing"
+          "state": "Sleeping in Bed"
         },
         {
           "name": "prathav",
           "role": "son",
           "relation": "Son of Bharatbhai",
-          "state": "Working at Factory"
+          "state": "Sleeping in Bed"
         },
         {
           "name": "Dinesh",
           "role": "worker",
           "relation": "Farmer Assistant",
-          "state": "Working at Farms"
+          "state": "Sleeping in Bed"
         },
         {
           "name": "Geeta",
           "role": "worker",
           "relation": "Grocery Shop Assistant",
-          "state": "Working at Amina's Dairy Store"
+          "state": "Sleeping in Bed"
         }
       ]
     },
     {
       "id": "house_3",
       "name": "Rameshbhai's Residence",
-      "budget": 35,
+      "budget": 30,
       "inventory": {
-        "milk": 2,
-        "wheat": 2,
-        "apple": 2
+        "milk": 5,
+        "wheat": 5,
+        "apple": 5
       },
       "members": [
         {
           "name": "rameshbhai",
           "role": "father",
           "relation": "Husband of Hemuben",
-          "state": "Working at Electronic Hub"
+          "state": "Sleeping in Bed"
         },
         {
           "name": "hemuben",
           "role": "mother",
           "relation": "Sister of Vasantiben",
-          "state": "Home Chores / Cleaning"
+          "state": "Sleeping in Bed"
         },
         {
           "name": "krushil",
           "role": "son",
           "relation": "Son of Rameshbhai",
-          "state": "Home Playing"
+          "state": "Sleeping in Bed"
         },
         {
           "name": "harshil",
           "role": "son",
           "relation": "Son of Rameshbhai",
-          "state": "Home Playing"
+          "state": "Sleeping in Bed"
         },
         {
           "name": "Sanjay",
           "role": "worker",
           "relation": "Factory Operator",
-          "state": "Working at Factory"
+          "state": "Sleeping in Bed"
         }
       ]
     },
     {
       "id": "house_vpatelcodegmailcom",
       "name": "pramodbhai's Residence",
-      "budget": 60,
+      "budget": 54,
       "inventory": {
         "milk": 4,
         "wheat": 4,
@@ -805,25 +815,25 @@
           "name": "pramodbhai",
           "role": "head",
           "relation": "Household Head",
-          "state": "Eating Breakfast"
+          "state": "Sleeping in Bed"
         },
         {
           "name": "hasumati",
           "role": "spouse",
           "relation": "Family Member",
-          "state": "Eating Breakfast"
+          "state": "Sleeping in Bed"
         },
         {
           "name": "meshvi",
           "role": "member",
           "relation": "Family Member",
-          "state": "Eating Breakfast"
+          "state": "Sleeping in Bed"
         },
         {
           "name": "archit",
           "role": "member",
           "relation": "Family Member",
-          "state": "Eating Breakfast"
+          "state": "Sleeping in Bed"
         }
       ]
     }
@@ -848,6 +858,46 @@
   "news_feed": [
     {
       "timestamp": "12:00 PM",
+      "headline": "Weather Alert: Sunny skies and mild wind current in Rumla town.",
+      "category": "WEATHER"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Finance Ministry: Collected $6 in income tax from pramodbhai's Residence.",
+      "category": "ECONOMY"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Finance Ministry: Collected $3 in income tax from Rameshbhai's Residence.",
+      "category": "ECONOMY"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Finance Ministry: Collected $8 in income tax from Bharatbhai's Residence.",
+      "category": "ECONOMY"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Finance Ministry: Collected $7 in income tax from Thakorbhai's Residence.",
+      "category": "ECONOMY"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Finance Ministry: Collected $50 in corporate taxes from Player Brokerage.",
+      "category": "ECONOMY"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Local: Mother purchased daily food requirements for Rameshbhai's Residence from Amina's Dairy Store.",
+      "category": "LOCAL"
+    },
+    {
+      "timestamp": "12:00 PM",
+      "headline": "Market Report: Thakorbhai purchased a utility torch from Rajesh's Electronics Hub.",
+      "category": "LOCAL"
+    },
+    {
+      "timestamp": "12:00 PM",
       "headline": "Cabinet Decision: PM Thakorbhai approved $50 treasury allocation to 'Community School'.",
       "category": "POLITICS"
     },
@@ -869,9 +919,9 @@
       "name": "Rumla Dairy & Groceries",
       "owner": "Amina",
       "inventory": {
-        "milk": 10,
-        "wheat": 10,
-        "apple": 10,
+        "milk": 7,
+        "wheat": 7,
+        "apple": 7,
         "bread": 5,
         "tomato_ketch": 5,
         "pizza": 2,
@@ -886,8 +936,12 @@
         "pizza": 45,
         "burger": 35
       },
-      "revenue": 100,
-      "sales_history": []
+      "revenue": 127,
+      "sales_history": [
+        "Day 1 17:00 - Sold 3x milk to hemuben for $6",
+        "Day 1 17:00 - Sold 3x wheat to hemuben for $9",
+        "Day 1 17:00 - Sold 3x apple to hemuben for $12"
+      ]
     },
     {
       "id": "general",
@@ -932,7 +986,7 @@
       "name": "Rajesh's Electronic Hub",
       "owner": "Rajesh",
       "inventory": {
-        "torch": 5,
+        "torch": 4,
         "copper": 10,
         "iron": 10,
         "steel": 5
@@ -943,8 +997,10 @@
         "iron": 8,
         "steel": 12
       },
-      "revenue": 200,
-      "sales_history": []
+      "revenue": 210,
+      "sales_history": [
+        "Day 1 17:00 - Sold 1x torch to Thakorbhai for $10"
+      ]
     }
   ],
   "zone_locations": {
@@ -1001,10 +1057,10 @@
       73.018261617505
     ]
   },
-  "last_saved_at": "2026-08-18T19:46:22.442Z",
+  "last_saved_at": "2026-08-18T19:57:39.424Z",
   "logs_this_day": [],
   "last_election_cycle": 1,
-  "last_tax_collected_day": 1,
+  "last_tax_collected_day": 2,
   "last_cabinet_meeting_day": 1,
-  "last_routine_hour": 14
+  "last_routine_hour": 2
 }

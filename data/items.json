@@ -542,5 +542,133 @@
     "max_stack": 1,
     "weight": 5.0,
     "value": 500
+  },
+  "milk": {
+    "id": "milk",
+    "name": "Fresh Cow Milk",
+    "description": "Nutritious farm milk from cows.",
+    "max_stack": 99,
+    "weight": 1.0,
+    "value": 5
+  },
+  "cow_milk": {
+    "id": "cow_milk",
+    "name": "Cow Milk",
+    "description": "Fresh dairy bottle.",
+    "max_stack": 99,
+    "weight": 1.0,
+    "value": 5
+  },
+  "egg": {
+    "id": "egg",
+    "name": "Farm Egg",
+    "description": "Fresh poultry egg packed with protein.",
+    "max_stack": 99,
+    "weight": 0.1,
+    "value": 3
+  },
+  "wool": {
+    "id": "wool",
+    "name": "Sheep Wool",
+    "description": "Soft sheared wool bundle for clothing and textiles.",
+    "max_stack": 99,
+    "weight": 0.5,
+    "value": 8
+  },
+  "tomato": {
+    "id": "tomato",
+    "name": "Ripe Tomato",
+    "description": "Juicy red garden tomato.",
+    "max_stack": 99,
+    "weight": 0.2,
+    "value": 6
+  },
+  "fish": {
+    "id": "fish",
+    "name": "Fresh River Fish",
+    "description": "Caught from local rivers and canals.",
+    "max_stack": 99,
+    "weight": 0.8,
+    "value": 10
+  },
+  "iron_ore": {
+    "id": "iron_ore",
+    "name": "Iron Ore",
+    "description": "Raw unrefined iron rock.",
+    "max_stack": 99,
+    "weight": 3.0,
+    "value": 4
+  },
+  "copper_ore": {
+    "id": "copper_ore",
+    "name": "Copper Ore",
+    "description": "Raw mineral ore containing copper.",
+    "max_stack": 99,
+    "weight": 2.5,
+    "value": 4
+  },
+  "dragonfruit": {
+    "id": "dragonfruit",
+    "name": "Dragonfruit",
+    "description": "Exotic tropical magenta fruit.",
+    "max_stack": 99,
+    "weight": 0.5,
+    "value": 14
+  },
+  "crude_oil": {
+    "id": "crude_oil",
+    "name": "Crude Oil Barrel",
+    "description": "Raw unrefined petroleum extracted from oil wells and coastal rigs.",
+    "max_stack": 99,
+    "weight": 5.0,
+    "value": 6
+  },
+  "petrol": {
+    "id": "petrol",
+    "name": "Refined Petrol",
+    "description": "High-octane fuel for automobiles, rickshaws, and tractors.",
+    "max_stack": 99,
+    "weight": 2.0,
+    "value": 15
+  },
+  "diesel": {
+    "id": "diesel",
+    "name": "Diesel Fuel",
+    "description": "Heavy fuel for industrial machinery and freight trucks.",
+    "max_stack": 99,
+    "weight": 2.2,
+    "value": 14
+  },
+  "marine_fuel": {
+    "id": "marine_fuel",
+    "name": "Marine Bunker Fuel",
+    "description": "Dense maritime fuel for cargo ships, ferries, and trawlers.",
+    "max_stack": 99,
+    "weight": 3.0,
+    "value": 12
+  },
+  "steel_beam": {
+    "id": "steel_beam",
+    "name": "Industrial Steel Beam",
+    "description": "Heavy structural steel forged in smelting foundries.",
+    "max_stack": 50,
+    "weight": 10.0,
+    "value": 35
+  },
+  "cargo_ship": {
+    "id": "cargo_ship",
+    "name": "Commercial Cargo Ship",
+    "description": "Large maritime freight vessel built at Navsari Coastal Shipyards.",
+    "max_stack": 5,
+    "weight": 500.0,
+    "value": 1200
+  },
+  "fishing_boat": {
+    "id": "fishing_boat",
+    "name": "Maritime Fishing Trawler",
+    "description": "Motorized deep-sea boat for commercial river and ocean harvesting.",
+    "max_stack": 10,
+    "weight": 150.0,
+    "value": 450
   }
 }

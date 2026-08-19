@@ -13,14 +13,132 @@ const SAVES_DIR = fs.existsSync(path.join(process.cwd(), "saves"))
   ? path.join(process.cwd(), "saves")
   : path.join(process.cwd(), "..", "saves");
 const PLAYERS_DIR = path.join(SAVES_DIR, "players");
+const WORLD_LOCATIONS_FILE = path.join(SAVES_DIR, "world_locations.json");
 
 // Helper to ensure directories exist
-const inMemoryCache: Record<string, PlayerState> = {};
+export const inMemoryCache: Record<string, PlayerState> = {};
+let inMemoryWorldLocations: Record<string, [number, number]> | null = null;
+
+// Canonical default coordinates for all civilization landmarks & residences (Navsari / Civilization standard)
+export const DEFAULT_WORLD_LOCATIONS: Record<string, [number, number]> = {
+  house_1: [20.9472, 72.9515],
+  house_2: [20.9460, 72.9530],
+  house_3: [20.9455, 72.9510],
+  house_maritime: [20.9380, 72.9300],
+  hostel_refinery: [20.9620, 72.9680],
+  house_merchant: [20.9490, 72.9540],
+  hostel_central: [20.9485, 72.9525],
+  farmers_market: [20.9458, 72.9518],
+  dairy: [20.9468, 72.9520],
+  general: [20.9465, 72.9525],
+  clothing: [20.9462, 72.9523],
+  electronics: [20.9470, 72.9527],
+  farms: [20.9445, 72.9495],
+  factory: [20.9480, 72.9535],
+  school: [20.9475, 72.9505],
+  hospital: [20.9450, 72.9540],
+  park: [20.9465, 72.9545],
+  roads: [20.9465, 72.9520],
+  shipyard: [20.9350, 72.9250],
+  refinery: [20.9650, 72.9700],
+  petrol_pump: [20.9520, 72.9480],
+  steel_mill: [20.9580, 72.9600]
+};
 
 function ensureDirs() {
   try {
+    if (!fs.existsSync(SAVES_DIR)) fs.mkdirSync(SAVES_DIR, { recursive: true });
     if (!fs.existsSync(PLAYERS_DIR)) fs.mkdirSync(PLAYERS_DIR, { recursive: true });
   } catch {}
+}
+
+// Load canonical world locations (attempts memory -> Mongo -> file system -> defaults)
+export async function loadWorldLocations(): Promise<Record<string, [number, number]>> {
+  if (inMemoryWorldLocations) {
+    return { ...DEFAULT_WORLD_LOCATIONS, ...inMemoryWorldLocations };
+  }
+
+  // 1. Try MongoDB
+  try {
+    const col = await getCollection("world_settings");
+    if (col) {
+      const doc = await col.findOne({ _id: "canonical_world_locations" as any });
+      if (doc && (doc as any).locations) {
+        inMemoryWorldLocations = (doc as any).locations;
+        return { ...DEFAULT_WORLD_LOCATIONS, ...inMemoryWorldLocations };
+      }
+    }
+  } catch {}
+
+  // 2. Try Disk File
+  ensureDirs();
+  if (fs.existsSync(WORLD_LOCATIONS_FILE)) {
+    try {
+      const content = fs.readFileSync(WORLD_LOCATIONS_FILE, "utf-8");
+      const parsed = JSON.parse(content);
+      if (parsed && typeof parsed === "object") {
+        inMemoryWorldLocations = parsed;
+        return { ...DEFAULT_WORLD_LOCATIONS, ...inMemoryWorldLocations };
+      }
+    } catch {}
+  }
+
+  // 3. Fallback to Defaults and persist
+  inMemoryWorldLocations = { ...DEFAULT_WORLD_LOCATIONS };
+  await saveWorldLocations(inMemoryWorldLocations);
+  return { ...inMemoryWorldLocations };
+}
+
+// Save canonical world locations permanently to disk & Mongo & active in-memory caches
+export async function saveWorldLocations(locations: Record<string, [number, number]>): Promise<void> {
+  inMemoryWorldLocations = { ...locations };
+
+  // Sync to all inMemoryCache players so active user sessions immediately have the fixed location
+  for (const uid of Object.keys(inMemoryCache)) {
+    if (inMemoryCache[uid]) {
+      inMemoryCache[uid].zone_locations = {
+        ...inMemoryCache[uid].zone_locations,
+        ...locations
+      };
+    }
+  }
+
+  // Save to MongoDB
+  try {
+    const col = await getCollection("world_settings");
+    if (col) {
+      await col.replaceOne(
+        { _id: "canonical_world_locations" as any },
+        { _id: "canonical_world_locations", locations, updated_at: new Date().toISOString() } as any,
+        { upsert: true }
+      );
+    }
+  } catch (err) {
+    console.warn("[MongoDB Standby] Failed to save world locations to Mongo:", err);
+  }
+
+  // Save to Disk
+  try {
+    ensureDirs();
+    fs.writeFileSync(WORLD_LOCATIONS_FILE, JSON.stringify(locations, null, 2), "utf-8");
+  } catch (err) {
+    console.error("[Storage Error] Failed to write world_locations.json:", err);
+  }
+}
+
+// Permanently updates a single landmark or user home location
+export async function updateWorldLocation(landmarkId: string, coords: [number, number]): Promise<Record<string, [number, number]>> {
+  const current = await loadWorldLocations();
+  current[landmarkId] = coords;
+  await saveWorldLocations(current);
+  return current;
+}
+
+// Resets all world locations back to civilization defaults
+export async function resetWorldLocations(): Promise<Record<string, [number, number]>> {
+  const defaults = { ...DEFAULT_WORLD_LOCATIONS };
+  await saveWorldLocations(defaults);
+  return defaults;
 }
 
 // Load static catalog
@@ -52,6 +170,9 @@ function getStarterInventory(): Record<string, number> {
     fiber: 5,
     apple_seed: 5,
     wheat_seed: 5,
+    carrot_seed: 5,
+    corn_seed: 5,
+    strawberry_seed: 5,
     wooden_axe: 1,
     stone_pick: 1
   };
@@ -119,6 +240,13 @@ export function createNewPlayer(userId: string, citizenOptions?: CitizenRegistra
       },
       buy_seeds_threshold: 3,
       buy_seeds_qty: 5
+    },
+    industrial: {
+      enabled: true,
+      auto_refine: true,
+      auto_replenish_pump: true,
+      auto_dispatch_ships: true,
+      auto_smelt_steel: true
     }
   };
 
@@ -132,78 +260,126 @@ export function createNewPlayer(userId: string, citizenOptions?: CitizenRegistra
       }))
     : null;
 
-  const defaultFamilies = [
+  const defaultFamilies: PlayerState['families'] = [
     {
       id: "house_1",
       name: "Thakorbhai's Residence",
+      type: "house",
       budget: 50,
-      inventory: { milk: 5, wheat: 5, apple: 5 },
+      inventory: { milk: 5, wheat: 5, apple: 5, carrot: 5 },
       members: [
-        { name: "Thakorbhai", role: "father", relation: "Main Person", state: "Sleeping" },
-        { name: "vasantiben", role: "mother", relation: "Wife of Thakorbhai", state: "Sleeping" },
-        { name: "vandan", role: "son", relation: "Son of Thakorbhai", state: "Sleeping" },
-        { name: "hetvi", role: "daughter", relation: "Daughter of Thakorbhai", state: "Sleeping" },
-        { name: "Kiran", role: "worker", relation: "Tailor Shop Assistant", state: "Sleeping" }
+        { name: "Thakorbhai", role: "father", relation: "Main Person", state: "Sleeping", vehicle: "tractor" },
+        { name: "vasantiben", role: "mother", relation: "Wife of Thakorbhai", state: "Sleeping", vehicle: "scooter" },
+        { name: "vandan", role: "son", relation: "Son of Thakorbhai", state: "Sleeping", vehicle: "car" },
+        { name: "hetvi", role: "daughter", relation: "Daughter of Thakorbhai", state: "Sleeping", vehicle: "bicycle" },
+        { name: "Kiran", role: "worker", relation: "Tailor Shop Assistant", state: "Sleeping", vehicle: "bicycle" }
       ]
     },
     {
       id: "house_2",
       name: "Bharatbhai's Residence",
+      type: "house",
       budget: 40,
-      inventory: { milk: 4, wheat: 4, apple: 4 },
+      inventory: { milk: 4, wheat: 4, apple: 4, carrot: 4 },
       members: [
-        { name: "bharatbhai", role: "father", relation: "Brother of Vasantiben", state: "Sleeping" },
-        { name: "mayuriben", role: "mother", relation: "Wife of Bharatbhai", state: "Sleeping" },
-        { name: "vainavi", role: "daughter", relation: "Daughter of Bharatbhai", state: "Sleeping" },
-        { name: "prathav", role: "son", relation: "Son of Bharatbhai", state: "Sleeping" },
-        { name: "Dinesh", role: "worker", relation: "Farmer Assistant", state: "Sleeping" },
-        { name: "Geeta", role: "worker", relation: "Grocery Shop Assistant", state: "Sleeping" }
+        { name: "bharatbhai", role: "father", relation: "Brother of Vasantiben", state: "Sleeping", vehicle: "scooter" },
+        { name: "mayuriben", role: "mother", relation: "Wife of Bharatbhai", state: "Sleeping", vehicle: "scooter" },
+        { name: "vainavi", role: "daughter", relation: "Daughter of Bharatbhai", state: "Sleeping", vehicle: "bicycle" },
+        { name: "prathav", role: "son", relation: "Son of Bharatbhai", state: "Sleeping", vehicle: "car" },
+        { name: "Dinesh", role: "worker", relation: "Farmer Assistant", state: "Sleeping", vehicle: "tractor" },
+        { name: "Geeta", role: "worker", relation: "Grocery Shop Assistant", state: "Sleeping", vehicle: "scooter" }
       ]
     },
     {
       id: "house_3",
       name: "Rameshbhai's Residence",
+      type: "house",
       budget: 35,
-      inventory: { milk: 3, wheat: 3, apple: 3 },
+      inventory: { milk: 3, wheat: 3, apple: 3, carrot: 3 },
       members: [
-        { name: "rameshbhai", role: "father", relation: "Husband of Hemuben", state: "Sleeping" },
-        { name: "hemuben", role: "mother", relation: "Sister of Vasantiben", state: "Sleeping" },
-        { name: "krushil", role: "son", relation: "Son of Rameshbhai", state: "Sleeping" },
-        { name: "harshil", role: "son", relation: "Son of Rameshbhai", state: "Sleeping" },
-        { name: "Sanjay", role: "worker", relation: "Factory Operator", state: "Sleeping" }
+        { name: "rameshbhai", role: "father", relation: "Husband of Hemuben", state: "Sleeping", vehicle: "car" },
+        { name: "hemuben", role: "mother", relation: "Sister of Vasantiben", state: "Sleeping", vehicle: "scooter" },
+        { name: "krushil", role: "son", relation: "Son of Rameshbhai", state: "Sleeping", vehicle: "bicycle" },
+        { name: "harshil", role: "son", relation: "Son of Rameshbhai", state: "Sleeping", vehicle: "bicycle" },
+        { name: "Sanjay", role: "worker", relation: "Factory Operator", state: "Sleeping", vehicle: "truck" }
       ]
+    },
+    {
+      id: "house_maritime",
+      name: "Port Captain's Naval Quarters",
+      type: "house",
+      budget: 120,
+      inventory: { milk: 6, wheat: 8, apple: 6, fish: 12 },
+      members: [
+        { name: "Captain Vikram", role: "captain", relation: "Shipyard Harbor Master", state: "Sleeping", vehicle: "car" },
+        { name: "Priya Sharma", role: "navigator", relation: "First Navigation Officer", state: "Sleeping", vehicle: "scooter" },
+        { name: "Rahul Tandel", role: "deck_officer", relation: "Maritime Cargo Pilot", state: "Sleeping", vehicle: "truck" }
+      ]
+    },
+    {
+      id: "hostel_refinery",
+      name: "PetroChem Industrial Workers Dormitory",
+      type: "hostel",
+      capacity: 10,
+      budget: 180,
+      inventory: { milk: 8, wheat: 12, apple: 8, bread: 10 },
+      members: [
+        { name: "Arjun Patel", role: "engineer", relation: "Chief Refinery Engineer", state: "Sleeping", vehicle: "truck" },
+        { name: "Deepa Shah", role: "chemist", relation: "Petroleum Chemist", state: "Sleeping", vehicle: "scooter" },
+        { name: "Rohan Mistri", role: "technician", relation: "Petrol Pump Supervisor", state: "Sleeping", vehicle: "scooter" },
+        { name: "Meera Dave", role: "inspector", relation: "Industrial Safety Inspector", state: "Sleeping", vehicle: "car" }
+      ]
+    },
+    {
+      id: "house_merchant",
+      name: "Market Square Traders Manor",
+      type: "house",
+      budget: 160,
+      inventory: { milk: 6, wheat: 10, carrot: 10, apple: 10 },
+      members: [
+        { name: "Kisan Mandi", role: "merchant", relation: "Farmers Market Proprietor", state: "Sleeping", vehicle: "car" },
+        { name: "Sunil Varma", role: "grocer", relation: "Wholesale Grocery Manager", state: "Sleeping", vehicle: "truck" },
+        { name: "Anita Ben", role: "cashier", relation: "Dairy Depot Cashier", state: "Sleeping", vehicle: "scooter" }
+      ]
+    },
+    {
+      id: "hostel_central",
+      name: "Navsari Central Workers Hostel",
+      type: "hostel",
+      capacity: 12,
+      budget: 150,
+      inventory: { milk: 10, wheat: 10, apple: 10, carrot: 10 },
+      members: []
     }
   ];
 
-  if (customMembers && customFamilyId !== "house_1" && customFamilyId !== "house_2" && customFamilyId !== "house_3") {
+  if (customMembers && customFamilyId !== "house_1" && customFamilyId !== "house_2" && customFamilyId !== "house_3" && customFamilyId !== "hostel_central") {
     defaultFamilies.push({
       id: customFamilyId,
       name: `${citizenOptions?.name || userId}'s Residence`,
+      type: customFamilyId.startsWith("hostel_") ? "hostel" : "house",
+      capacity: customFamilyId.startsWith("hostel_") ? 10 : undefined,
       budget: 60,
-      inventory: { milk: 5, wheat: 5, apple: 5 },
-      members: customMembers
+      inventory: { milk: 5, wheat: 5, apple: 5, carrot: 5 },
+      members: customMembers.map((m, idx) => ({
+        ...m,
+        vehicle: idx === 0 ? "car" : idx === 1 ? "scooter" : "bicycle"
+      }))
     });
   }
 
   const initialLocations: Record<string, [number, number]> = {
-    house_1: [20.6732, 73.0800],
-    house_2: [20.6720, 73.0815],
-    house_3: [20.6715, 73.0795],
-    dairy: [20.6728, 73.0805],
-    general: [20.6725, 73.0810],
-    clothing: [20.6722, 73.0808],
-    electronics: [20.6730, 73.0812],
-    farms: [20.6705, 73.0780],
-    factory: [20.6740, 73.0820],
-    school: [20.6735, 73.0790],
-    hospital: [20.6710, 73.0825],
-    park: [20.6725, 73.0830]
+    ...DEFAULT_WORLD_LOCATIONS,
+    ...(inMemoryWorldLocations || {})
   };
 
   if (citizenOptions?.lat && citizenOptions?.lng) {
     initialLocations[customFamilyId] = [citizenOptions.lat, citizenOptions.lng];
-  } else if (customFamilyId !== "house_1" && customFamilyId !== "house_2" && customFamilyId !== "house_3") {
-    initialLocations[customFamilyId] = [20.6728, 73.0805];
+    if (inMemoryWorldLocations) {
+      inMemoryWorldLocations[customFamilyId] = [citizenOptions.lat, citizenOptions.lng];
+    }
+  } else if (customFamilyId !== "house_1" && customFamilyId !== "house_2" && customFamilyId !== "house_3" && !initialLocations[customFamilyId]) {
+    initialLocations[customFamilyId] = [20.9468, 72.9520];
   }
 
   return {
@@ -242,7 +418,10 @@ export function createNewPlayer(userId: string, citizenOptions?: CitizenRegistra
       name: `${citizenOptions?.name || userId} Household`,
       budget: 50,
       inventory: { milk: 5, wheat: 5, apple: 5 },
-      members: customMembers || []
+      members: (customMembers || []).map((m, idx) => ({
+        ...m,
+        vehicle: idx === 0 ? "car" : idx === 1 ? "scooter" : "bicycle"
+      }))
     },
     families: defaultFamilies as any,
     government: {
@@ -276,6 +455,15 @@ export function createNewPlayer(userId: string, citizenOptions?: CitizenRegistra
     ],
     city_manager_enabled: true,
     shops: [
+      {
+        id: "farmers_market",
+        name: "Navsari Fresh Farmers & Vegetable Market",
+        owner: "Kisan Mandi",
+        inventory: { carrot: 25, brokeli: 20, cabbige: 20, cucumber: 25, chilly: 25, corn: 30, apple: 30, banana: 25, strawberry: 15, watermelon: 15, wheat: 40 },
+        prices: { carrot: 3, brokeli: 4, cabbige: 3, cucumber: 2, chilly: 2, corn: 3, apple: 4, banana: 3, strawberry: 6, watermelon: 8, wheat: 3 },
+        revenue: 300,
+        sales_history: []
+      },
       {
         id: "dairy",
         name: "City Dairy & Groceries",
@@ -313,13 +501,49 @@ export function createNewPlayer(userId: string, citizenOptions?: CitizenRegistra
         sales_history: []
       }
     ],
+    industry: {
+      oil_refinery: {
+        crude_oil: 120,
+        refined_petrol: 85,
+        diesel: 60,
+        marine_fuel: 40,
+        is_active: true,
+        efficiency: 95,
+        daily_crude_input: 40,
+        daily_fuel_output: 35
+      },
+      petrol_pump: {
+        fuel_stock: 450,
+        diesel_stock: 350,
+        price_per_liter: 15,
+        daily_sales_liters: 120,
+        revenue: 1800,
+        ev_charging_active: true
+      },
+      shipyard: {
+        ships_docked: 3,
+        ships_under_construction: 1,
+        fleet: [
+          { id: "ship_1", name: "INS Navsari Express", type: "cargo_ship", fuel: 80, status: "Active Maritime Freight", cargo: { wheat: 20, steel_beam: 10 } },
+          { id: "ship_2", name: "Surat Gulf Ferry", type: "passenger_ferry", fuel: 65, status: "Passenger Transit to Gulf" },
+          { id: "ship_3", name: "Arabian Sea Trawler 09", type: "fishing_trawler", fuel: 90, status: "Commercial Deep Sea Harvest" }
+        ]
+      },
+      heavy_manufacturing: {
+        iron_ore_stock: 75,
+        steel_beams: 45,
+        concrete_stock: 90,
+        active_smelters: 2
+      }
+    },
     zone_locations: initialLocations
   };
 }
 
-// Load player save (attempts MongoDB, falls back to disk)
+// Load player save (attempts MongoDB, falls back to disk, always synchronizing canonical world locations)
 export async function loadPlayer(userId: string): Promise<PlayerState> {
   const safeName = userId.replace(/[^a-zA-Z0-9_-]/g, "");
+  const worldLocations = await loadWorldLocations();
 
   try {
     const collection = await getCollection("players");
@@ -350,12 +574,73 @@ export async function loadPlayer(userId: string): Promise<PlayerState> {
           const d = createNewPlayer(userId);
           playerState.shops = d.shops;
           modified = true;
+        } else if (!playerState.shops.some(s => s.id === "farmers_market")) {
+          const fm = createNewPlayer(userId).shops.find(s => s.id === "farmers_market");
+          if (fm) {
+            playerState.shops.unshift(fm);
+            modified = true;
+          }
         }
+
+        // Normalize bloated shop inventories to realistic store capacities (max 40)
+        if (playerState.shops) {
+          for (const shop of playerState.shops) {
+            if (shop.inventory) {
+              for (const [key, count] of Object.entries(shop.inventory)) {
+                if (Number(count) > 40) {
+                  shop.inventory[key] = Math.min(40, Math.max(15, Math.floor(Math.random() * 15) + 20));
+                  modified = true;
+                }
+              }
+            }
+          }
+        }
+
+        if (!playerState.industry) {
+          const d = createNewPlayer(userId);
+          playerState.industry = d.industry;
+          modified = true;
+        }
+
         if (!playerState.families) {
           const d = createNewPlayer(userId);
           playerState.families = d.families;
           playerState.government = d.government;
           modified = true;
+        }
+        if (playerState.families) {
+          const defaultFam = createNewPlayer(userId).families;
+          for (const requiredId of ["house_maritime", "hostel_refinery", "house_merchant", "hostel_central"]) {
+            if (!playerState.families.some(f => f.id === requiredId)) {
+              const toAdd = defaultFam.find(f => f.id === requiredId);
+              if (toAdd) {
+                playerState.families.push(toAdd);
+                modified = true;
+              }
+            }
+          }
+          for (const fam of playerState.families) {
+            if (!fam.type) {
+              fam.type = fam.id.startsWith("hostel_") ? "hostel" : "house";
+              modified = true;
+            }
+            if (fam.members) {
+              fam.members.forEach((m, idx) => {
+                if (!m.vehicle) {
+                  if (m.role === "father" || m.role === "captain") m.vehicle = idx === 0 ? "car" : "tractor";
+                  else if (m.role === "mother" || m.role === "navigator") m.vehicle = "scooter";
+                  else if (m.role === "engineer" || m.role === "deck_officer" || m.role === "grocer") m.vehicle = "truck";
+                  else if (m.role === "merchant" || m.role === "inspector") m.vehicle = "car";
+                  else if (m.role === "chemist" || m.role === "technician" || m.role === "cashier") m.vehicle = "scooter";
+                  else if (m.role === "son") m.vehicle = "car";
+                  else if (m.role === "daughter") m.vehicle = "bicycle";
+                  else if (m.role === "worker") m.vehicle = "truck";
+                  else m.vehicle = "bicycle";
+                  modified = true;
+                }
+              });
+            }
+          }
         }
         if (!playerState.cabinet) {
           const d = createNewPlayer(userId);
@@ -364,11 +649,13 @@ export async function loadPlayer(userId: string): Promise<PlayerState> {
           playerState.city_manager_enabled = d.city_manager_enabled;
           modified = true;
         }
-        if (!playerState.zone_locations) {
-          const d = createNewPlayer(userId);
-          playerState.zone_locations = d.zone_locations;
-          modified = true;
-        }
+
+        // Always enforce fixed canonical world locations for all users
+        playerState.zone_locations = {
+          ...DEFAULT_WORLD_LOCATIONS,
+          ...(playerState.zone_locations || {}),
+          ...worldLocations
+        };
 
         if (modified) {
           await savePlayer(playerState);
@@ -376,6 +663,11 @@ export async function loadPlayer(userId: string): Promise<PlayerState> {
         return playerState;
       } else {
         const fresh = createNewPlayer(userId);
+        fresh.zone_locations = {
+          ...DEFAULT_WORLD_LOCATIONS,
+          ...worldLocations,
+          ...(fresh.zone_locations || {})
+        };
         await savePlayer(fresh);
         return fresh;
       }
@@ -385,6 +677,11 @@ export async function loadPlayer(userId: string): Promise<PlayerState> {
   }
 
   if (inMemoryCache[userId]) {
+    inMemoryCache[userId].zone_locations = {
+      ...DEFAULT_WORLD_LOCATIONS,
+      ...(inMemoryCache[userId].zone_locations || {}),
+      ...worldLocations
+    };
     return inMemoryCache[userId];
   }
 
@@ -393,16 +690,87 @@ export async function loadPlayer(userId: string): Promise<PlayerState> {
 
   if (!fs.existsSync(filePath)) {
     const fresh = createNewPlayer(userId);
+    fresh.zone_locations = {
+      ...DEFAULT_WORLD_LOCATIONS,
+      ...worldLocations,
+      ...(fresh.zone_locations || {})
+    };
     await savePlayer(fresh);
     return fresh;
   }
 
   try {
     const content = fs.readFileSync(filePath, "utf-8");
-    const data = JSON.parse(content);
-    return data as PlayerState;
+    const data = JSON.parse(content) as PlayerState;
+    data.zone_locations = {
+      ...DEFAULT_WORLD_LOCATIONS,
+      ...(data.zone_locations || {}),
+      ...worldLocations
+    };
+
+    if (!data.shops) {
+      data.shops = createNewPlayer(userId).shops;
+    } else if (!data.shops.some(s => s.id === "farmers_market")) {
+      const fm = createNewPlayer(userId).shops.find(s => s.id === "farmers_market");
+      if (fm) data.shops.unshift(fm);
+    }
+
+    // Normalize bloated shop inventories to realistic store capacities (max 40)
+    if (data.shops) {
+      for (const shop of data.shops) {
+        if (shop.inventory) {
+          for (const [key, count] of Object.entries(shop.inventory)) {
+            if (Number(count) > 40) {
+              shop.inventory[key] = Math.min(40, Math.max(15, Math.floor(Math.random() * 15) + 20));
+            }
+          }
+        }
+      }
+    }
+
+    if (!data.industry) {
+      data.industry = createNewPlayer(userId).industry;
+    }
+
+    if (data.families) {
+      const defaultFam = createNewPlayer(userId).families;
+      for (const requiredId of ["house_maritime", "hostel_refinery", "house_merchant", "hostel_central"]) {
+        if (!data.families.some(f => f.id === requiredId)) {
+          const toAdd = defaultFam.find(f => f.id === requiredId);
+          if (toAdd) {
+            data.families.push(toAdd);
+          }
+        }
+      }
+      for (const fam of data.families) {
+        if (!fam.type) {
+          fam.type = fam.id.startsWith("hostel_") ? "hostel" : "house";
+        }
+        if (fam.members) {
+          fam.members.forEach((m, idx) => {
+            if (!m.vehicle) {
+              if (m.role === "father" || m.role === "captain") m.vehicle = idx === 0 ? "car" : "tractor";
+              else if (m.role === "mother" || m.role === "navigator") m.vehicle = "scooter";
+              else if (m.role === "engineer" || m.role === "deck_officer" || m.role === "grocer") m.vehicle = "truck";
+              else if (m.role === "merchant" || m.role === "inspector") m.vehicle = "car";
+              else if (m.role === "chemist" || m.role === "technician" || m.role === "cashier") m.vehicle = "scooter";
+              else if (m.role === "son") m.vehicle = "car";
+              else if (m.role === "daughter") m.vehicle = "bicycle";
+              else if (m.role === "worker") m.vehicle = "truck";
+              else m.vehicle = "bicycle";
+            }
+          });
+        }
+      }
+    }
+    return data;
   } catch {
     const fresh = createNewPlayer(userId);
+    fresh.zone_locations = {
+      ...DEFAULT_WORLD_LOCATIONS,
+      ...worldLocations,
+      ...(fresh.zone_locations || {})
+    };
     inMemoryCache[userId] = fresh;
     return fresh;
   }

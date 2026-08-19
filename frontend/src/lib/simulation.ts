@@ -1,4 +1,6 @@
 
+import { KisanAgentManager } from "./kisan_agent";
+
 export interface FarmPlot {
   index: number;
   crop_id: string | null;
@@ -21,6 +23,15 @@ export interface BuildJob {
 export interface CraftJob {
   recipe_id: string;
   finishes_at: string;
+}
+
+export interface FamilyMember {
+  name: string;
+  role: string;
+  relation: string;
+  state: string;
+  vehicle?: string;
+  destination?: string;
 }
 
 export interface PlayerState {
@@ -55,7 +66,7 @@ export interface PlayerState {
     name: string;
     budget: number;
     inventory: Record<string, number>;
-    members: { name: string; role: string; state: string }[];
+    members: FamilyMember[];
   };
   shops: {
     id: string;
@@ -69,9 +80,11 @@ export interface PlayerState {
   families: {
     id: string;
     name: string;
+    type?: "house" | "hostel";
+    capacity?: number;
     budget: number;
     inventory: Record<string, number>;
-    members: { name: string; role: string; relation: string; state: string }[];
+    members: FamilyMember[];
   }[];
   government: {
     mayor: string;
@@ -91,14 +104,61 @@ export interface PlayerState {
     headline: string;
     category: string;
   }[];
+  livestock?: {
+    cows: number;
+    sheep: number;
+    chickens: number;
+    last_produce_day?: number;
+  };
+  automated_farming_enabled?: boolean;
+  farm_barn?: Record<string, number>;
   city_manager_enabled: boolean;
   zone_locations: Record<string, [number, number]>;
+  industry?: {
+    oil_refinery: {
+      crude_oil: number;
+      refined_petrol: number;
+      diesel: number;
+      marine_fuel: number;
+      is_active: boolean;
+      efficiency: number;
+      daily_crude_input: number;
+      daily_fuel_output: number;
+    };
+    petrol_pump: {
+      fuel_stock: number;
+      diesel_stock: number;
+      price_per_liter: number;
+      daily_sales_liters: number;
+      revenue: number;
+      ev_charging_active: boolean;
+    };
+    shipyard: {
+      ships_docked: number;
+      ships_under_construction: number;
+      fleet: {
+        id: string;
+        name: string;
+        type: "cargo_ship" | "passenger_ferry" | "fishing_trawler";
+        fuel: number;
+        status: string;
+        destination?: string;
+        cargo?: Record<string, number>;
+      }[];
+    };
+    heavy_manufacturing: {
+      iron_ore_stock: number;
+      steel_beams: number;
+      concrete_stock: number;
+      active_smelters: number;
+    };
+  };
 }
 
-const SECONDS_PER_GAME_DAY = 24 * 60;
-const SECONDS_PER_GAME_HOUR = 60;
+export const SECONDS_PER_GAME_HOUR = 60; // 1 hour = 60 seconds (1 minute)
+export const SECONDS_PER_GAME_DAY = 24 * 60; // 24 hours = 1440 seconds (24 minutes = 1 day)
 
-// Helper to get formatted date string
+// Helper to get formatted 24-hr Indian Standard Time clock
 export function formatClock(totalSeconds: number): string {
   const day = Math.floor(totalSeconds / SECONDS_PER_GAME_DAY) + 1;
   const timeOfDay = totalSeconds % SECONDS_PER_GAME_DAY;
@@ -107,7 +167,18 @@ export function formatClock(totalSeconds: number): string {
   
   const hh = hour.toString().padStart(2, "0");
   const mm = minute.toString().padStart(2, "0");
-  return `Day ${day}  ${hh}:${mm}`;
+  return `Day ${day} • ${hh}:${mm} hrs (IST)`;
+}
+
+// Format Indian Calendar Date (DD/MM/YYYY)
+export function formatIndianDate(totalSeconds: number): string {
+  const dayOffset = Math.floor(totalSeconds / SECONDS_PER_GAME_DAY);
+  const baseDate = new Date(2026, 0, 1); // Starts 01/01/2026
+  baseDate.setDate(baseDate.getDate() + dayOffset);
+  const dd = baseDate.getDate().toString().padStart(2, "0");
+  const mm = (baseDate.getMonth() + 1).toString().padStart(2, "0");
+  const yyyy = baseDate.getFullYear();
+  return `${dd}/${mm}/${yyyy}`;
 }
 
 export function getDay(totalSeconds: number): number {
@@ -135,25 +206,44 @@ export function fluctuatePrices(player: PlayerState, itemsCatalog: any) {
 }
 
 // Check plot state
-export function getPlotStatus(plot: FarmPlot, cropsCatalog: any) {
+// Normalize crop ID helper
+export function normalizeCropKey(raw: string): string {
+  let k = String(raw || "").trim().toLowerCase().replace(/^crop_/, "");
+  if (k === "broccoli") return "brokeli";
+  if (k === "cabbage") return "cabbige";
+  if (k === "chili") return "chilly";
+  if (k === "radish") return "reddies";
+  return k;
+}
+
+// Check plot state
+export function getPlotStatus(plot: FarmPlot, cropsCatalog: any, playerClockSeconds?: number) {
   if (!plot.crop_id || !plot.planted_at) {
-    return { state: "empty", label: "Empty", remaining: 0, crop: null };
+    return { state: "empty", label: "Empty Plot", remaining: 0, progress: 0, crop: null };
   }
-  const crop = cropsCatalog[plot.crop_id];
+  const cleanKey = normalizeCropKey(plot.crop_id);
+  const crop = cropsCatalog[cleanKey] || cropsCatalog[plot.crop_id];
   if (!crop) {
-    return { state: "empty", label: "Unknown crop", remaining: 0, crop: null };
+    return { state: "empty", label: "Unknown crop", remaining: 0, progress: 0, crop: null };
   }
   
-  const planted = new Date(plot.planted_at).getTime();
-  const elapsed = (Date.now() - planted) / 1000;
-  const needed = Number(crop.growth_seconds);
-  const remaining = Math.max(0, needed - elapsed);
+  const growthSeconds = Number(crop.growth_seconds) || 20;
+  const rawPlot = plot as any;
+  const realElapsed = (Date.now() - new Date(plot.planted_at).getTime()) / 1000;
+  const inGameElapsed = (rawPlot.planted_game_seconds !== undefined && playerClockSeconds !== undefined)
+    ? Math.max(0, playerClockSeconds - rawPlot.planted_game_seconds)
+    : 0;
+  const elapsed = Math.max(realElapsed, inGameElapsed);
 
-  if (remaining <= 0) {
+  const remaining = Math.max(0, growthSeconds - elapsed);
+  const progress = Math.min(100, Math.max(0, Math.floor((elapsed / growthSeconds) * 100)));
+
+  if (remaining <= 0 || elapsed >= growthSeconds) {
     return {
       state: "ready",
       label: `${crop.name} READY`,
       remaining: 0,
+      progress: 100,
       crop
     };
   }
@@ -164,15 +254,17 @@ export function getPlotStatus(plot: FarmPlot, cropsCatalog: any) {
   
   return {
     state: "growing",
-    label: `${crop.name} ${countdown}`,
+    label: `${crop.name} (${countdown})`,
     remaining,
+    progress,
     crop
   };
 }
 
 // Plant crop
 export function plantCrop(player: PlayerState, plotIndex: number, cropId: string, cropsCatalog: any): string {
-  const crop = cropsCatalog[cropId];
+  const cleanKey = normalizeCropKey(cropId);
+  const crop = cropsCatalog[cleanKey] || cropsCatalog[cropId];
   if (!crop) return "Unknown crop.";
   if (plotIndex < 0 || plotIndex >= player.plots.length) return "Invalid plot.";
   
@@ -184,35 +276,53 @@ export function plantCrop(player: PlayerState, plotIndex: number, cropId: string
   if (seedCount < 1) return `Need 1 ${seedId}.`;
   
   player.inventory[seedId] = seedCount - 1;
-  plot.crop_id = cropId;
+  plot.crop_id = cleanKey;
   plot.planted_at = new Date().toISOString();
+  (plot as any).planted_game_seconds = player.clock.total_seconds;
   
-  const hours = Number(crop.growth_seconds) / 3600;
-  return `Planted ${crop.name} (ready in ${hours.toFixed(1)}h).`;
+  const growthSeconds = Number(crop.growth_seconds) || 20;
+  return `Planted ${crop.name} (ready in ${growthSeconds}s).`;
 }
 
 // Harvest plot
 export function harvestCrop(player: PlayerState, plotIndex: number, cropsCatalog: any): string {
   if (plotIndex < 0 || plotIndex >= player.plots.length) return "Invalid plot.";
   const plot = player.plots[plotIndex];
-  const status = getPlotStatus(plot, cropsCatalog);
+  if (!plot.crop_id) return "Nothing to harvest.";
+  
+  const cleanKey = normalizeCropKey(plot.crop_id);
+  const crop = cropsCatalog[cleanKey] || cropsCatalog[plot.crop_id];
+  const status = getPlotStatus(plot, cropsCatalog, player.clock?.total_seconds);
   
   if (status.state !== "ready") {
-    if (status.state === "growing") return "Still growing.";
+    if (status.state === "growing") return `Still growing (${Math.ceil(status.remaining)}s left).`;
     return "Nothing to harvest.";
   }
   
-  const crop = status.crop as any;
-  const yieldMin = Number(crop.yield_min || 1);
-  const yieldMax = Number(crop.yield_max || 3);
+  const yieldMin = Number(crop?.yield_min || 2);
+  const yieldMax = Number(crop?.yield_max || 4);
   const amount = Math.floor(yieldMin + Math.random() * (yieldMax - yieldMin + 1));
-  const yieldId = String(crop.yield_id);
+  const yieldId = String(crop?.yield_id || crop?.yield_item || crop?.id || cleanKey || plot.crop_id);
   
+  // Add to player inventory
   player.inventory[yieldId] = (player.inventory[yieldId] || 0) + amount;
+
+  // Add to farm barn
+  if (!player.farm_barn) player.farm_barn = {};
+  player.farm_barn[yieldId] = (player.farm_barn[yieldId] || 0) + amount;
+
+  // Stock portion in Farmers Market
+  const farmersMarket = player.shops?.find(s => s.id === "farmers_market");
+  if (farmersMarket) {
+    farmersMarket.inventory[yieldId] = (farmersMarket.inventory[yieldId] || 0) + Math.ceil(amount * 0.5);
+  }
+
+  const cropName = crop?.name || yieldId;
   plot.crop_id = null;
   plot.planted_at = null;
+  (plot as any).planted_game_seconds = null;
   
-  return `Harvested ${amount}x ${yieldId}.`;
+  return `Harvested ${amount}x ${cropName}.`;
 }
 
 // Can craft check
@@ -377,70 +487,11 @@ export function runAgentsTick(player: PlayerState, dt: number, catalogs: any): s
   const settings = player.agent_settings;
   if (!settings) return logs;
 
-  // 1. Farming Agent
-  const farmCfg = settings.farming || {};
-  if (farmCfg.enabled) {
-    const preferredCrops = farmCfg.preferred_crops || ["apple", "wheat"];
-    const autoBuy = farmCfg.auto_buy_seeds !== false;
-
-    // Harvest ready
-    for (const plot of player.plots) {
-      const status = getPlotStatus(plot, catalogs.crops);
-      if (status.state === "ready") {
-        const msg = harvestCrop(player, plot.index, catalogs.crops);
-        logs.push(`Farming Agent: ${msg}`);
-      }
-    }
-
-    // Plant empty
-    for (const plot of player.plots) {
-      const status = getPlotStatus(plot, catalogs.crops);
-      if (status.state === "empty") {
-        let planted = false;
-        for (const cropId of preferredCrops) {
-          const crop = catalogs.crops[cropId];
-          if (!crop) continue;
-          const seedId = crop.seed_id;
-          if ((player.inventory[seedId] || 0) >= 1) {
-            const msg = plantCrop(player, plot.index, cropId, catalogs.crops);
-            logs.push(`Farming Agent: Planted ${crop.name} on plot ${plot.index + 1}.`);
-            planted = true;
-            break;
-          }
-        }
-
-        if (!planted && autoBuy) {
-          for (const cropId of preferredCrops) {
-            const crop = catalogs.crops[cropId];
-            if (!crop) continue;
-            const seedId = crop.seed_id;
-            const seedMeta = catalogs.items[seedId];
-            if (!seedMeta) continue;
-            
-            const unitPrice = player.item_prices[seedId] || Number(seedMeta.value || 5);
-            const buyQty = 5;
-            const cost = unitPrice * buyQty;
-            const minCash = settings.trade?.min_cash_reserve || 100;
-            
-            if (player.money - cost >= minCash) {
-              player.money -= cost;
-              player.inventory[seedId] = (player.inventory[seedId] || 0) + buyQty;
-              logs.push(`Farming Agent: Bought ${buyQty}x ${seedMeta.name} for $${cost} to plant.`);
-              
-              // Plant immediately
-              plantCrop(player, plot.index, cropId, catalogs.crops);
-              logs.push(`Farming Agent: Planted ${crop.name} on plot ${plot.index + 1}.`);
-              planted = true;
-              break;
-            }
-          }
-          
-          if (!planted) {
-            logs.push(`Farming Agent: Stalled on plot ${plot.index + 1} - No seeds or gold.`);
-            break; // Stop further loop
-          }
-        }
-      }
+  // 1. Autonomous Kisan AI Agriculture Agent (LangChain + 5-Unit Enforcer)
+  if (player.automated_farming_enabled !== false && player.plots && player.plots.length > 0) {
+    const report = KisanAgentManager.tickUserFarmingAgentSync(player, catalogs, 5);
+    if (report.actionsTaken.length > 0) {
+      logs.push(`🌾 Kisan AI Agent: ${report.actionsTaken.join("; ")}.`);
     }
   }
 
@@ -525,6 +576,122 @@ export function runAgentsTick(player: PlayerState, dt: number, catalogs: any): s
           player.money -= cost;
           player.inventory[seedId] = current + buyQty;
           logs.push(`Trade Agent: Low seed stock. Bought ${buyQty}x ${meta.name} for $${cost} at $${price}/unit.`);
+        }
+      }
+    }
+  }
+
+  // 4. Autonomous Industrial Revolution & Energy Supply Chain Agent
+  const indCfg = settings.industrial || { enabled: true, auto_refine: true, auto_replenish_pump: true, auto_dispatch_ships: true, auto_smelt_steel: true };
+  if (indCfg.enabled !== false && player.industry) {
+    const ind = player.industry;
+    
+    // a. Autonomous Crude Extraction & Distillation Cracking
+    if (indCfg.auto_refine !== false && ind.oil_refinery.is_active && ind.oil_refinery.crude_oil >= 10) {
+      const bbl = Math.min(15, ind.oil_refinery.crude_oil);
+      ind.oil_refinery.crude_oil -= bbl;
+      const petrolYield = Math.floor(bbl * 0.7);
+      const dieselYield = Math.floor(bbl * 0.5);
+      const bunkerYield = Math.floor(bbl * 0.3);
+      ind.oil_refinery.refined_petrol += petrolYield;
+      ind.oil_refinery.diesel += dieselYield;
+      ind.oil_refinery.marine_fuel += bunkerYield;
+      logs.push(`🛢️ Industrial Agent: Auto-distilled ${bbl} crude barrels into +${petrolYield}L Petrol, +${dieselYield}L Diesel, +${bunkerYield}L Marine Bunker.`);
+    }
+
+    // b. Autonomous Maritime Fleet Refueling & Trade Voyage Dispatch
+    if (indCfg.auto_dispatch_ships !== false && ind.shipyard?.fleet) {
+      for (const ship of ind.shipyard.fleet) {
+        if (ship.fuel < 30 && ind.oil_refinery.marine_fuel >= 15) {
+          ind.oil_refinery.marine_fuel -= 15;
+          ship.fuel = 100;
+          logs.push(`⚓ Industrial Agent: Refueled '${ship.name}' at shipyard berth.`);
+        }
+        if (ship.fuel >= 60 && (ship.status === "Docked at Port" || ship.status === "Berth Ready")) {
+          ship.fuel -= 20;
+          ship.status = "At High Seas (Trade Voyage)";
+          const earned = ship.type === "cargo_ship" ? 85 : ship.type === "passenger_ferry" ? 55 : 40;
+          player.money += earned;
+          logs.push(`🚢 Industrial Agent: Dispatched '${ship.name}' on maritime trade route (earned +$${earned}).`);
+        }
+      }
+    }
+
+    // c. Autonomous Steel Smelting
+    if (indCfg.auto_smelt_steel !== false && ind.heavy_manufacturing?.iron_ore_stock >= 10) {
+      ind.heavy_manufacturing.iron_ore_stock -= 10;
+      ind.heavy_manufacturing.steel_beams += 4;
+      logs.push(`🏭 Industrial Agent: Smelted 10x Iron Ore into +4x Structural Steel Beams.`);
+    }
+  }
+
+  // 5. Autonomous Highway 48 Petrol Pump & Citizen Vehicle Fueling Agent
+  if (player.industry?.petrol_pump) {
+    const pump = player.industry.petrol_pump;
+    const ref = player.industry.oil_refinery;
+    const families = player.families || [];
+    const currentTimeStr = player.clock?.formatted || "12:00 PM";
+
+    if (!pump.recent_refuelings) {
+      pump.recent_refuelings = [];
+    }
+
+    // 5a. Auto-Replenish Pump Tanks via Tanker Deliveries from Oil Refinery
+    if (pump.fuel_stock < 300 && ref.refined_petrol >= 20) {
+      const tankerTransfer = Math.min(60, ref.refined_petrol);
+      ref.refined_petrol -= tankerTransfer;
+      pump.fuel_stock += tankerTransfer;
+      logs.push(`⛽ Petrol Pump Agent: Dispatched ${tankerTransfer}L petrol tanker delivery from Gulf Refinery to Highway 48.`);
+    }
+    if (pump.diesel_stock < 250 && ref.diesel >= 20) {
+      const tankerTransfer = Math.min(50, ref.diesel);
+      ref.diesel -= tankerTransfer;
+      pump.diesel_stock += tankerTransfer;
+      logs.push(`⛽ Petrol Pump Agent: Dispatched ${tankerTransfer}L diesel tanker delivery from Gulf Refinery to Highway 48.`);
+    }
+
+    // 5b. Active Citizen Vehicles Travel Fuel Consumption & Automated Gas Station Refueling
+    for (const fam of families) {
+      for (const member of fam.members || []) {
+        const veh = member.vehicle || "walking";
+        if (veh === "walking" || veh === "bicycle") continue; // Green zero-emission travel
+
+        // Rate of fuel burn per travel activity
+        const isDieselVehicle = veh === "tractor" || veh === "truck";
+        const fuelType = isDieselVehicle ? "Diesel" : "Petrol";
+        const burnLiters = veh === "car" ? 0.3 : veh === "scooter" ? 0.15 : veh === "tractor" ? 0.5 : 0.6;
+        const fuelCost = Math.ceil(burnLiters * pump.price_per_liter);
+
+        // Check if pump has fuel and family can pay
+        if (isDieselVehicle ? pump.diesel_stock >= burnLiters : pump.fuel_stock >= burnLiters) {
+          if (fam.budget >= fuelCost) {
+            fam.budget -= fuelCost;
+            pump.revenue += fuelCost;
+            pump.daily_sales_liters += burnLiters;
+            
+            if (isDieselVehicle) {
+              pump.diesel_stock -= burnLiters;
+            } else {
+              pump.fuel_stock -= burnLiters;
+            }
+
+            // 10% Municipal Fuel Tax
+            const fuelTax = Math.max(1, Math.floor(fuelCost * 0.1));
+            player.city_treasury += fuelTax;
+
+            // Log recent refueling event (keep last 8)
+            pump.recent_refuelings.unshift({
+              citizen: member.name,
+              vehicle: veh,
+              liters: Number(burnLiters.toFixed(2)),
+              cost: fuelCost,
+              fuel_type: fuelType,
+              time: currentTimeStr
+            });
+            if (pump.recent_refuelings.length > 10) {
+              pump.recent_refuelings = pump.recent_refuelings.slice(0, 10);
+            }
+          }
         }
       }
     }
@@ -704,6 +871,7 @@ export function tickHouseholdAndProjects(player: PlayerState, dt: number, catalo
         
         let itemsToRestock: string[] = [];
         if (shop.id === "dairy") itemsToRestock = ["milk", "wheat", "apple", "bread", "tomato_ketch"];
+        else if (shop.id === "farmers_market") itemsToRestock = ["carrot", "brokeli", "cabbige", "cucumber", "chilly", "corn", "apple", "banana", "wheat"];
         else if (shop.id === "general") itemsToRestock = ["wood", "stone", "rope"];
         else if (shop.id === "clothing") itemsToRestock = ["fiber", "wool"];
         else if (shop.id === "electronics") itemsToRestock = ["copper", "iron", "steel"];
@@ -739,6 +907,52 @@ export function tickHouseholdAndProjects(player: PlayerState, dt: number, catalo
         }
       }
       rawPlayer.last_restock_day = currentDay;
+    }
+
+    // 2b. Daily Livestock Production & Automated AI Farming Agent (ticked daily at 06:00 AM)
+    if (!player.livestock) {
+      player.livestock = { cows: 4, sheep: 6, chickens: 10, last_produce_day: 0 };
+    }
+    if (!player.farm_barn) {
+      player.farm_barn = { milk: 20, wool: 15, egg: 30, wheat: 50, carrot: 30, apple: 25 };
+    }
+    if (player.automated_farming_enabled === undefined) {
+      player.automated_farming_enabled = true;
+    }
+
+    if (player.livestock.last_produce_day !== currentDay) {
+      // 1. Livestock produce
+      const cows = player.livestock.cows ?? 4;
+      const sheep = player.livestock.sheep ?? 6;
+      const chickens = player.livestock.chickens ?? 10;
+
+      const milkProduced = cows * 2;
+      const woolProduced = sheep * 1;
+      const eggProduced = chickens * 2;
+
+      player.farm_barn["milk"] = (player.farm_barn["milk"] || 0) + milkProduced;
+      player.farm_barn["wool"] = (player.farm_barn["wool"] || 0) + woolProduced;
+      player.farm_barn["egg"] = (player.farm_barn["egg"] || 0) + eggProduced;
+
+      // Deliver to shops / market
+      const dairyShop = player.shops.find(s => s.id === "dairy");
+      if (dairyShop) {
+        dairyShop.inventory["milk"] = (dairyShop.inventory["milk"] || 0) + Math.floor(milkProduced * 0.7);
+        dairyShop.inventory["egg"] = (dairyShop.inventory["egg"] || 0) + Math.floor(eggProduced * 0.5);
+      }
+      const clothingShop = player.shops.find(s => s.id === "clothing");
+      if (clothingShop) {
+        clothingShop.inventory["wool"] = (clothingShop.inventory["wool"] || 0) + woolProduced;
+      }
+      const farmersMarket = player.shops.find(s => s.id === "farmers_market");
+      if (farmersMarket) {
+        farmersMarket.inventory["milk"] = (farmersMarket.inventory["milk"] || 0) + Math.ceil(milkProduced * 0.3);
+        farmersMarket.inventory["egg"] = (farmersMarket.inventory["egg"] || 0) + Math.ceil(eggProduced * 0.5);
+      }
+
+      player.livestock.last_produce_day = currentDay;
+      logs.push(`Agriculture: Livestock Barn gathered +${milkProduced}x Milk 🥛, +${woolProduced}x Wool 🧶, +${eggProduced}x Eggs 🥚.`);
+      publishNews(player, `Farm Report: Kisan Livestock barn gathered ${milkProduced}x Milk, ${woolProduced}x Wool, ${eggProduced}x Eggs for town markets.`, "ECONOMY");
     }
   }
 
@@ -820,127 +1034,170 @@ export function tickHouseholdAndProjects(player: PlayerState, dt: number, catalo
       // Working hours (09:00 - 17:00)
       else if (currentHour >= 9 && currentHour < 17) {
         for (const m of members) {
-          if (family.id === "house_1") {
+          const role = (m.role || "").toLowerCase();
+          if (role === "farmer") {
+            m.state = "Working at Farms";
+          } else if (role === "worker") {
+            m.state = "Working at Factory";
+          } else if (role === "merchant") {
+            m.state = "Working at Commercial Stores";
+          } else if (role === "tailor") {
+            m.state = "Working at Savita's Clothiers";
+          } else if (role === "engineer") {
+            m.state = "Working at Electronic Hub";
+          } else if (role === "doctor") {
+            m.state = hasHospital ? "Working at General Hospital" : "Community Medical Care";
+          } else if (role === "teacher") {
+            m.state = hasSchool ? "Teaching at Community School" : "Tutoring Citizens";
+          } else if (role === "student" || role === "daughter" && m.name === "hetvi" || role === "daughter" && m.name === "vainavi") {
+            m.state = hasSchool ? "Schooling at Community School" : "Home Playing / Studying";
+          } else if (role === "driver") {
+            m.state = "Transporting Cargo & Materials";
+          } else if (role === "police") {
+            m.state = "Patrolling Civilization Roads";
+          } else if (role === "mother") {
+            m.state = "Home Chores & Meal Prep";
+          } else if (role === "father") {
+            m.state = "Household Management & Operations";
+          } else if (family.id === "house_1") {
             if (m.name === "Thakorbhai") m.state = "Working at Farms";
             else if (m.name === "vasantiben") m.state = "Home Chores / Baking";
             else if (m.name === "vandan") m.state = "Working at Factory";
             else if (m.name === "hetvi") m.state = hasSchool ? "Schooling at Community School" : "Home Playing";
             else if (m.name === "Kiran") m.state = "Working at Savita's Clothiers";
-          } 
-          else if (family.id === "house_2") {
+          } else if (family.id === "house_2") {
             if (m.name === "bharatbhai") m.state = "Working at General Store";
             else if (m.name === "mayuriben") m.state = "Home Chores / Gardening";
             else if (m.name === "vainavi") m.state = hasSchool ? "Schooling at Community School" : "Home Playing";
             else if (m.name === "prathav") m.state = "Working at Factory";
             else if (m.name === "Dinesh") m.state = "Working at Farms";
             else if (m.name === "Geeta") m.state = "Working at Amina's Dairy Store";
-          }
-          else if (family.id === "house_3") {
+          } else if (family.id === "house_3") {
             if (m.name === "rameshbhai") m.state = "Working at Electronic Hub";
             else if (m.name === "hemuben") m.state = "Home Chores / Cleaning";
-            else if (m.name === "krushil") m.state = hasSchool ? "Schooling at Community School" : "Home Playing";
-            else if (m.name === "harshil") m.state = hasSchool ? "Schooling at Community School" : "Home Playing";
+            else if (m.name === "krushil" || m.name === "harshil") m.state = hasSchool ? "Schooling at Community School" : "Home Playing";
             else if (m.name === "Sanjay") m.state = "Working at Factory";
+          } else {
+            m.state = "Active Working in Civilization";
           }
         }
       }
       // Work Day Ends & Salary Payment & Shopping (17:00)
       else if (currentHour === 17) {
-        // Pay Salary to family budgets
-        if (family.id === "house_1") {
-          family.budget = (family.budget || 0) + 35; // Thakorbhai ($15) + vandan ($10) + Kiran ($10)
-        } else if (family.id === "house_2") {
-          family.budget = (family.budget || 0) + 45; // bharatbhai ($15) + prathav ($10) + Dinesh ($10) + Geeta ($10)
-        } else if (family.id === "house_3") {
-          family.budget = (family.budget || 0) + 25; // rameshbhai ($15) + Sanjay ($10)
+        // Pay Salary to family / hostel budgets
+        let dailyWages = 0;
+        for (const m of members) {
+          const r = (m.role || "").toLowerCase();
+          if (["farmer", "worker", "merchant", "tailor", "engineer", "doctor", "teacher", "driver", "police"].includes(r)) {
+            dailyWages += 12;
+          }
         }
+        if (family.id === "house_1") dailyWages = Math.max(dailyWages, 35);
+        else if (family.id === "house_2") dailyWages = Math.max(dailyWages, 45);
+        else if (family.id === "house_3") dailyWages = Math.max(dailyWages, 25);
+        else if (dailyWages === 0 && members.length > 0) dailyWages = members.length * 10;
+
+        family.budget = (family.budget || 0) + dailyWages;
 
         // Set leisure and shopping states
         for (const m of members) {
-          if (m.role === "mother") {
-            m.state = "Shopping at Marketplace";
-          } else if (m.role === "father" || m.role === "son" || m.role === "worker") {
+          if (m.role === "mother" || m.role === "merchant" || (family.type === "hostel" && m === members[0])) {
+            m.state = "Shopping at Farmers Market & Dairy";
+          } else if (m.role === "father" || m.role === "son" || m.role === "worker" || m.role === "farmer") {
             m.state = hasHospital ? "Leisure at Plaza" : "Leisure at Home";
           } else {
-            m.state = "Leisure at Home";
+            m.state = "Leisure at Residence";
           }
         }
 
-        // Mother shopping logic: buy from Amina's Dairy Store
+        // Realistic Household Grocery Shopping from Farmers Market & Dairy Stores
+        const farmersMarket = player.shops?.find(s => s.id === "farmers_market");
         const dairyShop = player.shops?.find(s => s.id === "dairy");
+        const generalShop = player.shops?.find(s => s.id === "general");
         const inv = family.inventory || {};
-        
-        if (dairyShop) {
-          const itemsToBuy = ["milk", "wheat", "apple"];
-          const salesTaxRate = player.government.sales_tax || 5;
-          let boughtSomething = false;
-          
-          for (const itemId of itemsToBuy) {
+        const memberCount = Math.max(1, members.length);
+        const targetFoodPerItem = Math.max(2, Math.ceil(memberCount * 1.5));
+
+        const groceryStores = [
+          { shop: farmersMarket, items: ["carrot", "cucumber", "broccoli", "cabbage", "corn", "apple", "strawberry", "egg", "milk"] },
+          { shop: dairyShop, items: ["milk", "egg", "wheat"] },
+          { shop: generalShop, items: ["wheat", "apple"] }
+        ];
+
+        const salesTaxRate = player.government.sales_tax || 5;
+        let totalSpent = 0;
+        let itemsBoughtSummary: string[] = [];
+
+        for (const { shop, items } of groceryStores) {
+          if (!shop) continue;
+
+          for (const itemId of items) {
             const currentQty = inv[itemId] || 0;
-            if (currentQty < 3) {
-              const buyQty = 5 - currentQty;
-              const price = dairyShop.prices[itemId] || 3;
-              
-              const itemCost = price * buyQty;
-              const salesTax = Math.floor(itemCost * (salesTaxRate / 100));
-              const totalCost = itemCost + salesTax;
-              
-              if (family.budget >= totalCost) {
-                const ownedInShop = dairyShop.inventory[itemId] || 0;
-                const actualBuy = Math.min(buyQty, ownedInShop);
-                
-                if (actualBuy > 0) {
-                  const actualCost = price * actualBuy;
-                  const actualTax = Math.floor(actualCost * (salesTaxRate / 100));
-                  
-                  family.budget -= (actualCost + actualTax);
-                  dairyShop.revenue += actualCost;
-                  player.city_treasury += actualTax; // Government collects sales tax!
-                  
-                  dairyShop.inventory[itemId] = ownedInShop - actualBuy;
-                  inv[itemId] = (inv[itemId] || 0) + actualBuy;
-                  boughtSomething = true;
-                  
-                  dairyShop.sales_history.push(`Day ${currentDay} 17:00 - Sold ${actualBuy}x ${itemId} to ${members.find(m => m.role === "mother")?.name} for $${actualCost}`);
+            if (currentQty < targetFoodPerItem) {
+              const needed = targetFoodPerItem - currentQty;
+              const price = shop.prices[itemId] || (catalogs.items[itemId]?.value || 3);
+              const availableInShop = shop.inventory[itemId] || 0;
+              const buyQty = Math.min(needed, availableInShop);
+
+              if (buyQty > 0) {
+                const itemCost = price * buyQty;
+                const salesTax = Math.floor(itemCost * (salesTaxRate / 100));
+                const totalCost = itemCost + salesTax;
+
+                if (family.budget >= totalCost) {
+                  family.budget -= totalCost;
+                  shop.revenue = (shop.revenue || 0) + itemCost;
+                  player.city_treasury += salesTax;
+
+                  shop.inventory[itemId] = availableInShop - buyQty;
+                  inv[itemId] = (inv[itemId] || 0) + buyQty;
+                  totalSpent += totalCost;
+                  itemsBoughtSummary.push(`${buyQty}x ${itemId}`);
+
+                  const shopperName = members.find(m => m.role === "mother" || m.role === "father")?.name || members[0]?.name || "Family Head";
+                  shop.sales_history.push(`Day ${currentDay} 17:00 - Sold ${buyQty}x ${itemId} to ${shopperName} for $${itemCost}`);
                 }
               }
             }
           }
-          if (boughtSomething) {
-            logs.push(`Household: Mother purchased daily food requirements for ${family.name} from Amina's Dairy Store.`);
-            publishNews(player, `Local: Mother purchased daily food requirements for ${family.name} from Amina's Dairy Store.`, "LOCAL");
-          }
         }
 
-        // Thakorbhai utility torch shopping from Rajesh's Electronics Hub
-        if (family.id === "house_1" && (family.budget || 0) > 80 && (inv.torch || 0) < 1) {
-          const electShop = player.shops?.find(s => s.id === "electronics");
-          if (electShop) {
-            const torchStock = electShop.inventory["torch"] || 0;
-            if (torchStock > 0) {
-              const price = electShop.prices["torch"] || 10;
-              const salesTaxRate = player.government.sales_tax || 5;
-              const tax = Math.floor(price * (salesTaxRate / 100));
-              const totalCost = price + tax;
-
-              if (family.budget >= totalCost) {
-                family.budget -= totalCost;
-                electShop.revenue += price;
-                player.city_treasury += tax;
-                electShop.inventory["torch"] = torchStock - 1;
-                inv["torch"] = (inv["torch"] || 0) + 1;
-                
-                electShop.sales_history.push(`Day ${currentDay} 17:00 - Sold 1x torch to Thakorbhai for $${price}`);
-                logs.push("Household: Thakorbhai purchased a utility torch from Rajesh at the Electronics Hub.");
-                publishNews(player, `Market Report: Thakorbhai purchased a utility torch from Rajesh's Electronics Hub.`, "LOCAL");
-              }
-            }
-          }
+        if (totalSpent > 0) {
+          logs.push(`Household Commerce: ${family.name} bought fresh groceries (${itemsBoughtSummary.slice(0, 3).join(", ")}) spending $${totalSpent}.`);
         }
       }
-      // Evening / leisure (18:00 - 21:00)
-      else if (currentHour >= 18 && currentHour < 22) {
-        for (const m of members) m.state = "Family Dinner & Leisure";
+      // Dinner Time & Family Meal Consumption (19:00 - 20:00)
+      else if (currentHour === 19) {
+        const inv = family.inventory || {};
+        const memberCount = Math.max(1, members.length);
+        const vegList = ["carrot", "cucumber", "broccoli", "cabbage", "corn", "wheat", "egg", "apple", "milk"];
+        let foodEatenCount = 0;
+
+        for (const v of vegList) {
+          if (foodEatenCount >= memberCount) break;
+          const qty = inv[v] || 0;
+          if (qty > 0) {
+            const eat = Math.min(qty, memberCount - foodEatenCount);
+            inv[v] -= eat;
+            foodEatenCount += eat;
+          }
+        }
+
+        for (const m of members) {
+          if (foodEatenCount >= Math.ceil(memberCount * 0.7)) {
+            m.state = "Eating Fresh Dinner 🍲";
+          } else {
+            m.state = "Consuming Minimal Rations ⚠️";
+          }
+        }
+
+        if (foodEatenCount < Math.ceil(memberCount * 0.5)) {
+          logs.push(`Household Warning: ${family.name} had low food supplies for dinner (${foodEatenCount}/${memberCount} fed).`);
+        }
+      }
+      // Evening / leisure (20:00 - 22:00)
+      else if (currentHour >= 20 && currentHour < 22) {
+        for (const m of members) m.state = "Family Dinner & Evening Leisure";
       }
     }
 
@@ -1033,9 +1290,13 @@ export function runSimulationTick(player: PlayerState, dt: number, catalogs: any
   const agentLogs = runAgentsTick(player, dt, catalogs);
   logs.push(...agentLogs);
 
-  // 6. Tick city projects funding and Thakorbhai's household routine
+  // 6. Tick city projects funding and household routines
   const routineLogs = tickHouseholdAndProjects(player, dt, catalogs);
   logs.push(...routineLogs);
+
+  // 7. Tick Industrial Production, Oil Refining, Petrol Pump & Maritime Shipyards
+  const industryLogs = tickIndustriesAndPetroleum(player, dt, catalogs);
+  logs.push(...industryLogs);
 
   if (agentLogs.length > 0) {
     rawPlayer.logs_this_day.push(...agentLogs);
@@ -1046,6 +1307,114 @@ export function runSimulationTick(player: PlayerState, dt: number, catalogs: any
     player.agent_logs = [...player.agent_logs, ...logs];
     if (player.agent_logs.length > 100) {
       player.agent_logs = player.agent_logs.slice(-100);
+    }
+  }
+
+  return logs;
+}
+
+// Tick Industrial Production, Oil Refining, Petrol Pump & Maritime Shipyards
+export function tickIndustriesAndPetroleum(player: PlayerState, dt: number, catalogs: any): string[] {
+  const logs: string[] = [];
+  if (!player.industry) {
+    player.industry = {
+      oil_refinery: {
+        crude_oil: 120,
+        refined_petrol: 85,
+        diesel: 60,
+        marine_fuel: 40,
+        is_active: true,
+        efficiency: 95,
+        daily_crude_input: 40,
+        daily_fuel_output: 35
+      },
+      petrol_pump: {
+        fuel_stock: 450,
+        diesel_stock: 350,
+        price_per_liter: 15,
+        daily_sales_liters: 120,
+        revenue: 1800,
+        ev_charging_active: true
+      },
+      shipyard: {
+        ships_docked: 3,
+        ships_under_construction: 1,
+        fleet: [
+          { id: "ship_1", name: "INS Navsari Express", type: "cargo_ship", fuel: 80, status: "Active Maritime Freight", cargo: { wheat: 20, steel_beam: 10 } },
+          { id: "ship_2", name: "Surat Gulf Ferry", type: "passenger_ferry", fuel: 65, status: "Passenger Transit to Gulf" },
+          { id: "ship_3", name: "Arabian Sea Trawler 09", type: "fishing_trawler", fuel: 90, status: "Commercial Deep Sea Harvest" }
+        ]
+      },
+      heavy_manufacturing: {
+        iron_ore_stock: 75,
+        steel_beams: 45,
+        concrete_stock: 90,
+        active_smelters: 2
+      }
+    };
+  }
+
+  const ind = player.industry;
+  const currentHour = getHour(player.clock.total_seconds);
+  const rawPlayer = player as any;
+
+  if (rawPlayer.last_industry_hour === undefined) rawPlayer.last_industry_hour = -1;
+
+  if (rawPlayer.last_industry_hour !== currentHour) {
+    rawPlayer.last_industry_hour = currentHour;
+
+    // 1. Oil Extraction & Refining (Runs when active)
+    if (ind.oil_refinery.is_active) {
+      // Extract crude oil
+      ind.oil_refinery.crude_oil += 5;
+      
+      // Refine crude into petrol, diesel, and marine fuel
+      if (ind.oil_refinery.crude_oil >= 4) {
+        ind.oil_refinery.crude_oil -= 4;
+        ind.oil_refinery.refined_petrol += 3;
+        ind.oil_refinery.diesel += 2;
+        ind.oil_refinery.marine_fuel += 1;
+
+        // Auto distribute fuel to Petrol Pump
+        if (ind.petrol_pump.fuel_stock < 600) {
+          ind.petrol_pump.fuel_stock += 3;
+          ind.petrol_pump.diesel_stock += 2;
+        }
+      }
+    }
+
+    // 2. Petrol Pump Vehicle Dispensing & Revenue Generation
+    const totalVehicles = (player.families || []).reduce((acc, f) => acc + (f.members || []).filter(m => m.vehicle && m.vehicle !== "walking").length, 0);
+    const fuelDispensed = Math.min(ind.petrol_pump.fuel_stock, Math.ceil(totalVehicles * 0.8));
+    if (fuelDispensed > 0) {
+      ind.petrol_pump.fuel_stock -= fuelDispensed;
+      const pumpEarn = fuelDispensed * ind.petrol_pump.price_per_liter;
+      ind.petrol_pump.revenue += pumpEarn;
+      ind.petrol_pump.daily_sales_liters += fuelDispensed;
+      player.city_treasury += Math.floor(pumpEarn * 0.1); // 10% fuel tax to city treasury
+    }
+
+    // 3. Shipyard Maritime Fleet Operations
+    for (const ship of ind.shipyard.fleet) {
+      if (ship.fuel > 10) {
+        ship.fuel -= 2;
+        if (ship.type === "fishing_trawler" && Math.random() > 0.6) {
+          const catchFish = Math.floor(Math.random() * 4) + 2;
+          player.farm_barn = player.farm_barn || {};
+          player.farm_barn["fish"] = (player.farm_barn["fish"] || 0) + catchFish;
+        }
+      } else if (ind.oil_refinery.marine_fuel >= 15) {
+        // Refuel ship
+        ind.oil_refinery.marine_fuel -= 15;
+        ship.fuel = 100;
+        logs.push(`Shipyard: Refueled '${ship.name}' with 15L marine bunker fuel.`);
+      }
+    }
+
+    // 4. Heavy Foundry Smelting
+    if (ind.heavy_manufacturing.iron_ore_stock >= 3) {
+      ind.heavy_manufacturing.iron_ore_stock -= 3;
+      ind.heavy_manufacturing.steel_beams += 1;
     }
   }
 
