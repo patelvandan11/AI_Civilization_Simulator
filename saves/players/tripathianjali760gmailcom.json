@@ -1,0 +1,1416 @@
+{
+  "user_id": "tripathianjali760@gmail.com",
+  "money": 278,
+  "inventory": {
+    "wood": 10,
+    "stone": 5,
+    "fiber": 5,
+    "apple_seed": 5,
+    "wheat_seed": 5,
+    "carrot_seed": 5,
+    "corn_seed": 5,
+    "strawberry_seed": 5,
+    "wooden_axe": 1,
+    "stone_pick": 1,
+    "brokeli_seed": 5,
+    "cabbige_seed": 5,
+    "cucumber_seed": 5,
+    "chilly_seed": 5,
+    "watermelon_seed": 5,
+    "banana_seed": 5,
+    "pumpkin_seed": 5,
+    "carrot": 2,
+    "strawberry": 6,
+    "wheat": 3,
+    "cucumber": 5,
+    "chilly": 4
+  },
+  "clock": {
+    "total_seconds": 504,
+    "speed": 1,
+    "weather": "Clear"
+  },
+  "plots": [
+    {
+      "index": 0,
+      "crop_id": "wheat",
+      "planted_at": "2026-08-19T17:58:20.566Z",
+      "planted_game_seconds": 500
+    },
+    {
+      "index": 1,
+      "crop_id": "wheat",
+      "planted_at": "2026-08-19T17:58:14.586Z",
+      "planted_game_seconds": 494
+    },
+    {
+      "index": 2,
+      "crop_id": "corn",
+      "planted_at": "2026-08-19T17:57:58.814Z",
+      "planted_game_seconds": 481
+    },
+    {
+      "index": 3,
+      "crop_id": "brokeli",
+      "planted_at": "2026-08-19T17:57:58.814Z",
+      "planted_game_seconds": 481
+    },
+    {
+      "index": 4,
+      "crop_id": "cabbige",
+      "planted_at": "2026-08-19T17:57:58.814Z",
+      "planted_game_seconds": 481
+    },
+    {
+      "index": 5,
+      "crop_id": "corn",
+      "planted_at": "2026-08-19T17:58:20.566Z",
+      "planted_game_seconds": 500
+    },
+    {
+      "index": 6,
+      "crop_id": "brokeli",
+      "planted_at": "2026-08-19T17:58:20.566Z",
+      "planted_game_seconds": 500
+    },
+    {
+      "index": 7,
+      "crop_id": "carrot",
+      "planted_at": "2026-08-19T17:58:14.586Z",
+      "planted_game_seconds": 494
+    },
+    {
+      "index": 8,
+      "crop_id": "apple",
+      "planted_at": "2026-08-19T17:57:58.814Z",
+      "planted_game_seconds": 481
+    }
+  ],
+  "buildings": [],
+  "craft_job": null,
+  "plot_count": 9,
+  "owned_land": [
+    [
+      15,
+      15
+    ],
+    [
+      16,
+      15
+    ],
+    [
+      17,
+      15
+    ],
+    [
+      18,
+      15
+    ],
+    [
+      19,
+      15
+    ],
+    [
+      20,
+      15
+    ],
+    [
+      21,
+      15
+    ],
+    [
+      22,
+      15
+    ],
+    [
+      23,
+      15
+    ],
+    [
+      24,
+      15
+    ],
+    [
+      15,
+      16
+    ],
+    [
+      16,
+      16
+    ],
+    [
+      17,
+      16
+    ],
+    [
+      18,
+      16
+    ],
+    [
+      19,
+      16
+    ],
+    [
+      20,
+      16
+    ],
+    [
+      21,
+      16
+    ],
+    [
+      22,
+      16
+    ],
+    [
+      23,
+      16
+    ],
+    [
+      24,
+      16
+    ],
+    [
+      15,
+      17
+    ],
+    [
+      16,
+      17
+    ],
+    [
+      17,
+      17
+    ],
+    [
+      18,
+      17
+    ],
+    [
+      19,
+      17
+    ],
+    [
+      20,
+      17
+    ],
+    [
+      21,
+      17
+    ],
+    [
+      22,
+      17
+    ],
+    [
+      23,
+      17
+    ],
+    [
+      24,
+      17
+    ],
+    [
+      15,
+      18
+    ],
+    [
+      16,
+      18
+    ],
+    [
+      17,
+      18
+    ],
+    [
+      18,
+      18
+    ],
+    [
+      19,
+      18
+    ],
+    [
+      20,
+      18
+    ],
+    [
+      21,
+      18
+    ],
+    [
+      22,
+      18
+    ],
+    [
+      23,
+      18
+    ],
+    [
+      24,
+      18
+    ],
+    [
+      15,
+      19
+    ],
+    [
+      16,
+      19
+    ],
+    [
+      17,
+      19
+    ],
+    [
+      18,
+      19
+    ],
+    [
+      19,
+      19
+    ],
+    [
+      20,
+      19
+    ],
+    [
+      21,
+      19
+    ],
+    [
+      22,
+      19
+    ],
+    [
+      23,
+      19
+    ],
+    [
+      24,
+      19
+    ],
+    [
+      15,
+      20
+    ],
+    [
+      16,
+      20
+    ],
+    [
+      17,
+      20
+    ],
+    [
+      18,
+      20
+    ],
+    [
+      19,
+      20
+    ],
+    [
+      20,
+      20
+    ],
+    [
+      21,
+      20
+    ],
+    [
+      22,
+      20
+    ],
+    [
+      23,
+      20
+    ],
+    [
+      24,
+      20
+    ],
+    [
+      15,
+      21
+    ],
+    [
+      16,
+      21
+    ],
+    [
+      17,
+      21
+    ],
+    [
+      18,
+      21
+    ],
+    [
+      19,
+      21
+    ],
+    [
+      20,
+      21
+    ],
+    [
+      21,
+      21
+    ],
+    [
+      22,
+      21
+    ],
+    [
+      23,
+      21
+    ],
+    [
+      24,
+      21
+    ],
+    [
+      15,
+      22
+    ],
+    [
+      16,
+      22
+    ],
+    [
+      17,
+      22
+    ],
+    [
+      18,
+      22
+    ],
+    [
+      19,
+      22
+    ],
+    [
+      20,
+      22
+    ],
+    [
+      21,
+      22
+    ],
+    [
+      22,
+      22
+    ],
+    [
+      23,
+      22
+    ],
+    [
+      24,
+      22
+    ],
+    [
+      15,
+      23
+    ],
+    [
+      16,
+      23
+    ],
+    [
+      17,
+      23
+    ],
+    [
+      18,
+      23
+    ],
+    [
+      19,
+      23
+    ],
+    [
+      20,
+      23
+    ],
+    [
+      21,
+      23
+    ],
+    [
+      22,
+      23
+    ],
+    [
+      23,
+      23
+    ],
+    [
+      24,
+      23
+    ],
+    [
+      15,
+      24
+    ],
+    [
+      16,
+      24
+    ],
+    [
+      17,
+      24
+    ],
+    [
+      18,
+      24
+    ],
+    [
+      19,
+      24
+    ],
+    [
+      20,
+      24
+    ],
+    [
+      21,
+      24
+    ],
+    [
+      22,
+      24
+    ],
+    [
+      23,
+      24
+    ],
+    [
+      24,
+      24
+    ]
+  ],
+  "terrain_data": null,
+  "camera_x": 0,
+  "camera_y": 0,
+  "build_queue": [],
+  "agent_settings": {
+    "farming": {
+      "enabled": false,
+      "preferred_crops": [
+        "apple",
+        "wheat",
+        "banana",
+        "carrot"
+      ],
+      "auto_buy_seeds": true
+    },
+    "manufacturing": {
+      "enabled": false,
+      "preferred_recipes": {
+        "bread": 10,
+        "rope": 5,
+        "tomato_ketch": 5,
+        "burger": 5,
+        "pizza": 5
+      },
+      "auto_build_farms": true
+    },
+    "trade": {
+      "enabled": false,
+      "min_cash_reserve": 100,
+      "keep_stock": {
+        "wood": 20,
+        "stone": 20,
+        "fiber": 20,
+        "wheat": 10,
+        "apple": 10,
+        "banana": 10,
+        "carrot": 10,
+        "bread": 5,
+        "rope": 5,
+        "tomato_ketch": 5,
+        "burger": 2,
+        "pizza": 2
+      },
+      "buy_seeds_threshold": 3,
+      "buy_seeds_qty": 5
+    },
+    "industrial": {
+      "enabled": true,
+      "auto_refine": true,
+      "auto_replenish_pump": true,
+      "auto_dispatch_ships": true,
+      "auto_smelt_steel": true
+    }
+  },
+  "agent_logs": [
+    "System: Citizen account created for tripathianjali760@gmail.com.",
+    "🌾 Kisan LangChain AI: Auto-procured 5x brokeli seed, 5x cabbige seed, 5x cucumber seed, 5x chilly seed, 5x watermelon seed, 5x banana seed, 5x pumpkin seed to maintain ≥5 seed buffer; Planted 9 empty plot(s) with priority crops: [wheat, carrot, corn, brokeli, cabbige, cucumber, chilly, strawberry, apple].",
+    "System: Dynamic market prices fluctuated for Day 1!",
+    "🌾 Kisan AI Agent: Auto-procured 5x brokeli seed, 5x cabbige seed, 5x cucumber seed, 5x chilly seed, 5x watermelon seed, 5x banana seed, 5x pumpkin seed to maintain ≥5 seed buffer; Planted 9 empty plot(s) with priority crops: [wheat, carrot, corn, brokeli, cabbige, cucumber, chilly, strawberry, apple].",
+    "🛢️ Industrial Agent: Auto-distilled 15 crude barrels into +10L Petrol, +7L Diesel, +4L Marine Bunker.",
+    "🏭 Industrial Agent: Smelted 10x Iron Ore into +4x Structural Steel Beams.",
+    "🌾 Kisan LangChain AI: Auto-procured 1x wheat seed, 1x carrot seed, 1x corn seed, 1x brokeli seed, 1x cabbige seed, 1x cucumber seed, 1x chilly seed, 1x strawberry seed, 1x apple seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Auto-procured 1x wheat seed, 1x carrot seed, 1x corn seed, 1x brokeli seed, 1x cabbige seed, 1x cucumber seed, 1x chilly seed, 1x strawberry seed, 1x apple seed to maintain ≥5 seed buffer.",
+    "🛢️ Industrial Agent: Auto-distilled 15 crude barrels into +10L Petrol, +7L Diesel, +4L Marine Bunker.",
+    "🏭 Industrial Agent: Smelted 10x Iron Ore into +4x Structural Steel Beams.",
+    "🛢️ Industrial Agent: Auto-distilled 15 crude barrels into +10L Petrol, +7L Diesel, +4L Marine Bunker.",
+    "🏭 Industrial Agent: Smelted 10x Iron Ore into +4x Structural Steel Beams.",
+    "🛢️ Industrial Agent: Auto-distilled 15 crude barrels into +10L Petrol, +7L Diesel, +4L Marine Bunker.",
+    "🏭 Industrial Agent: Smelted 10x Iron Ore into +4x Structural Steel Beams.",
+    "🛢️ Industrial Agent: Auto-distilled 15 crude barrels into +10L Petrol, +7L Diesel, +4L Marine Bunker.",
+    "🏭 Industrial Agent: Smelted 10x Iron Ore into +4x Structural Steel Beams.",
+    "🛢️ Industrial Agent: Auto-distilled 15 crude barrels into +10L Petrol, +7L Diesel, +4L Marine Bunker.",
+    "🏭 Industrial Agent: Smelted 10x Iron Ore into +4x Structural Steel Beams.",
+    "🛢️ Industrial Agent: Auto-distilled 15 crude barrels into +10L Petrol, +7L Diesel, +4L Marine Bunker.",
+    "🏭 Industrial Agent: Smelted 10x Iron Ore into +4x Structural Steel Beams.",
+    "🛢️ Industrial Agent: Auto-distilled 15 crude barrels into +10L Petrol, +7L Diesel, +4L Marine Bunker.",
+    "🌾 Kisan LangChain AI: Harvested 2 mature plot(s); Planted 2 empty plot(s) with priority crops: [wheat, carrot].",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Planted 2 empty plot(s) with priority crops: [wheat, carrot].",
+    "🌾 Kisan LangChain AI: Auto-procured 1x wheat seed, 1x carrot seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Auto-procured 1x wheat seed, 1x carrot seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan LangChain AI: Harvested 3 mature plot(s); Planted 3 empty plot(s) with priority crops: [wheat, corn, brokeli].",
+    "🌾 Kisan AI Agent: Harvested 3 mature plot(s); Planted 3 empty plot(s) with priority crops: [wheat, corn, brokeli].",
+    "🌾 Kisan LangChain AI: Auto-procured 1x wheat seed, 1x corn seed, 1x brokeli seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Auto-procured 1x wheat seed, 1x corn seed, 1x brokeli seed to maintain ≥5 seed buffer."
+  ],
+  "item_prices": {
+    "wood": 2,
+    "stone": 3,
+    "fiber": 1,
+    "apple_seed": 5,
+    "apple": 9,
+    "wheat_seed": 3,
+    "wheat": 5,
+    "rope": 10,
+    "torch": 11,
+    "bread": 12,
+    "wooden_axe": 26,
+    "stone_pick": 36,
+    "banana_seed": 4,
+    "banana": 6,
+    "cherry_seed": 3,
+    "cherry": 6,
+    "grape_seed": 3,
+    "grapes": 7,
+    "orange_seed": 3,
+    "orange": 8,
+    "strawberry_seed": 4,
+    "strawberry": 8,
+    "watermelon_seed": 6,
+    "watermelon": 18,
+    "avacado_seed": 6,
+    "avacado": 15,
+    "peach_seed": 6,
+    "peach": 8,
+    "blue_berry_seed": 3,
+    "blue_berry": 7,
+    "carrot_seed": 2,
+    "carrot": 5,
+    "pumpkin_seed": 10,
+    "pumpkin": 15,
+    "mushroom_seed": 2,
+    "mushroom": 5,
+    "corn_seed": 4,
+    "corn": 7,
+    "cucumber_seed": 3,
+    "cucumber": 8,
+    "brokeli_seed": 5,
+    "brokeli": 9,
+    "cabbige_seed": 5,
+    "cabbige": 10,
+    "chilly_seed": 3,
+    "chilly": 7,
+    "reddies_seed": 2,
+    "reddies": 4,
+    "orange_juice": 37,
+    "strawberry_cake": 39,
+    "cherry_cake": 38,
+    "cake": 40,
+    "wine": 62,
+    "pizza": 57,
+    "burger": 39,
+    "cherry_jam": 25,
+    "chess": 23,
+    "tomato_ketch": 13,
+    "iron": 7,
+    "copper": 7,
+    "steel": 18,
+    "glass": 10,
+    "water": 2,
+    "food": 4,
+    "fuel": 9,
+    "concrete": 6,
+    "rubber": 11,
+    "trofy": 569,
+    "milk": 6,
+    "cow_milk": 6,
+    "egg": 3,
+    "wool": 8,
+    "tomato": 7,
+    "fish": 10,
+    "iron_ore": 3,
+    "copper_ore": 4,
+    "dragonfruit": 11,
+    "crude_oil": 5,
+    "petrol": 13,
+    "diesel": 15,
+    "marine_fuel": 15,
+    "steel_beam": 40,
+    "cargo_ship": 1019,
+    "fishing_boat": 365
+  },
+  "last_price_update_day": 1,
+  "city_name": "AI Civilization",
+  "city_treasury": 241,
+  "tax_rate": 10,
+  "city_projects": [
+    {
+      "id": "school",
+      "name": "Community School",
+      "cost": 500,
+      "allocated": 0,
+      "completed": false
+    },
+    {
+      "id": "hospital",
+      "name": "General Hospital",
+      "cost": 1000,
+      "allocated": 0,
+      "completed": false
+    },
+    {
+      "id": "park",
+      "name": "Leisure Park",
+      "cost": 300,
+      "allocated": 0,
+      "completed": false
+    },
+    {
+      "id": "roads",
+      "name": "Paved Highways",
+      "cost": 400,
+      "allocated": 0,
+      "completed": false
+    }
+  ],
+  "household": {
+    "name": "tripathianjali760@gmail.com Household",
+    "budget": 50,
+    "inventory": {
+      "milk": 5,
+      "wheat": 5,
+      "apple": 5
+    },
+    "members": []
+  },
+  "families": [
+    {
+      "id": "house_1",
+      "name": "Thakorbhai's Residence",
+      "type": "house",
+      "budget": 2,
+      "inventory": {
+        "milk": 4,
+        "wheat": 4,
+        "apple": 4,
+        "carrot": 5
+      },
+      "members": [
+        {
+          "name": "Thakorbhai",
+          "role": "father",
+          "relation": "Main Person",
+          "state": "Eating Breakfast",
+          "vehicle": "tractor"
+        },
+        {
+          "name": "vasantiben",
+          "role": "mother",
+          "relation": "Wife of Thakorbhai",
+          "state": "Eating Breakfast",
+          "vehicle": "scooter"
+        },
+        {
+          "name": "vandan",
+          "role": "son",
+          "relation": "Son of Thakorbhai",
+          "state": "Eating Breakfast",
+          "vehicle": "car"
+        },
+        {
+          "name": "hetvi",
+          "role": "daughter",
+          "relation": "Daughter of Thakorbhai",
+          "state": "Eating Breakfast",
+          "vehicle": "bicycle"
+        },
+        {
+          "name": "Kiran",
+          "role": "worker",
+          "relation": "Tailor Shop Assistant",
+          "state": "Eating Breakfast",
+          "vehicle": "bicycle"
+        }
+      ]
+    },
+    {
+      "id": "house_2",
+      "name": "Bharatbhai's Residence",
+      "type": "house",
+      "budget": 1,
+      "inventory": {
+        "milk": 3,
+        "wheat": 3,
+        "apple": 3,
+        "carrot": 4
+      },
+      "members": [
+        {
+          "name": "bharatbhai",
+          "role": "father",
+          "relation": "Brother of Vasantiben",
+          "state": "Eating Breakfast",
+          "vehicle": "scooter"
+        },
+        {
+          "name": "mayuriben",
+          "role": "mother",
+          "relation": "Wife of Bharatbhai",
+          "state": "Eating Breakfast",
+          "vehicle": "scooter"
+        },
+        {
+          "name": "vainavi",
+          "role": "daughter",
+          "relation": "Daughter of Bharatbhai",
+          "state": "Eating Breakfast",
+          "vehicle": "bicycle"
+        },
+        {
+          "name": "prathav",
+          "role": "son",
+          "relation": "Son of Bharatbhai",
+          "state": "Eating Breakfast",
+          "vehicle": "car"
+        },
+        {
+          "name": "Dinesh",
+          "role": "worker",
+          "relation": "Farmer Assistant",
+          "state": "Eating Breakfast",
+          "vehicle": "tractor"
+        },
+        {
+          "name": "Geeta",
+          "role": "worker",
+          "relation": "Grocery Shop Assistant",
+          "state": "Eating Breakfast",
+          "vehicle": "scooter"
+        }
+      ]
+    },
+    {
+      "id": "house_3",
+      "name": "Rameshbhai's Residence",
+      "type": "house",
+      "budget": 1,
+      "inventory": {
+        "milk": 2,
+        "wheat": 2,
+        "apple": 2,
+        "carrot": 3
+      },
+      "members": [
+        {
+          "name": "rameshbhai",
+          "role": "father",
+          "relation": "Husband of Hemuben",
+          "state": "Eating Breakfast",
+          "vehicle": "car"
+        },
+        {
+          "name": "hemuben",
+          "role": "mother",
+          "relation": "Sister of Vasantiben",
+          "state": "Eating Breakfast",
+          "vehicle": "scooter"
+        },
+        {
+          "name": "krushil",
+          "role": "son",
+          "relation": "Son of Rameshbhai",
+          "state": "Eating Breakfast",
+          "vehicle": "bicycle"
+        },
+        {
+          "name": "harshil",
+          "role": "son",
+          "relation": "Son of Rameshbhai",
+          "state": "Eating Breakfast",
+          "vehicle": "bicycle"
+        },
+        {
+          "name": "Sanjay",
+          "role": "worker",
+          "relation": "Factory Operator",
+          "state": "Eating Breakfast",
+          "vehicle": "truck"
+        }
+      ]
+    },
+    {
+      "id": "house_maritime",
+      "name": "Port Captain's Naval Quarters",
+      "type": "house",
+      "budget": 1,
+      "inventory": {
+        "milk": 5,
+        "wheat": 7,
+        "apple": 5,
+        "fish": 12
+      },
+      "members": [
+        {
+          "name": "Captain Vikram",
+          "role": "captain",
+          "relation": "Shipyard Harbor Master",
+          "state": "Eating Breakfast",
+          "vehicle": "car"
+        },
+        {
+          "name": "Priya Sharma",
+          "role": "navigator",
+          "relation": "First Navigation Officer",
+          "state": "Eating Breakfast",
+          "vehicle": "scooter"
+        },
+        {
+          "name": "Rahul Tandel",
+          "role": "deck_officer",
+          "relation": "Maritime Cargo Pilot",
+          "state": "Eating Breakfast",
+          "vehicle": "truck"
+        }
+      ]
+    },
+    {
+      "id": "hostel_refinery",
+      "name": "PetroChem Industrial Workers Dormitory",
+      "type": "hostel",
+      "capacity": 10,
+      "budget": 0,
+      "inventory": {
+        "milk": 7,
+        "wheat": 11,
+        "apple": 7,
+        "bread": 10
+      },
+      "members": [
+        {
+          "name": "Arjun Patel",
+          "role": "engineer",
+          "relation": "Chief Refinery Engineer",
+          "state": "Eating Breakfast",
+          "vehicle": "truck"
+        },
+        {
+          "name": "Deepa Shah",
+          "role": "chemist",
+          "relation": "Petroleum Chemist",
+          "state": "Eating Breakfast",
+          "vehicle": "scooter"
+        },
+        {
+          "name": "Rohan Mistri",
+          "role": "technician",
+          "relation": "Petrol Pump Supervisor",
+          "state": "Eating Breakfast",
+          "vehicle": "scooter"
+        },
+        {
+          "name": "Meera Dave",
+          "role": "inspector",
+          "relation": "Industrial Safety Inspector",
+          "state": "Eating Breakfast",
+          "vehicle": "car"
+        }
+      ]
+    },
+    {
+      "id": "house_merchant",
+      "name": "Market Square Traders Manor",
+      "type": "house",
+      "budget": 2,
+      "inventory": {
+        "milk": 5,
+        "wheat": 9,
+        "carrot": 10,
+        "apple": 9
+      },
+      "members": [
+        {
+          "name": "Kisan Mandi",
+          "role": "merchant",
+          "relation": "Farmers Market Proprietor",
+          "state": "Eating Breakfast",
+          "vehicle": "car"
+        },
+        {
+          "name": "Sunil Varma",
+          "role": "grocer",
+          "relation": "Wholesale Grocery Manager",
+          "state": "Eating Breakfast",
+          "vehicle": "truck"
+        },
+        {
+          "name": "Anita Ben",
+          "role": "cashier",
+          "relation": "Dairy Depot Cashier",
+          "state": "Eating Breakfast",
+          "vehicle": "scooter"
+        }
+      ]
+    },
+    {
+      "id": "hostel_central",
+      "name": "Navsari Central Workers Hostel",
+      "type": "hostel",
+      "capacity": 12,
+      "budget": 150,
+      "inventory": {
+        "milk": 9,
+        "wheat": 9,
+        "apple": 9,
+        "carrot": 10
+      },
+      "members": []
+    }
+  ],
+  "government": {
+    "mayor": "Thakorbhai",
+    "income_tax": 10,
+    "sales_tax": 5,
+    "welfare_threshold": 15,
+    "welfare_payout": 15,
+    "welfare_checks_payouts": 0
+  },
+  "cabinet": {
+    "prime_minister": "Thakorbhai",
+    "district_magistrate": "Bharatbhai",
+    "ministers": {
+      "finance": "Rameshbhai",
+      "education": "Vasantiben",
+      "infrastructure": "Mayuriben"
+    }
+  },
+  "news_feed": [
+    {
+      "timestamp": "08:00 AM",
+      "headline": "New citizen registration certified for tripathianjali760@gmail.com.",
+      "category": "LOCAL"
+    },
+    {
+      "timestamp": "08:30 AM",
+      "headline": "Prime Minister Thakorbhai announces the Cabinet Coalition formation.",
+      "category": "POLITICS"
+    }
+  ],
+  "city_manager_enabled": true,
+  "shops": [
+    {
+      "id": "farmers_market",
+      "name": "Navsari Fresh Farmers & Vegetable Market",
+      "owner": "Kisan Mandi",
+      "inventory": {
+        "carrot": 26,
+        "brokeli": 20,
+        "cabbige": 20,
+        "cucumber": 28,
+        "chilly": 27,
+        "corn": 30,
+        "apple": 30,
+        "banana": 25,
+        "strawberry": 29,
+        "watermelon": 15,
+        "wheat": 40
+      },
+      "prices": {
+        "carrot": 3,
+        "brokeli": 4,
+        "cabbige": 3,
+        "cucumber": 2,
+        "chilly": 2,
+        "corn": 3,
+        "apple": 4,
+        "banana": 3,
+        "strawberry": 6,
+        "watermelon": 8,
+        "wheat": 3
+      },
+      "revenue": 300,
+      "sales_history": []
+    },
+    {
+      "id": "dairy",
+      "name": "City Dairy & Groceries",
+      "owner": "Amina",
+      "inventory": {
+        "milk": 10,
+        "wheat": 10,
+        "apple": 10,
+        "bread": 5,
+        "tomato_ketch": 5,
+        "pizza": 2,
+        "burger": 2
+      },
+      "prices": {
+        "milk": 2,
+        "wheat": 3,
+        "apple": 4,
+        "bread": 10,
+        "tomato_ketch": 10,
+        "pizza": 45,
+        "burger": 35
+      },
+      "revenue": 100,
+      "sales_history": []
+    },
+    {
+      "id": "general",
+      "name": "Ramesh's General Supplies",
+      "owner": "Ramesh",
+      "inventory": {
+        "wood": 20,
+        "stone": 20,
+        "rope": 10,
+        "wooden_axe": 1,
+        "stone_pick": 1
+      },
+      "prices": {
+        "wood": 2,
+        "stone": 3,
+        "rope": 10,
+        "wooden_axe": 25,
+        "stone_pick": 30
+      },
+      "revenue": 150,
+      "sales_history": []
+    },
+    {
+      "id": "clothing",
+      "name": "Savita's Clothiers",
+      "owner": "Savita",
+      "inventory": {
+        "fiber": 30,
+        "wool": 20,
+        "rubber": 10
+      },
+      "prices": {
+        "fiber": 1,
+        "wool": 4,
+        "rubber": 8
+      },
+      "revenue": 120,
+      "sales_history": []
+    },
+    {
+      "id": "electronics",
+      "name": "Rajesh's Electronic Hub",
+      "owner": "Rajesh",
+      "inventory": {
+        "torch": 5,
+        "copper": 10,
+        "iron": 10,
+        "steel": 5
+      },
+      "prices": {
+        "torch": 10,
+        "copper": 6,
+        "iron": 8,
+        "steel": 12
+      },
+      "revenue": 200,
+      "sales_history": []
+    }
+  ],
+  "industry": {
+    "oil_refinery": {
+      "crude_oil": 1,
+      "refined_petrol": 168,
+      "diesel": 118,
+      "marine_fuel": 73,
+      "is_active": true,
+      "efficiency": 95,
+      "daily_crude_input": 40,
+      "daily_fuel_output": 35
+    },
+    "petrol_pump": {
+      "fuel_stock": 415.20000000000067,
+      "diesel_stock": 333.7999999999994,
+      "price_per_liter": 15,
+      "daily_sales_liters": 176.0000000000004,
+      "revenue": 2693,
+      "ev_charging_active": true,
+      "recent_refuelings": [
+        {
+          "citizen": "Kisan Mandi",
+          "vehicle": "car",
+          "liters": 0.3,
+          "cost": 5,
+          "fuel_type": "Petrol",
+          "time": "12:00 PM"
+        },
+        {
+          "citizen": "Anita Ben",
+          "vehicle": "scooter",
+          "liters": 0.15,
+          "cost": 3,
+          "fuel_type": "Petrol",
+          "time": "12:00 PM"
+        },
+        {
+          "citizen": "Sunil Varma",
+          "vehicle": "truck",
+          "liters": 0.6,
+          "cost": 9,
+          "fuel_type": "Diesel",
+          "time": "12:00 PM"
+        },
+        {
+          "citizen": "Kisan Mandi",
+          "vehicle": "car",
+          "liters": 0.3,
+          "cost": 5,
+          "fuel_type": "Petrol",
+          "time": "12:00 PM"
+        },
+        {
+          "citizen": "Meera Dave",
+          "vehicle": "car",
+          "liters": 0.3,
+          "cost": 5,
+          "fuel_type": "Petrol",
+          "time": "12:00 PM"
+        },
+        {
+          "citizen": "Rohan Mistri",
+          "vehicle": "scooter",
+          "liters": 0.15,
+          "cost": 3,
+          "fuel_type": "Petrol",
+          "time": "12:00 PM"
+        },
+        {
+          "citizen": "Deepa Shah",
+          "vehicle": "scooter",
+          "liters": 0.15,
+          "cost": 3,
+          "fuel_type": "Petrol",
+          "time": "12:00 PM"
+        },
+        {
+          "citizen": "Arjun Patel",
+          "vehicle": "truck",
+          "liters": 0.6,
+          "cost": 9,
+          "fuel_type": "Diesel",
+          "time": "12:00 PM"
+        },
+        {
+          "citizen": "Anita Ben",
+          "vehicle": "scooter",
+          "liters": 0.15,
+          "cost": 3,
+          "fuel_type": "Petrol",
+          "time": "12:00 PM"
+        },
+        {
+          "citizen": "Sunil Varma",
+          "vehicle": "truck",
+          "liters": 0.6,
+          "cost": 9,
+          "fuel_type": "Diesel",
+          "time": "12:00 PM"
+        }
+      ]
+    },
+    "shipyard": {
+      "ships_docked": 3,
+      "ships_under_construction": 1,
+      "fleet": [
+        {
+          "id": "ship_1",
+          "name": "INS Navsari Express",
+          "type": "cargo_ship",
+          "fuel": 78,
+          "status": "Active Maritime Freight",
+          "cargo": {
+            "wheat": 20,
+            "steel_beam": 10
+          }
+        },
+        {
+          "id": "ship_2",
+          "name": "Surat Gulf Ferry",
+          "type": "passenger_ferry",
+          "fuel": 63,
+          "status": "Passenger Transit to Gulf"
+        },
+        {
+          "id": "ship_3",
+          "name": "Arabian Sea Trawler 09",
+          "type": "fishing_trawler",
+          "fuel": 88,
+          "status": "Commercial Deep Sea Harvest"
+        }
+      ]
+    },
+    "heavy_manufacturing": {
+      "iron_ore_stock": 2,
+      "steel_beams": 74,
+      "concrete_stock": 90,
+      "active_smelters": 2
+    }
+  },
+  "zone_locations": {
+    "4": [
+      20.9465,
+      72.952
+    ],
+    "house_1": [
+      20.680375870583823,
+      73.16612589798125
+    ],
+    "house_2": [
+      20.75884223623876,
+      73.05740208101352
+    ],
+    "house_3": [
+      20.754638631128497,
+      73.0542692846168
+    ],
+    "house_maritime": [
+      20.938,
+      72.93
+    ],
+    "hostel_refinery": [
+      20.962,
+      72.968
+    ],
+    "house_merchant": [
+      20.949,
+      72.954
+    ],
+    "hostel_central": [
+      20.9485,
+      72.9525
+    ],
+    "farmers_market": [
+      20.9458,
+      72.9518
+    ],
+    "dairy": [
+      20.9468,
+      72.952
+    ],
+    "general": [
+      20.9465,
+      72.9525
+    ],
+    "clothing": [
+      20.9462,
+      72.9523
+    ],
+    "electronics": [
+      20.947,
+      72.9527
+    ],
+    "farms": [
+      20.9445,
+      72.9495
+    ],
+    "factory": [
+      20.948,
+      72.9535
+    ],
+    "school": [
+      20.9475,
+      72.9505
+    ],
+    "hospital": [
+      20.945,
+      72.954
+    ],
+    "park": [
+      20.9465,
+      72.9545
+    ],
+    "roads": [
+      20.9465,
+      72.952
+    ],
+    "shipyard": [
+      20.935,
+      72.925
+    ],
+    "refinery": [
+      20.965,
+      72.97
+    ],
+    "petrol_pump": [
+      20.952,
+      72.948
+    ],
+    "steel_mill": [
+      20.958,
+      72.96
+    ],
+    "house_1787138630700": [
+      20.768431566477535,
+      73.01823960417397
+    ],
+    "house_tripathianjali760gmailcom": [
+      20.9468,
+      72.952
+    ]
+  },
+  "last_saved_at": "2026-08-19T17:58:23.576Z",
+  "logs_this_day": [
+    "🌾 Kisan AI Agent: Auto-procured 5x brokeli seed, 5x cabbige seed, 5x cucumber seed, 5x chilly seed, 5x watermelon seed, 5x banana seed, 5x pumpkin seed to maintain ≥5 seed buffer; Planted 9 empty plot(s) with priority crops: [wheat, carrot, corn, brokeli, cabbige, cucumber, chilly, strawberry, apple].",
+    "🛢️ Industrial Agent: Auto-distilled 15 crude barrels into +10L Petrol, +7L Diesel, +4L Marine Bunker.",
+    "🏭 Industrial Agent: Smelted 10x Iron Ore into +4x Structural Steel Beams.",
+    "🌾 Kisan AI Agent: Auto-procured 1x wheat seed, 1x carrot seed, 1x corn seed, 1x brokeli seed, 1x cabbige seed, 1x cucumber seed, 1x chilly seed, 1x strawberry seed, 1x apple seed to maintain ≥5 seed buffer.",
+    "🛢️ Industrial Agent: Auto-distilled 15 crude barrels into +10L Petrol, +7L Diesel, +4L Marine Bunker.",
+    "🏭 Industrial Agent: Smelted 10x Iron Ore into +4x Structural Steel Beams.",
+    "🛢️ Industrial Agent: Auto-distilled 15 crude barrels into +10L Petrol, +7L Diesel, +4L Marine Bunker.",
+    "🏭 Industrial Agent: Smelted 10x Iron Ore into +4x Structural Steel Beams.",
+    "🛢️ Industrial Agent: Auto-distilled 15 crude barrels into +10L Petrol, +7L Diesel, +4L Marine Bunker.",
+    "🏭 Industrial Agent: Smelted 10x Iron Ore into +4x Structural Steel Beams.",
+    "🛢️ Industrial Agent: Auto-distilled 15 crude barrels into +10L Petrol, +7L Diesel, +4L Marine Bunker.",
+    "🏭 Industrial Agent: Smelted 10x Iron Ore into +4x Structural Steel Beams.",
+    "🛢️ Industrial Agent: Auto-distilled 15 crude barrels into +10L Petrol, +7L Diesel, +4L Marine Bunker.",
+    "🏭 Industrial Agent: Smelted 10x Iron Ore into +4x Structural Steel Beams.",
+    "🛢️ Industrial Agent: Auto-distilled 15 crude barrels into +10L Petrol, +7L Diesel, +4L Marine Bunker.",
+    "🏭 Industrial Agent: Smelted 10x Iron Ore into +4x Structural Steel Beams.",
+    "🛢️ Industrial Agent: Auto-distilled 15 crude barrels into +10L Petrol, +7L Diesel, +4L Marine Bunker.",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Planted 2 empty plot(s) with priority crops: [wheat, carrot].",
+    "🌾 Kisan AI Agent: Auto-procured 1x wheat seed, 1x carrot seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 3 mature plot(s); Planted 3 empty plot(s) with priority crops: [wheat, corn, brokeli].",
+    "🌾 Kisan AI Agent: Auto-procured 1x wheat seed, 1x corn seed, 1x brokeli seed to maintain ≥5 seed buffer."
+  ],
+  "last_election_cycle": 1,
+  "last_tax_collected_day": 1,
+  "last_cabinet_meeting_day": 0,
+  "last_routine_hour": 8,
+  "last_industry_hour": 8,
+  "farm_barn": {
+    "carrot": 2,
+    "strawberry": 6,
+    "wheat": 3,
+    "cucumber": 5,
+    "chilly": 4
+  }
+}

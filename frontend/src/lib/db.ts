@@ -23,8 +23,8 @@ export async function connectToDatabase(): Promise<{ client: MongoClient; db: Db
 
   try {
     const client = new MongoClient(MONGODB_URI, {
-      connectTimeoutMS: 1500,
-      serverSelectionTimeoutMS: 1500,
+      connectTimeoutMS: 5000,
+      serverSelectionTimeoutMS: 5000,
     });
 
     await client.connect();
