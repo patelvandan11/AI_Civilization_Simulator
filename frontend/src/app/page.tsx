@@ -1738,7 +1738,10 @@ export default function CivilizationDashboard() {
     );
   };
 
-  const selectedFamily = status?.families?.find((f: any) => f.id === selectedFamilyId) || status?.families?.[0];
+  const myPersonalFamily = status?.families?.find((f: any) => f.id === "my_home" || f.id === `house_${userId}`) || status?.families?.[0];
+  const selectedFamily = isAdmin
+    ? (status?.families?.find((f: any) => f.id === selectedFamilyId) || status?.families?.[0])
+    : myPersonalFamily;
   const listAllAdults = ["Thakorbhai", "Bharatbhai", "Rameshbhai", "Vasantiben", "Mayuriben", "Hemuben"];
 
   // =========================================================================
@@ -2714,55 +2717,74 @@ export default function CivilizationDashboard() {
                         </div>
                       </div>
 
-                      {/* Filter Bar (All / Houses / Hostels) */}
-                      <div className="flex items-center justify-between gap-2 mb-2 flex-none">
-                        <div className="flex gap-1 text-[10px]">
-                          {(["all", "house", "hostel"] as const).map((ft) => (
-                            <button
-                              key={ft}
-                              onClick={() => setResidenceFilter(ft)}
-                              className={`px-2.5 py-1 rounded-lg font-bold transition-all border ${residenceFilter === ft ? "bg-slate-800 text-white border-slate-650" : "bg-slate-950 text-slate-400 border-slate-850 hover:text-slate-200"}`}
-                            >
-                              {ft === "all" ? `All (${status.families?.length || 0})` : ft === "house" ? `🏠 Houses (${status.families?.filter((f: any) => f.type !== "hostel" && !f.id.startsWith("hostel_")).length || 0})` : `🏢 Hostels (${status.families?.filter((f: any) => f.type === "hostel" || f.id.startsWith("hostel_")).length || 0})`}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
+                      {/* Admin Multi-Residence Filter & Selector Tabs */}
+                      {isAdmin ? (
+                        <>
+                          {/* Filter Bar (All / Houses / Hostels) */}
+                          <div className="flex items-center justify-between gap-2 mb-2 flex-none">
+                            <div className="flex gap-1 text-[10px]">
+                              {(["all", "house", "hostel"] as const).map((ft) => (
+                                <button
+                                  key={ft}
+                                  onClick={() => setResidenceFilter(ft)}
+                                  className={`px-2.5 py-1 rounded-lg font-bold transition-all border ${residenceFilter === ft ? "bg-slate-800 text-white border-slate-650" : "bg-slate-950 text-slate-400 border-slate-850 hover:text-slate-200"}`}
+                                >
+                                  {ft === "all" ? `All (${status.families?.length || 0})` : ft === "house" ? `🏠 Houses (${status.families?.filter((f: any) => f.type !== "hostel" && !f.id.startsWith("hostel_")).length || 0})` : `🏢 Hostels (${status.families?.filter((f: any) => f.type === "hostel" || f.id.startsWith("hostel_")).length || 0})`}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
 
-                      {/* Zone / Residence Selector Tabs */}
-                      <div className="flex gap-1.5 mb-3 flex-none overflow-x-auto pb-1">
-                        {status.families
-                          ?.filter((f: any) => {
-                            if (residenceFilter === "house") return f.type !== "hostel" && !f.id.startsWith("hostel_");
-                            if (residenceFilter === "hostel") return f.type === "hostel" || f.id.startsWith("hostel_");
-                            return true;
-                          })
-                          .map((f: any, idx: number) => {
-                            const isH = f.type === "hostel" || f.id.startsWith("hostel_");
-                            return (
-                              <button
-                                key={f.id}
-                                className={`flex-grow py-1.5 px-3 rounded-lg text-xs font-bold whitespace-nowrap transition-all border flex items-center gap-1.5 ${selectedFamilyId === f.id ? "bg-amber-500 text-slate-950 border-amber-400 shadow-md" : "bg-slate-950 text-slate-400 border-slate-850 hover:text-white"}`}
-                                onClick={() => setSelectedFamilyId(f.id)}
-                              >
-                                <span>{isH ? "🏢" : "🏠"}</span>
-                                <span>{isAdmin ? f.name.split("'")[0] : `Zone #${idx + 1}`}</span>
-                                <span className={`text-[9px] px-1 rounded font-mono ${selectedFamilyId === f.id ? "bg-slate-950/30 text-slate-950" : "bg-slate-800 text-slate-400"}`}>
-                                  {f.members?.length || 0}
-                                </span>
-                              </button>
-                            );
-                          })}
-                      </div>
+                          {/* Zone / Residence Selector Tabs */}
+                          <div className="flex gap-1.5 mb-3 flex-none overflow-x-auto pb-1">
+                            {status.families
+                              ?.filter((f: any) => {
+                                if (residenceFilter === "house") return f.type !== "hostel" && !f.id.startsWith("hostel_");
+                                if (residenceFilter === "hostel") return f.type === "hostel" || f.id.startsWith("hostel_");
+                                return true;
+                              })
+                              .map((f: any, idx: number) => {
+                                const isH = f.type === "hostel" || f.id.startsWith("hostel_");
+                                return (
+                                  <button
+                                    key={f.id}
+                                    className={`flex-grow py-1.5 px-3 rounded-lg text-xs font-bold whitespace-nowrap transition-all border flex items-center gap-1.5 ${selectedFamilyId === f.id ? "bg-amber-500 text-slate-950 border-amber-400 shadow-md" : "bg-slate-950 text-slate-400 border-slate-850 hover:text-white"}`}
+                                    onClick={() => setSelectedFamilyId(f.id)}
+                                  >
+                                    <span>{isH ? "🏢" : "🏠"}</span>
+                                    <span>{f.name.split("'")[0]}</span>
+                                    <span className={`text-[9px] px-1 rounded font-mono ${selectedFamilyId === f.id ? "bg-slate-950/30 text-slate-950" : "bg-slate-800 text-slate-400"}`}>
+                                      {f.members?.length || 0}
+                                    </span>
+                                  </button>
+                                );
+                              })}
+                          </div>
+                        </>
+                      ) : (
+                        /* Regular User / Friend Personal Household Banner */
+                        <div className="bg-slate-900/60 border border-emerald-500/40 rounded-2xl p-3 flex justify-between items-center mb-3 shadow-sm">
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-lg shadow-sm">
+                              🏡
+                            </div>
+                            <div>
+                              <strong className="text-white text-xs font-bold block">{selectedFamily?.name || "My Private Household"}</strong>
+                              <span className="text-[10px] text-emerald-400 font-mono">Personal Household Data (Visible only to you)</span>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <span className="text-[9px] text-slate-400 block font-mono">Household Cash</span>
+                            <span className="font-mono font-extrabold text-emerald-400 text-sm">${selectedFamily?.budget?.toLocaleString() || 150}</span>
+                          </div>
+                        </div>
+                      )}
 
                       {/* Content Card */}
                       {selectedFamily && (
                         <div className="flex flex-col flex-grow min-h-0 overflow-y-auto pr-1 gap-3">
-                          {isAdmin ? (
-                            // ADMIN FULL VIEW
-                            <>
-                              {/* Residence Header, Type & Bank Controls */}
-                              <div className="bg-slate-950/80 border border-slate-800 rounded-xl p-3 flex flex-col gap-2 flex-none shadow-sm">
+                          {/* Residence Header, Type & Bank Controls */}
+                          <div className="bg-slate-950/80 border border-slate-800 rounded-xl p-3 flex flex-col gap-2 flex-none shadow-sm">
                                 <div className="flex justify-between items-start">
                                   <div>
                                     <div className="flex items-center gap-2 flex-wrap">
@@ -2990,30 +3012,12 @@ export default function CivilizationDashboard() {
                                   );
                                 })}
                               </div>
-                            </>
-                          ) : (
-                            // CITIZEN PRIVACY PROTECTED VIEW
-                            <div className="bg-slate-950/60 border border-slate-800/80 rounded-xl p-4 flex flex-col gap-3 text-xs">
-                              <div className="flex items-center gap-2 text-sky-400 font-bold border-b border-slate-800 pb-2">
-                                <span>🔒</span>
-                                <span>CONFIDENTIAL RESIDENCE DATA</span>
-                              </div>
-                              <p className="text-slate-300 text-[11px] leading-relaxed">
-                                This residence is an active private domicile in the civilization. Under the <em>Civilization Citizen Privacy Charter</em>, the names of resident family members, private occupations, and personal bank accounts are confidential.
-                              </p>
-                              <div className="bg-slate-900/80 p-3 rounded-lg border border-slate-850 flex flex-col gap-1 text-[11px] font-mono text-slate-400">
-                                <div><strong className="text-slate-300">Status:</strong> Occupied Residential Zone</div>
-                                <div><strong className="text-slate-300">Location:</strong> Marked on High-Res Satellite GIS</div>
-                                <div><strong className="text-slate-300">Privacy Status:</strong> Encrypted (Admin Clearance Required)</div>
-                              </div>
                             </div>
                           )}
                         </div>
-                      )}
+                      </div>
                     </div>
-                  </div>
-                </div>
-              )}
+                  )}
 
               {/* Tab: City Planning Projects */}
               {activeTab === "projects" && (
