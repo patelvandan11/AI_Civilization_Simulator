@@ -2652,23 +2652,24 @@ export default function CivilizationDashboard() {
           <main className="flex-grow grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-3 min-h-0 overflow-hidden mb-1">
             
             {/* Scrollable Left Panels */}
-            <section className="bg-slate-900/25 border border-slate-800/80 rounded-xl p-3.5 overflow-y-auto min-h-0">
+            <section className={`${isDayMode ? "bg-white/80 border-amber-250 shadow-sm" : "bg-slate-900/25 border-slate-800/80"} border rounded-xl p-3.5 overflow-y-auto min-h-0`}>
               
               {/* Tab: Overview (Geolocated Leaflet Map & Residences) */}
               {activeTab === "overview" && (
                 <div className="flex flex-col gap-3 h-full min-h-0">
-                  <div className="flex justify-between items-center border-b border-slate-800 pb-2 flex-none flex-wrap gap-2">
+                  <div className={`flex justify-between items-center border-b ${isDayMode ? "border-amber-200" : "border-slate-800"} pb-2 flex-none flex-wrap gap-2`}>
                     <div>
-                      <h2 className="text-white text-base font-bold">Satellite GIS Map & City Search</h2>
-                      <span className="text-[10px] text-slate-400 font-mono">Real-world geolocated map of Gujarat & Civilization Region</span>
+                      <h2 className={`${isDayMode ? "text-slate-900 font-black" : "text-white font-bold"} text-base`}>Satellite GIS Map &amp; City Search</h2>
+                      <span className={`text-[10px] ${isDayMode ? "text-slate-600 font-semibold" : "text-slate-400"} font-mono`}>Real-world geolocated map of Gujarat &amp; Civilization Region</span>
                     </div>
 
                     {/* Location edit controls for admin only */}
                     {isAdmin ? (
                       <div className="flex gap-2 items-center flex-wrap">
                         <button 
-                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${editLocationsMode ? "bg-amber-500 text-slate-950 border-amber-500 shadow-lg animate-pulse" : "bg-slate-900 hover:bg-slate-800 text-amber-500 border-slate-800"}`}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${editLocationsMode ? "bg-amber-500 text-slate-950 border-amber-500 shadow-lg animate-pulse" : isDayMode ? "bg-white hover:bg-amber-100 text-amber-900 border-amber-300 shadow-sm" : "bg-slate-900 hover:bg-slate-800 text-amber-500 border-slate-800"}`}
                           onClick={() => {
+                            soundEngine.playClick(600);
                             setEditLocationsMode(!editLocationsMode);
                             setClickedCoords(null);
                           }}
@@ -2677,14 +2678,17 @@ export default function CivilizationDashboard() {
                         </button>
                         <button
                           type="button"
-                          onClick={resetAllLocations}
-                          className="bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-500/30 px-3 py-1.5 rounded-xl text-xs font-bold transition-all"
+                          onClick={() => {
+                            soundEngine.playClick(500);
+                            resetAllLocations();
+                          }}
+                          className={`${isDayMode ? "bg-rose-100 hover:bg-rose-200 text-rose-900 border-rose-300 shadow-sm" : "bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-500/30"} px-3 py-1.5 rounded-xl text-xs font-bold transition-all`}
                         >
                           🔄 RESET ALL LOCATIONS
                         </button>
                       </div>
                     ) : (
-                      <span className="text-[10px] bg-slate-900 border border-slate-800 text-slate-400 px-2.5 py-1 rounded-lg font-mono">
+                      <span className={`text-[10px] ${isDayMode ? "bg-white border-amber-200 text-slate-700" : "bg-slate-900 border-slate-800 text-slate-400"} border px-2.5 py-1 rounded-lg font-mono`}>
                         🔒 Map Coordinates Fixed by Admin
                       </span>
                     )}
@@ -2692,12 +2696,12 @@ export default function CivilizationDashboard() {
 
                   {/* Admin Location Action Confirmation Toast */}
                   {locationActionMsg && (
-                    <div className="bg-emerald-950/80 border-2 border-emerald-500/80 text-emerald-200 text-xs p-3 rounded-xl flex items-center justify-between gap-2 shadow-xl animate-fade-in font-mono">
+                    <div className={`${isDayMode ? "bg-emerald-100 border-emerald-400 text-emerald-950 shadow-md" : "bg-emerald-950/80 border-emerald-500/80 text-emerald-200"} border-2 text-xs p-3 rounded-xl flex items-center justify-between gap-2 shadow-xl animate-fade-in font-mono`}>
                       <div className="flex items-center gap-2">
                         <span className="text-base">📍</span>
                         <span className="font-bold">{locationActionMsg}</span>
                       </div>
-                      <span className="text-[10px] bg-emerald-500/20 px-2 py-0.5 rounded text-emerald-300 border border-emerald-500/40">
+                      <span className={`text-[10px] ${isDayMode ? "bg-emerald-200 text-emerald-950 border-emerald-400" : "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"} px-2 py-0.5 rounded border font-bold`}>
                         PERMANENT IN DATABASE ✓
                       </span>
                     </div>
@@ -2705,12 +2709,12 @@ export default function CivilizationDashboard() {
 
                   {/* Admin Live City Search & Geocoding Bar */}
                   {isAdmin && (
-                    <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-3 flex flex-col gap-2.5">
+                    <div className={`${isDayMode ? "bg-white/95 border-amber-250 shadow-sm text-slate-800" : "bg-slate-900/60 border-slate-800 text-slate-200"} border rounded-xl p-3 flex flex-col gap-2.5`}>
                       <div className="flex justify-between items-center">
-                        <span className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
-                          <span>🔍</span> 1. Search Any City/Village in Gujarat or India & Assign Location
+                        <span className={`text-xs font-extrabold ${isDayMode ? "text-slate-900" : "text-slate-200"} flex items-center gap-1.5`}>
+                          <span>🔍</span> 1. Search Any City/Village in Gujarat or India &amp; Assign Location
                         </span>
-                        <span className="text-[10px] text-sky-400 font-mono">Live Nominatim GIS Geocoder</span>
+                        <span className={`text-[10px] ${isDayMode ? "text-sky-800 font-bold" : "text-sky-400"} font-mono`}>Live Nominatim GIS Geocoder</span>
                       </div>
 
                       <form onSubmit={handleCitySearch} className="flex gap-2 items-center flex-wrap">
@@ -2721,7 +2725,7 @@ export default function CivilizationDashboard() {
                             placeholder="Search city, town or village (e.g. Navsari, Surat, Valsad, Bilimora, Rumla, Nandarkha...)"
                             value={searchCityInput}
                             onChange={(e) => setSearchCityInput(e.target.value)}
-                            className="w-full bg-slate-950 border border-slate-800 rounded-lg pl-8 pr-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 font-mono"
+                            className={`w-full ${isDayMode ? "bg-amber-50/70 border-amber-200 text-slate-900 placeholder-slate-500 focus:border-amber-400" : "bg-slate-950 border-slate-800 text-white placeholder-slate-500 focus:border-amber-500"} border rounded-lg pl-8 pr-3 py-1.5 text-xs focus:outline-none font-mono`}
                           />
                         </div>
                         <button
@@ -2734,23 +2738,23 @@ export default function CivilizationDashboard() {
                       </form>
 
                       {searchError && (
-                        <div className="text-xs text-rose-400 font-mono">⚠️ {searchError}</div>
+                        <div className="text-xs text-rose-500 font-mono font-bold">⚠️ {searchError}</div>
                       )}
 
                       {/* City Search Result & Relocation Assignment Action */}
                       {searchedLocation && (
-                        <div className="bg-slate-950/80 border border-sky-500/40 rounded-lg p-2.5 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-xs">
+                        <div className={`${isDayMode ? "bg-amber-50/90 border-sky-400 text-slate-800 shadow-sm" : "bg-slate-950/80 border-sky-500/40 text-white"} border rounded-lg p-2.5 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-xs`}>
                           <div>
-                            <span className="text-sky-400 font-bold block">📍 Found: {searchedLocation.name}</span>
-                            <span className="text-slate-400 text-[10px] font-mono">GPS Coordinates: [{searchedLocation.lat.toFixed(6)}, {searchedLocation.lng.toFixed(6)}]</span>
+                            <span className={`${isDayMode ? "text-sky-900" : "text-sky-400"} font-bold block`}>📍 Found: {searchedLocation.name}</span>
+                            <span className={`${isDayMode ? "text-slate-600" : "text-slate-400"} text-[10px] font-mono`}>GPS Coordinates: [{searchedLocation.lat.toFixed(6)}, {searchedLocation.lng.toFixed(6)}]</span>
                           </div>
 
                           <div className="flex gap-2 items-center flex-wrap">
-                            <label className="text-slate-300 text-xs font-semibold">Assign & Fix Location For:</label>
+                            <label className={`${isDayMode ? "text-slate-800 font-bold" : "text-slate-300"} text-xs`}>Assign &amp; Fix Location For:</label>
                             <select
                               value={searchLandmarkTarget}
                               onChange={(e) => setSearchLandmarkTarget(e.target.value)}
-                              className="bg-slate-900 border border-slate-750 text-white rounded px-2.5 py-1.5 text-xs font-mono"
+                              className={`${isDayMode ? "bg-white border-amber-300 text-slate-900" : "bg-slate-900 border-slate-750 text-white"} border rounded px-2.5 py-1.5 text-xs font-mono`}
                             >
                               {renderLandmarkOptions()}
                             </select>
@@ -2774,17 +2778,17 @@ export default function CivilizationDashboard() {
                       <div>
                         <div className="flex items-center gap-1.5">
                           <span className="text-base animate-bounce">📍</span>
-                          <strong className="text-amber-400 font-bold text-sm">Pinpoint Map Location Selected</strong>
+                          <strong className="text-amber-500 font-bold text-sm">Pinpoint Map Location Selected</strong>
                         </div>
-                        <span className="text-slate-300 font-mono text-[11px]">
+                        <span className={`${isDayMode ? "text-slate-700" : "text-slate-300"} font-mono text-[11px]`}>
                           Exact GPS Coordinates: [{clickedCoords.lat.toFixed(6)}, {clickedCoords.lng.toFixed(6)}]
                         </span>
                       </div>
                       
                       <div className="flex gap-2 items-center flex-wrap">
-                        <label className="text-slate-300 text-xs font-semibold">Select Home / Landmark:</label>
+                        <label className={`${isDayMode ? "text-slate-800 font-bold" : "text-slate-300"} text-xs`}>Select Home / Landmark:</label>
                         <select 
-                          className="bg-slate-950 border border-slate-700 text-white rounded-lg p-1.5 outline-none text-xs font-mono" 
+                          className={`${isDayMode ? "bg-white border-amber-300 text-slate-900" : "bg-slate-950 border-slate-700 text-white"} border rounded-lg p-1.5 outline-none text-xs font-mono`} 
                           value={selectedLandmarkToMove} 
                           onChange={(e) => setSelectedLandmarkToMove(e.target.value)}
                         >
@@ -2798,7 +2802,7 @@ export default function CivilizationDashboard() {
                           <span>FIX PERMANENTLY HERE</span>
                         </button>
                         <button 
-                          className="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold px-2.5 py-1.5 rounded-lg text-xs"
+                          className={`${isDayMode ? "bg-slate-200 hover:bg-slate-300 text-slate-800" : "bg-slate-800 hover:bg-slate-700 text-slate-300"} font-bold px-2.5 py-1.5 rounded-lg text-xs`}
                           onClick={() => setClickedCoords(null)}
                         >
                           ✕ Cancel
@@ -2808,81 +2812,84 @@ export default function CivilizationDashboard() {
                   )}
 
                   {/* Private Residence Placement for Any User / Friend */}
-                  <div className="bg-gradient-to-r from-emerald-950/40 via-slate-900/60 to-slate-900/40 border border-emerald-500/30 rounded-2xl p-3.5 flex flex-col gap-3 shadow-md">
+                  <div className={`${isDayMode ? "bg-emerald-50/90 border-emerald-300/80 text-emerald-950 shadow-sm" : "bg-gradient-to-r from-emerald-950/40 via-slate-900/60 to-slate-900/40 border-emerald-500/30 text-white"} border rounded-2xl p-3.5 flex flex-col gap-3 shadow-md`}>
                     <div className="flex justify-between items-center flex-wrap gap-2">
                       <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-base">
+                        <div className={`w-8 h-8 rounded-xl ${isDayMode ? "bg-emerald-200 border-emerald-400" : "bg-emerald-500/20 border-emerald-500/40"} border flex items-center justify-center text-base`}>
                           🏡
                         </div>
                         <div>
-                          <strong className="text-white text-xs block font-bold">
-                            Private Residence Placement & Database Geolocation
+                          <strong className={`${isDayMode ? "text-slate-900" : "text-white"} text-xs block font-bold`}>
+                            Private Residence Placement &amp; Database Geolocation
                           </strong>
-                          <span className="text-[10px] text-slate-400 font-mono">
-                            Build & customize your private home on the map (Stored in database • Protected & private to your account)
+                          <span className={`text-[10px] ${isDayMode ? "text-slate-600 font-semibold" : "text-slate-400"} font-mono`}>
+                            Build &amp; customize your private home on the map (Stored in database &bull; Protected &amp; private to your account)
                           </span>
                         </div>
                       </div>
 
                       <button
                         type="button"
-                        onClick={() => setShowHomeBuilder(!showHomeBuilder)}
-                        className="bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-xs font-bold px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5"
+                        onClick={() => {
+                          soundEngine.playClick(650);
+                          setShowHomeBuilder(!showHomeBuilder);
+                        }}
+                        className={`bg-emerald-500/20 hover:bg-emerald-500/30 ${isDayMode ? "text-emerald-950 border-emerald-400 bg-emerald-100" : "text-emerald-300 border-emerald-500/40"} border text-xs font-bold px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 shadow-sm`}
                       >
                         <span>{showHomeBuilder ? "✕ Close Form" : "🏡 Build / Relocate My Home"}</span>
                       </button>
                     </div>
 
                     {showHomeBuilder && (
-                      <div className="bg-slate-950/90 border border-emerald-500/40 rounded-xl p-3 flex flex-col gap-3">
+                      <div className={`${isDayMode ? "bg-white border-emerald-300 shadow-md text-slate-800" : "bg-slate-950/90 border-emerald-500/40 text-white"} border rounded-xl p-3 flex flex-col gap-3`}>
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2.5 text-xs">
                           <div className="flex flex-col gap-1">
-                            <label className="text-[10px] text-slate-400 font-semibold">Residence Name:</label>
+                            <label className={`text-[10px] ${isDayMode ? "text-slate-700 font-bold" : "text-slate-400 font-semibold"}`}>Residence Name:</label>
                             <input
                               type="text"
                               placeholder="e.g. Patel Villa, Sharma House"
                               value={homeNameInput}
                               onChange={(e) => setHomeNameInput(e.target.value)}
-                              className="bg-slate-900 border border-slate-800 text-white rounded-lg px-2.5 py-1.5 text-xs font-mono"
+                              className={`${isDayMode ? "bg-amber-50/70 border-amber-200 text-slate-900" : "bg-slate-900 border-slate-800 text-white"} border rounded-lg px-2.5 py-1.5 text-xs font-mono`}
                             />
                           </div>
 
                           <div className="flex flex-col gap-1">
-                            <label className="text-[10px] text-slate-400 font-semibold">Address / Zone:</label>
+                            <label className={`text-[10px] ${isDayMode ? "text-slate-700 font-bold" : "text-slate-400 font-semibold"}`}>Address / Zone:</label>
                             <input
                               type="text"
                               placeholder="e.g. Navsari West Sector"
                               value={homeAddressInput}
                               onChange={(e) => setHomeAddressInput(e.target.value)}
-                              className="bg-slate-900 border border-slate-800 text-white rounded-lg px-2.5 py-1.5 text-xs font-mono"
+                              className={`${isDayMode ? "bg-amber-50/70 border-amber-200 text-slate-900" : "bg-slate-900 border-slate-800 text-white"} border rounded-lg px-2.5 py-1.5 text-xs font-mono`}
                             />
                           </div>
 
                           <div className="flex flex-col gap-1">
-                            <label className="text-[10px] text-slate-400 font-semibold">GPS Latitude:</label>
+                            <label className={`text-[10px] ${isDayMode ? "text-slate-700 font-bold" : "text-slate-400 font-semibold"}`}>GPS Latitude:</label>
                             <input
                               type="text"
                               placeholder="20.9472"
                               value={homeLatInput}
                               onChange={(e) => setHomeLatInput(e.target.value)}
-                              className="bg-slate-900 border border-slate-800 text-white rounded-lg px-2.5 py-1.5 text-xs font-mono"
+                              className={`${isDayMode ? "bg-amber-50/70 border-amber-200 text-slate-900" : "bg-slate-900 border-slate-800 text-white"} border rounded-lg px-2.5 py-1.5 text-xs font-mono`}
                             />
                           </div>
 
                           <div className="flex flex-col gap-1">
-                            <label className="text-[10px] text-slate-400 font-semibold">GPS Longitude:</label>
+                            <label className={`text-[10px] ${isDayMode ? "text-slate-700 font-bold" : "text-slate-400 font-semibold"}`}>GPS Longitude:</label>
                             <input
                               type="text"
                               placeholder="72.9515"
                               value={homeLngInput}
                               onChange={(e) => setHomeLngInput(e.target.value)}
-                              className="bg-slate-900 border border-slate-800 text-white rounded-lg px-2.5 py-1.5 text-xs font-mono"
+                              className={`${isDayMode ? "bg-amber-50/70 border-amber-200 text-slate-900" : "bg-slate-900 border-slate-800 text-white"} border rounded-lg px-2.5 py-1.5 text-xs font-mono`}
                             />
                           </div>
                         </div>
 
-                        <div className="flex items-center justify-between gap-2 flex-wrap pt-2 border-t border-slate-850">
-                          <div className="text-[11px] text-emerald-400 font-mono flex items-center gap-1.5">
+                        <div className={`flex items-center justify-between gap-2 flex-wrap pt-2 border-t ${isDayMode ? "border-amber-200" : "border-slate-850"}`}>
+                          <div className={`text-[11px] ${isDayMode ? "text-emerald-800 font-bold" : "text-emerald-400"} font-mono flex items-center gap-1.5`}>
                             <span>🌐</span>
                             <span>Public Map Marker: Other players will see an anonymous &apos;Private Residence&apos; pin on the map, but your personal household &amp; family details remain strictly private.</span>
                           </div>
@@ -2898,7 +2905,7 @@ export default function CivilizationDashboard() {
                         </div>
 
                         {homeSaveMsg && (
-                          <div className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 p-2 rounded-lg text-xs font-mono">
+                          <div className={`${isDayMode ? "bg-emerald-100 text-emerald-950 border-emerald-300" : "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"} border p-2 rounded-lg text-xs font-mono font-bold`}>
                             {homeSaveMsg}
                           </div>
                         )}
@@ -2908,45 +2915,45 @@ export default function CivilizationDashboard() {
 
                   {/* Manual Decimal Coordinates Input Bar for Admin */}
                   {isAdmin && (
-                    <div className="bg-slate-900/40 border border-slate-800 rounded-xl p-3 flex flex-col gap-2">
+                    <div className={`${isDayMode ? "bg-white/95 border-amber-250 shadow-sm text-slate-800" : "bg-slate-900/40 border-slate-800 text-slate-200"} border rounded-xl p-3 flex flex-col gap-2`}>
                       <div className="flex justify-between items-center">
-                        <span className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+                        <span className={`text-xs font-extrabold ${isDayMode ? "text-slate-900" : "text-slate-200"} flex items-center gap-1.5`}>
                           <span>🧭</span> 2. Manual GPS Precision Decimal Coordinates Placement
                         </span>
-                        <span className="text-[10px] text-amber-400 font-mono">Decide & Fix Location Permanently</span>
+                        <span className={`text-[10px] ${isDayMode ? "text-amber-800 font-extrabold" : "text-amber-400"} font-mono`}>Decide &amp; Fix Location Permanently</span>
                       </div>
 
                       <div className="flex gap-2 items-center flex-wrap text-xs">
                         <div className="flex flex-col gap-1 min-w-[180px] flex-grow">
-                          <label className="text-[10px] text-slate-400 font-semibold">Select Target Home / Landmark:</label>
+                          <label className={`text-[10px] ${isDayMode ? "text-slate-700 font-bold" : "text-slate-400 font-semibold"}`}>Select Target Home / Landmark:</label>
                           <select
                             value={manualTargetLandmark}
                             onChange={(e) => setManualTargetLandmark(e.target.value)}
-                            className="bg-slate-950 border border-slate-800 text-white rounded px-2.5 py-1.5 text-xs font-mono"
+                            className={`${isDayMode ? "bg-amber-50/70 border-amber-200 text-slate-900 font-semibold" : "bg-slate-950 border-slate-800 text-white font-mono"} border rounded px-2.5 py-1.5 text-xs`}
                           >
                             {renderLandmarkOptions()}
                           </select>
                         </div>
 
                         <div className="flex flex-col gap-1 w-32">
-                          <label className="text-[10px] text-slate-400 font-semibold">Latitude (e.g. 20.9472):</label>
+                          <label className={`text-[10px] ${isDayMode ? "text-slate-700 font-bold" : "text-slate-400 font-semibold"}`}>Latitude (e.g. 20.9472):</label>
                           <input
                             type="text"
                             placeholder="20.9472"
                             value={manualLatInput}
                             onChange={(e) => setManualLatInput(e.target.value)}
-                            className="bg-slate-950 border border-slate-800 text-white rounded px-2.5 py-1.5 text-xs font-mono"
+                            className={`${isDayMode ? "bg-amber-50/70 border-amber-200 text-slate-900 font-semibold" : "bg-slate-950 border-slate-800 text-white font-mono"} border rounded px-2.5 py-1.5 text-xs`}
                           />
                         </div>
 
                         <div className="flex flex-col gap-1 w-32">
-                          <label className="text-[10px] text-slate-400 font-semibold">Longitude (e.g. 72.9515):</label>
+                          <label className={`text-[10px] ${isDayMode ? "text-slate-700 font-bold" : "text-slate-400 font-semibold"}`}>Longitude (e.g. 72.9515):</label>
                           <input
                             type="text"
                             placeholder="72.9515"
                             value={manualLngInput}
                             onChange={(e) => setManualLngInput(e.target.value)}
-                            className="bg-slate-950 border border-slate-800 text-white rounded px-2.5 py-1.5 text-xs font-mono"
+                            className={`${isDayMode ? "bg-amber-50/70 border-amber-200 text-slate-900 font-semibold" : "bg-slate-950 border-slate-800 text-white font-mono"} border rounded px-2.5 py-1.5 text-xs`}
                           />
                         </div>
 
@@ -2957,7 +2964,7 @@ export default function CivilizationDashboard() {
                             className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-extrabold px-4 py-1.5 rounded-lg text-xs transition-all shadow-md flex items-center gap-1.5 whitespace-nowrap"
                           >
                             <span>💾</span>
-                            <span>SAVE & FIX PERMANENT LOCATION</span>
+                            <span>SAVE &amp; FIX PERMANENT LOCATION</span>
                           </button>
                         </div>
                       </div>
@@ -2966,8 +2973,8 @@ export default function CivilizationDashboard() {
 
                   {/* Quick City Relocation Presets for Admin */}
                   {isAdmin && (
-                    <div className="bg-slate-900/40 border border-slate-850 p-2 rounded-xl flex items-center justify-between gap-2 text-[11px] flex-wrap">
-                      <span className="text-slate-300 font-semibold">Quick Inter-City Regional Presets:</span>
+                    <div className={`${isDayMode ? "bg-amber-50/80 border-amber-200 text-slate-800 shadow-sm" : "bg-slate-900/40 border-slate-850 text-slate-300"} border p-2 rounded-xl flex items-center justify-between gap-2 text-[11px] flex-wrap`}>
+                      <span className={`${isDayMode ? "text-slate-800 font-bold" : "text-slate-300 font-semibold"}`}>Quick Inter-City Regional Presets:</span>
                       <div className="flex gap-1.5 flex-wrap">
                         <button
                           type="button"
@@ -2975,7 +2982,7 @@ export default function CivilizationDashboard() {
                             dispatchAction("relocate_landmark", { landmark_id: "house_2", lat: 20.9467, lng: 72.9520 });
                             if (mapInstanceRef.current) mapInstanceRef.current.flyTo([20.9467, 72.9520], 16);
                           }}
-                          className="bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 border border-sky-500/30 px-2 py-0.5 rounded font-mono text-[10px]"
+                          className={`${isDayMode ? "bg-white hover:bg-sky-50 text-sky-900 border-sky-300 shadow-sm" : "bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 border border-sky-500/30"} px-2 py-0.5 rounded font-mono text-[10px] font-bold`}
                         >
                           📍 Move Bharatbhai (Home 2) to Navsari
                         </button>
@@ -2985,14 +2992,14 @@ export default function CivilizationDashboard() {
                             dispatchAction("relocate_landmark", { landmark_id: "house_3", lat: 20.9490, lng: 72.9560 });
                             if (mapInstanceRef.current) mapInstanceRef.current.flyTo([20.9490, 72.9560], 16);
                           }}
-                          className="bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 border border-sky-500/30 px-2 py-0.5 rounded font-mono text-[10px]"
+                          className={`${isDayMode ? "bg-white hover:bg-sky-50 text-sky-900 border-sky-300 shadow-sm" : "bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 border border-sky-500/30"} px-2 py-0.5 rounded font-mono text-[10px] font-bold`}
                         >
                           📍 Move Rameshbhai (Home 3) to Navsari
                         </button>
                         <button
                           type="button"
                           onClick={resetAllLocations}
-                          className="bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded font-mono text-[10px]"
+                          className={`${isDayMode ? "bg-white hover:bg-amber-100 text-amber-950 border-amber-300 shadow-sm" : "bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30"} px-2 py-0.5 rounded font-mono text-[10px] font-bold`}
                         >
                           📍 Reset All World Locations
                         </button>
