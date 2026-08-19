@@ -2464,17 +2464,31 @@ export default function CivilizationDashboard() {
                 </button>
 
                 {isAdmin && (
-                  <button
-                    type="button"
-                    onClick={() => setShowAdminCensusModal(true)}
-                    className="bg-gradient-to-r from-amber-500/20 to-orange-500/20 hover:from-amber-500/30 hover:to-orange-500/30 text-amber-300 border border-amber-500/40 px-3 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 shadow-md transition-all active:scale-95"
-                  >
-                    <span>👥</span>
-                    <span>ALL REGISTERED CITIZENS</span>
-                    <span className="bg-amber-500/30 text-amber-200 text-[10px] px-1.5 py-0.5 rounded-md font-mono font-bold">
-                      {registeredUsers.length}
-                    </span>
-                  </button>
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => setShowAdminCensusModal(true)}
+                      className="bg-gradient-to-r from-amber-500/20 to-orange-500/20 hover:from-amber-500/30 hover:to-orange-500/30 text-amber-300 border border-amber-500/40 px-3 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 shadow-md transition-all active:scale-95"
+                    >
+                      <span>👥</span>
+                      <span>ALL REGISTERED CITIZENS</span>
+                      <span className="bg-amber-500/30 text-amber-200 text-[10px] px-1.5 py-0.5 rounded-md font-mono font-bold">
+                        {registeredUsers.length}
+                      </span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab("people")}
+                      className="bg-gradient-to-r from-sky-500/20 to-indigo-500/20 hover:from-sky-500/30 hover:to-indigo-500/30 text-sky-300 border border-sky-500/40 px-3 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 shadow-md transition-all active:scale-95"
+                    >
+                      <span>🏠</span>
+                      <span>7 HOUSES &amp; ROOMS</span>
+                      <span className="bg-sky-500/30 text-sky-200 text-[10px] px-1.5 py-0.5 rounded-md font-mono font-bold">
+                        {status.families?.length || 7}
+                      </span>
+                    </button>
+                  </>
                 )}
 
                 <div className="flex items-center gap-2 bg-slate-950/80 px-2.5 py-1.5 rounded-xl border border-slate-800 text-xs font-mono">
@@ -6688,6 +6702,85 @@ export default function CivilizationDashboard() {
                     </div>
                   );
                 })}
+
+                {/* 7 Core Civilization Houses & Hostels Section */}
+                <div className="pt-3 border-t border-slate-800 flex flex-col gap-2.5">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-extrabold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+                      <span>🏠</span>
+                      <span>Civilization Core Residences &amp; Rooms ({status.families?.length || 7}):</span>
+                    </span>
+                    <span className="text-[10px] text-slate-400 font-mono">
+                      {status.families?.reduce((a: number, f: any) => a + (f.members?.length || 0), 0) || 0} Total Citizens Residing
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+                    {status.families?.map((f: any, fIdx: number) => {
+                      const isHostel = f.type === "hostel" || f.id.startsWith("hostel_");
+                      const coords = status.zone_locations?.[f.id] || [20.9472, 72.9515];
+                      return (
+                        <div
+                          key={f.id || fIdx}
+                          className="bg-slate-950/80 border border-slate-800/90 rounded-xl p-3 flex flex-col justify-between gap-2 shadow-sm hover:border-amber-500/40 transition-all"
+                        >
+                          <div className="flex justify-between items-start gap-2">
+                            <div>
+                              <strong className="text-white text-xs font-bold flex items-center gap-1">
+                                <span>{isHostel ? "🏢" : "🏠"}</span>
+                                <span>{f.name}</span>
+                              </strong>
+                              <span className="text-[10px] font-mono text-slate-400 block mt-0.5">
+                                ID: {f.id} &bull; Budget: ${f.budget || 50}/day
+                              </span>
+                            </div>
+
+                            <span className="text-[10px] font-mono font-bold bg-slate-900 border border-slate-800 text-amber-400 px-2 py-0.5 rounded-md">
+                              {f.members?.length || 0} Members
+                            </span>
+                          </div>
+
+                          {/* Members List Chips */}
+                          <div className="flex flex-wrap gap-1">
+                            {f.members?.map((m: any, mIdx: number) => (
+                              <span
+                                key={mIdx}
+                                className="bg-slate-900 border border-slate-850 text-slate-300 text-[9px] px-1.5 py-0.2 rounded font-mono flex items-center gap-0.5"
+                              >
+                                <span>{VEHICLE_EMOJIS[m.vehicle] || "🚗"}</span>
+                                <span>{m.name}</span>
+                              </span>
+                            ))}
+                          </div>
+
+                          <div className="flex justify-between items-center pt-1.5 border-t border-slate-850">
+                            <span className="text-[10px] text-amber-400/80 font-mono">
+                              🧭 [{coords[0]?.toFixed(4)}, {coords[1]?.toFixed(4)}]
+                            </span>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setShowAdminCensusModal(false);
+                                setSelectedFamilyId(f.id);
+                                setActiveTab("overview");
+                                if (mapInstanceRef.current && coords) {
+                                  setTimeout(() => {
+                                    mapInstanceRef.current?.flyTo(coords, 17);
+                                  }, 100);
+                                }
+                              }}
+                              className="bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/40 text-[10px] font-bold px-2.5 py-1 rounded-lg transition-all flex items-center gap-1 shadow-sm"
+                            >
+                              <span>🎯</span>
+                              <span>Fly to on Map</span>
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
             </div>
           </div>
         </div>
