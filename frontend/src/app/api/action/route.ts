@@ -868,6 +868,75 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    if (action === "edit_person_details") {
+      const familyId = String(body.family_id || "").trim();
+      const oldName = String(body.old_name || body.member_name || "").trim();
+      const newName = String(body.new_name || oldName).trim();
+      const role = String(body.role || "").trim();
+      const relation = String(body.relation || "").trim();
+      const vehicle = String(body.vehicle || "bicycle").trim().toLowerCase();
+      const destinationFamilyId = body.new_family_id ? String(body.new_family_id).trim() : familyId;
+
+      if (!familyId || !oldName || !newName) {
+        return NextResponse.json({ ok: false, message: "Residence ID and person names are required." }, { status: 400 });
+      }
+
+      const targetUserId = body.target_user_id ? String(body.target_user_id).trim() : userId;
+      let targetPlayer = player;
+      if (targetUserId !== userId) {
+        if (!isUserAdmin) {
+          return NextResponse.json({ ok: false, message: "Access Denied: Only Admin can edit other citizens." }, { status: 403 });
+        }
+        targetPlayer = await loadPlayer(targetUserId);
+      }
+
+      const isOwner = (familyId === "my_home" || familyId === `house_${targetPlayer.user_id}`);
+      if (!isUserAdmin && !isOwner) {
+        return NextResponse.json({ ok: false, message: "Access Denied: You can only edit your own household citizens." }, { status: 403 });
+      }
+
+      const sourceFam = targetPlayer.families?.find(f => f.id === familyId);
+      if (!sourceFam) {
+        return NextResponse.json({ ok: false, message: `Residence '${familyId}' not found.` }, { status: 404 });
+      }
+
+      const memberIdx = sourceFam.members?.findIndex(m => m.name.toLowerCase() === oldName.toLowerCase());
+      if (memberIdx === undefined || memberIdx === -1) {
+        return NextResponse.json({ ok: false, message: `Citizen '${oldName}' not found in ${sourceFam.name}.` }, { status: 404 });
+      }
+
+      const member = sourceFam.members[memberIdx];
+
+      // If transferring to another residence or hostel
+      if (destinationFamilyId && destinationFamilyId !== familyId) {
+        const destFam = targetPlayer.families?.find(f => f.id === destinationFamilyId);
+        if (!destFam) {
+          return NextResponse.json({ ok: false, message: `Destination residence '${destinationFamilyId}' not found.` }, { status: 404 });
+        }
+        sourceFam.members.splice(memberIdx, 1);
+        member.name = newName;
+        if (role) member.role = role;
+        if (relation) member.relation = relation;
+        if (vehicle) member.vehicle = vehicle;
+        if (!destFam.members) destFam.members = [];
+        destFam.members.push(member);
+        targetPlayer.agent_logs.push(`Citizen Registry: Transferred citizen '${newName}' from ${sourceFam.name} to ${destFam.name}.`);
+      } else {
+        member.name = newName;
+        if (role) member.role = role;
+        if (relation) member.relation = relation;
+        if (vehicle) member.vehicle = vehicle;
+        targetPlayer.agent_logs.push(`Citizen Registry: Updated details for '${newName}' in ${sourceFam.name}.`);
+      }
+
+      await savePlayer(targetPlayer);
+      return NextResponse.json({
+        ok: true,
+        message: `Updated citizen '${newName}' successfully.`,
+        families: targetPlayer.families
+      });
+    }
+
     if (action === "transfer_worker") {
       if (!isUserAdmin) {
         return NextResponse.json({ ok: false, message: "Access Denied: Only admin can transfer workers." }, { status: 403 });

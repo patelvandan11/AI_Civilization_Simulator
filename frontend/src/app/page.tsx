@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 
 // Helper to generate crisp SVG Data URI icons with stylish linear gradients
 const createSvgIcon = (emoji: string, bg1: string, bg2: string): string => {
@@ -305,6 +305,20 @@ export default function CivilizationDashboard() {
   const [registeredUsers, setRegisteredUsers] = useState<any[]>([]);
   const [showAdminCensusModal, setShowAdminCensusModal] = useState<boolean>(false);
   const [censusSearchQuery, setCensusSearchQuery] = useState<string>("");
+
+  // People & Citizens Master Directory Search & Edit States
+  const [personSearchQuery, setPersonSearchQuery] = useState<string>("");
+  const [personRoleFilter, setPersonRoleFilter] = useState<string>("all");
+  const [personResidenceFilter, setPersonResidenceFilter] = useState<string>("all");
+  const [personVehicleFilter, setPersonVehicleFilter] = useState<string>("all");
+  const [editingPersonModalOpen, setEditingPersonModalOpen] = useState<boolean>(false);
+  const [editPersonOldName, setEditPersonOldName] = useState<string>("");
+  const [editPersonNewName, setEditPersonNewName] = useState<string>("");
+  const [editPersonFamilyId, setEditPersonFamilyId] = useState<string>("house_1");
+  const [editPersonNewFamilyId, setEditPersonNewFamilyId] = useState<string>("house_1");
+  const [editPersonRole, setEditPersonRole] = useState<string>("worker");
+  const [editPersonRelation, setEditPersonRelation] = useState<string>("");
+  const [editPersonVehicle, setEditPersonVehicle] = useState<string>("bicycle");
 
   // Admin Government Cabinet States
   const [taxRateInput, setTaxRateInput] = useState<number>(10);
@@ -1020,65 +1034,64 @@ export default function CivilizationDashboard() {
     return found || fallback;
   };
 
+  // Fetch simulation status
+  const fetchStatus = useCallback(() => {
+    if (!isLoggedIn) return;
+    fetch(`${apiHost}/api/status?user_id=${userId}`)
+      .then((res) => {
+        if (!res.ok) throw new Error("API server offline.");
+        return res.json();
+      })
+      .then((data) => {
+        if (data.ok) {
+          setStatus(data);
+          setError(null);
+
+          // Fetch all registered residences across the database for map visualization
+          fetch(`${apiHost}/api/action?action=list_all_users&user_id=${userId}`)
+            .then(r => r.json())
+            .then(uData => {
+              if (uData.ok && Array.isArray(uData.users)) {
+                setRegisteredUsers(uData.users);
+              }
+            })
+            .catch(() => {});
+
+          if (!cabinetInitializedRef.current) {
+            if (data.tax_rate !== undefined) setTaxRateInput(data.tax_rate);
+            if (data.government) {
+              setIncomeTaxInput(data.government.income_tax ?? 10);
+              setSalesTaxInput(data.government.sales_tax ?? 5);
+              setWelfareThresholdInput(data.government.welfare_threshold ?? 15);
+              setWelfarePayoutInput(data.government.welfare_payout ?? 15);
+            }
+            if (data.cabinet) {
+              cabinetInitializedRef.current = true;
+              setPmInput(matchAdultName(data.cabinet.prime_minister, "Thakorbhai"));
+              setDmInput(matchAdultName(data.cabinet.district_magistrate, "Bharatbhai"));
+              setFinInput(matchAdultName(data.cabinet.ministers?.finance, "Rameshbhai"));
+              setEduInput(matchAdultName(data.cabinet.ministers?.education, "Vasantiben"));
+              setInfraInput(matchAdultName(data.cabinet.ministers?.infrastructure, "Mayuriben"));
+            }
+          }
+        } else {
+          setError(data.message || "Failed to load player state.");
+        }
+      })
+      .catch((err) => {
+        setError(err.message || "Backend offline");
+      });
+  }, [userId, apiHost, isLoggedIn]);
+
   // Polling simulation status
   useEffect(() => {
     if (!isLoggedIn) return;
-    let active = true;
-    const fetchStatus = () => {
-      fetch(`${apiHost}/api/status?user_id=${userId}`)
-        .then((res) => {
-          if (!res.ok) throw new Error("API server offline.");
-          return res.json();
-        })
-        .then((data) => {
-          if (!active) return;
-          if (data.ok) {
-            setStatus(data);
-            setError(null);
-
-            // Fetch all registered residences across the database for map visualization
-            fetch(`${apiHost}/api/action?action=list_all_users&user_id=${userId}`)
-              .then(r => r.json())
-              .then(uData => {
-                if (active && uData.ok && Array.isArray(uData.users)) {
-                  setRegisteredUsers(uData.users);
-                }
-              })
-              .catch(() => {});
-            if (!cabinetInitializedRef.current) {
-              if (data.tax_rate !== undefined) setTaxRateInput(data.tax_rate);
-              if (data.government) {
-                setIncomeTaxInput(data.government.income_tax ?? 10);
-                setSalesTaxInput(data.government.sales_tax ?? 5);
-                setWelfareThresholdInput(data.government.welfare_threshold ?? 15);
-                setWelfarePayoutInput(data.government.welfare_payout ?? 15);
-              }
-              if (data.cabinet) {
-                cabinetInitializedRef.current = true;
-                setPmInput(matchAdultName(data.cabinet.prime_minister, "Thakorbhai"));
-                setDmInput(matchAdultName(data.cabinet.district_magistrate, "Bharatbhai"));
-                setFinInput(matchAdultName(data.cabinet.ministers?.finance, "Rameshbhai"));
-                setEduInput(matchAdultName(data.cabinet.ministers?.education, "Vasantiben"));
-                setInfraInput(matchAdultName(data.cabinet.ministers?.infrastructure, "Mayuriben"));
-              }
-            }
-          } else {
-            setError(data.message || "Failed to load player state.");
-          }
-        })
-        .catch((err) => {
-          if (!active) return;
-          setError(err.message || "Backend offline");
-        });
-    };
-
     fetchStatus();
     const interval = setInterval(fetchStatus, 1500);
     return () => {
-      active = false;
       clearInterval(interval);
     };
-  }, [userId, apiHost, isLoggedIn]);
+  }, [fetchStatus, isLoggedIn]);
 
   // Fast Simulation Speed Runner Ticker
   useEffect(() => {
@@ -2475,7 +2488,13 @@ export default function CivilizationDashboard() {
 
           {/* Navigation tabs */}
           <nav className="flex-none flex gap-1.5 overflow-x-auto border-b border-slate-800/60 pb-2 mb-2.5 text-xs">
-            <button className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-all ${activeTab === "overview" ? "bg-amber-500/10 text-amber-500 border border-amber-500/30" : "text-slate-400 hover:text-white"}`} onClick={() => setActiveTab("overview")}>GEOLOCATED MAP & RESIDENCES</button>
+            <button className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-all ${activeTab === "overview" ? "bg-amber-500 text-slate-950 font-bold border border-amber-400 shadow-md" : "text-slate-300 hover:text-white border border-slate-800 bg-slate-900/60"}`} onClick={() => setActiveTab("overview")}>
+              <span>🏠</span> FAMILY &amp; ROOMS ({status.families?.length || 7})
+            </button>
+            <button className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-all flex items-center gap-1.5 ${activeTab === "people" ? "bg-amber-500 text-slate-950 font-bold border border-amber-400 shadow-md" : "text-slate-300 hover:text-white border border-slate-800 bg-slate-900/60"}`} onClick={() => setActiveTab("people")}>
+              <span>🔍</span>
+              <span>SEARCH PEOPLE ({status.families?.reduce((a: number, f: any) => a + (f.members?.length || 0), 0) || 22}+ CITIZENS)</span>
+            </button>
             <button className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-all ${activeTab === "projects" ? "bg-amber-500/10 text-amber-500 border border-amber-500/30" : "text-slate-400 hover:text-white"}`} onClick={() => setActiveTab("projects")}>CITY PROJECTS</button>
             <button className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-all ${activeTab === "government" ? "bg-amber-500/10 text-amber-500 border border-amber-500/30" : "text-slate-400 hover:text-white"}`} onClick={() => setActiveTab("government")}>GOVERNMENT CABINET</button>
             <button className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-all ${activeTab === "farming" ? "bg-amber-500/10 text-amber-500 border border-amber-500/30" : "text-slate-400 hover:text-white"}`} onClick={() => setActiveTab("farming")}>FARMS & CROPS</button>
@@ -2877,10 +2896,10 @@ export default function CivilizationDashboard() {
                     <div className="flex flex-col h-full min-h-[380px] bg-slate-900/60 border border-slate-800/90 rounded-2xl p-3.5 shadow-xl flex-grow overflow-hidden">
                       <div className="flex justify-between items-center border-b border-slate-800/80 pb-2 mb-2 flex-none flex-wrap gap-2">
                         <div className="flex items-center gap-2">
-                          <span className="text-base">🏘️</span>
+                          <span className="text-base">🏠</span>
                           <div>
-                            <h3 className="text-white text-xs font-bold uppercase tracking-wider">Civilization Housing & Hostels Registry</h3>
-                            <span className="text-[10px] text-slate-400 font-mono">Homes, Worker Hostels & Active Citizens</span>
+                            <h3 className="text-white text-xs font-extrabold uppercase tracking-wider">Family &amp; Rooms (7 Total Arrived)</h3>
+                            <span className="text-[10px] text-amber-400 font-mono font-bold">7 Civilization Residences &bull; Active Family Households &amp; Worker Hostels</span>
                           </div>
                         </div>
                         <div className="flex items-center gap-1.5 flex-wrap">
@@ -2931,6 +2950,15 @@ export default function CivilizationDashboard() {
                               >
                                 <span>🔄</span>
                                 <span>TRANSFER WORKER</span>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => setActiveTab("people")}
+                                className="bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 px-2 py-1 rounded-lg text-[10px] font-extrabold flex items-center gap-1 shadow-sm transition-all"
+                              >
+                                <span>👥</span>
+                                <span>CITIZENS DIRECTORY</span>
                               </button>
                             </>
                           )}
@@ -5267,6 +5295,271 @@ export default function CivilizationDashboard() {
                 </div>
               )}
 
+              {/* Tab: Master People & Citizens Directory */}
+              {activeTab === "people" && (
+                <div className="flex flex-col gap-4">
+                  {/* Top Header & Search Bar */}
+                  <div className="flex justify-between items-center border-b border-slate-800 pb-3 flex-wrap gap-2">
+                    <div>
+                      <h2 className="text-white text-base font-bold flex items-center gap-2">
+                        <span className="text-amber-400">👨‍👩‍👧‍👦</span>
+                        <span>Civilization Master Citizens &amp; People Directory</span>
+                        <span className="text-xs bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2.5 py-0.5 rounded-full font-mono font-bold">
+                          {status.families?.reduce((a: number, f: any) => a + (f.members?.length || 0), 0) || 0} Total Active Citizens
+                        </span>
+                      </h2>
+                      <p className="text-[11px] text-slate-400 font-mono mt-0.5">
+                        Comprehensive census roster for all individual residents across all {status.families?.length || 7} houses and worker hostels. Search, inspect careers, and edit details.
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <input
+                        type="text"
+                        placeholder="🔍 Search person by name, career, or residence..."
+                        value={personSearchQuery}
+                        onChange={(e) => setPersonSearchQuery(e.target.value)}
+                        className="bg-slate-950 border border-slate-800 text-white rounded-xl px-3 py-1.5 text-xs font-mono w-64 outline-none focus:border-amber-500 shadow-inner"
+                      />
+                      {personSearchQuery && (
+                        <button
+                          onClick={() => setPersonSearchQuery("")}
+                          className="text-slate-400 hover:text-white text-xs bg-slate-800 px-2 py-1 rounded-lg"
+                        >
+                          ✕ Clear
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Summary Metric Stats */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                    <div className="bg-slate-950/80 border border-slate-800 p-3 rounded-xl flex items-center gap-2.5">
+                      <div className="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-lg">
+                        🏠
+                      </div>
+                      <div>
+                        <span className="text-[9px] text-slate-400 font-mono uppercase block">Housing Units</span>
+                        <strong className="text-amber-400 text-base font-mono font-black">{status.families?.length || 7} Residences</strong>
+                      </div>
+                    </div>
+
+                    <div className="bg-slate-950/80 border border-slate-800 p-3 rounded-xl flex items-center gap-2.5">
+                      <div className="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-lg">
+                        👥
+                      </div>
+                      <div>
+                        <span className="text-[9px] text-slate-400 font-mono uppercase block">Total Population</span>
+                        <strong className="text-emerald-400 text-base font-mono font-black">
+                          {status.families?.reduce((a: number, f: any) => a + (f.members?.length || 0), 0) || 0} Citizens
+                        </strong>
+                      </div>
+                    </div>
+
+                    <div className="bg-slate-950/80 border border-slate-800 p-3 rounded-xl flex items-center gap-2.5">
+                      <div className="w-9 h-9 rounded-xl bg-sky-500/20 border border-sky-500/30 flex items-center justify-center text-lg">
+                        🚗
+                      </div>
+                      <div>
+                        <span className="text-[9px] text-slate-400 font-mono uppercase block">Vehicles Registered</span>
+                        <strong className="text-sky-400 text-base font-mono font-black">
+                          {status.families?.reduce((a: number, f: any) => a + (f.members?.filter((m: any) => m.vehicle && m.vehicle !== "walk").length || 0), 0) || 0} Commuters
+                        </strong>
+                      </div>
+                    </div>
+
+                    <div className="bg-slate-950/80 border border-slate-800 p-3 rounded-xl flex items-center gap-2.5">
+                      <div className="w-9 h-9 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-lg">
+                        💼
+                      </div>
+                      <div>
+                        <span className="text-[9px] text-slate-400 font-mono uppercase block">Workforce Occupations</span>
+                        <strong className="text-purple-300 text-base font-mono font-black">
+                          {status.families?.reduce((a: number, f: any) => a + (f.members?.filter((m: any) => m.role && !["son", "daughter"].includes(m.role)).length || 0), 0) || 0} Active
+                        </strong>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Multi-Dimensional Filter Strips */}
+                  <div className="flex flex-col gap-2 bg-slate-950/60 border border-slate-850 p-3 rounded-xl">
+                    {/* Residence Filters */}
+                    <div className="flex items-center gap-1.5 flex-wrap text-xs">
+                      <span className="text-slate-400 font-mono text-[10px] uppercase font-bold shrink-0">Residences:</span>
+                      <button
+                        onClick={() => setPersonResidenceFilter("all")}
+                        className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all border ${
+                          personResidenceFilter === "all"
+                            ? "bg-amber-500 text-slate-950 border-amber-400 shadow-sm"
+                            : "bg-slate-900 text-slate-400 border-slate-800 hover:text-white"
+                        }`}
+                      >
+                        All ({status.families?.length || 0})
+                      </button>
+                      {status.families?.map((f: any) => (
+                        <button
+                          key={f.id}
+                          onClick={() => setPersonResidenceFilter(f.id)}
+                          className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all border ${
+                            personResidenceFilter === f.id
+                              ? "bg-amber-500 text-slate-950 border-amber-400 shadow-sm"
+                              : "bg-slate-900 text-slate-400 border-slate-800 hover:text-white"
+                          }`}
+                        >
+                          {f.type === "hostel" || f.id.startsWith("hostel_") ? "🏢" : "🏠"} {f.name} ({f.members?.length || 0})
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Vehicle Filter Strip */}
+                    <div className="flex items-center gap-1.5 flex-wrap text-xs pt-1.5 border-t border-slate-850">
+                      <span className="text-slate-400 font-mono text-[10px] uppercase font-bold shrink-0">Commute Vehicle:</span>
+                      {[
+                        { id: "all", label: "All Vehicles", icon: "🌐" },
+                        { id: "car", label: "Cars", icon: "🚗" },
+                        { id: "scooter", label: "Scooters", icon: "🛵" },
+                        { id: "bicycle", label: "Bicycles", icon: "🚲" },
+                        { id: "tractor", label: "Tractors", icon: "🚜" },
+                        { id: "truck", label: "Trucks", icon: "🚚" },
+                        { id: "walk", label: "Foot/Walk", icon: "🚶" }
+                      ].map((vf) => (
+                        <button
+                          key={vf.id}
+                          onClick={() => setPersonVehicleFilter(vf.id)}
+                          className={`px-2 py-0.5 rounded-lg text-[10px] font-bold transition-all border flex items-center gap-1 ${
+                            personVehicleFilter === vf.id
+                              ? "bg-sky-500 text-slate-950 border-sky-400 shadow-sm"
+                              : "bg-slate-900 text-slate-400 border-slate-800 hover:text-white"
+                          }`}
+                        >
+                          <span>{vf.icon}</span>
+                          <span>{vf.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Citizens Roster Cards Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {(() => {
+                      const allCitizens: any[] = [];
+                      status.families?.forEach((fam: any) => {
+                        fam.members?.forEach((mem: any) => {
+                          allCitizens.push({
+                            ...mem,
+                            family_id: fam.id,
+                            family_name: fam.name,
+                            family_type: fam.type || (fam.id.startsWith("hostel_") ? "hostel" : "house"),
+                            family_address: fam.address || "Civilization Region",
+                            budget: fam.budget || 50
+                          });
+                        });
+                      });
+
+                      const filtered = allCitizens.filter((c: any) => {
+                        if (personResidenceFilter !== "all" && c.family_id !== personResidenceFilter) return false;
+                        if (personVehicleFilter !== "all" && (c.vehicle || "bicycle").toLowerCase() !== personVehicleFilter.toLowerCase()) return false;
+                        if (!personSearchQuery.trim()) return true;
+                        const q = personSearchQuery.toLowerCase();
+                        return (
+                          c.name?.toLowerCase().includes(q) ||
+                          c.role?.toLowerCase().includes(q) ||
+                          c.relation?.toLowerCase().includes(q) ||
+                          c.family_name?.toLowerCase().includes(q) ||
+                          c.vehicle?.toLowerCase().includes(q)
+                        );
+                      });
+
+                      if (filtered.length === 0) {
+                        return (
+                          <div className="col-span-full bg-slate-950/70 border border-slate-800 rounded-2xl p-8 text-center text-slate-400 text-xs font-mono">
+                            🔍 No citizens found matching query "{personSearchQuery}". Try adjusting your search or filters.
+                          </div>
+                        );
+                      }
+
+                      return filtered.map((c: any, idx: number) => {
+                        const vehicleIcon = VEHICLE_EMOJIS[c.vehicle] || "🚗";
+                        return (
+                          <div
+                            key={`${c.family_id}_${c.name}_${idx}`}
+                            className="bg-slate-950/80 border border-slate-800/90 hover:border-amber-500/50 rounded-2xl p-3.5 flex flex-col justify-between gap-3 shadow-md transition-all"
+                          >
+                            <div className="flex justify-between items-start gap-2">
+                              <div className="flex items-center gap-2.5">
+                                <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-xl shrink-0 shadow-inner">
+                                  {vehicleIcon}
+                                </div>
+                                <div>
+                                  <h3 className="text-white text-sm font-extrabold flex items-center gap-1.5">
+                                    <span>{c.name}</span>
+                                    <span className="text-[10px] bg-slate-900 text-amber-400 border border-amber-500/30 px-2 py-0.2 rounded-md font-mono font-bold capitalize">
+                                      {c.role || "Resident"}
+                                    </span>
+                                  </h3>
+                                  <span className="text-[11px] text-slate-400 font-mono block">
+                                    {c.relation || "Civilization Citizen"}
+                                  </span>
+                                </div>
+                              </div>
+
+                              <span className="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-lg font-mono font-bold shrink-0">
+                                🟢 {c.state || "Active"}
+                              </span>
+                            </div>
+
+                            {/* Middle Info Strip */}
+                            <div className="bg-slate-900/60 border border-slate-850 p-2.5 rounded-xl text-[11px] flex flex-col gap-1">
+                              <div className="flex justify-between items-center text-slate-300">
+                                <span>🏠 <strong>Residence:</strong> {c.family_name}</span>
+                                <span className="text-[10px] font-mono text-slate-500">ID: {c.family_id}</span>
+                              </div>
+                              <div className="flex justify-between items-center text-slate-400">
+                                <span>🧭 <strong>Commuting By:</strong> {c.vehicle ? `${c.vehicle.toUpperCase()} (${vehicleIcon})` : "Bicycle (🚲)"}</span>
+                                <span className="text-emerald-400 font-mono font-bold">House Budget: ${c.budget}/day</span>
+                              </div>
+                            </div>
+
+                            {/* Bottom Action Strip */}
+                            <div className="flex justify-between items-center pt-1 border-t border-slate-850">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setSelectedFamilyId(c.family_id);
+                                  setActiveTab("overview");
+                                }}
+                                className="text-sky-400 hover:text-sky-300 text-[10px] font-bold font-mono flex items-center gap-1 transition-all"
+                              >
+                                <span>📍</span>
+                                <span>View Residence on Map</span>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setEditPersonOldName(c.name);
+                                  setEditPersonNewName(c.name);
+                                  setEditPersonFamilyId(c.family_id);
+                                  setEditPersonNewFamilyId(c.family_id);
+                                  setEditPersonRole(c.role || "worker");
+                                  setEditPersonRelation(c.relation || "");
+                                  setEditPersonVehicle(c.vehicle || "bicycle");
+                                  setEditingPersonModalOpen(true);
+                                }}
+                                className="bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs font-bold px-3 py-1.5 rounded-xl transition-all flex items-center gap-1 shadow-sm active:scale-95"
+                              >
+                                <span>✏️</span>
+                                <span>Edit Citizen Details</span>
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      });
+                    })()}
+                  </div>
+                </div>
+              )}
+
             </section>
 
             {/* Right Panel: News & Agent Logs Feed */}
@@ -6395,6 +6688,206 @@ export default function CivilizationDashboard() {
                     </div>
                   );
                 })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Individual Person Details Modal */}
+      {editingPersonModalOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-slate-900 border-2 border-amber-500/70 rounded-2xl p-5 max-w-lg w-full shadow-2xl flex flex-col gap-4 text-xs animate-fade-in my-auto">
+            <div className="flex justify-between items-center border-b border-slate-800 pb-2.5">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-base">
+                  ✏️
+                </div>
+                <div>
+                  <h3 className="text-white font-bold text-sm">Edit Citizen Profile &amp; Career</h3>
+                  <span className="text-[10px] text-amber-400 font-mono">Modifying: {editPersonOldName}</span>
+                </div>
+              </div>
+              <button
+                onClick={() => setEditingPersonModalOpen(false)}
+                className="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-bold flex items-center justify-center transition-all"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="flex flex-col gap-3.5">
+              {/* Full Name */}
+              <div>
+                <label className="text-slate-300 block mb-1 font-semibold text-[11px]">1. Citizen Full Name:</label>
+                <input
+                  type="text"
+                  value={editPersonNewName}
+                  onChange={(e) => setEditPersonNewName(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-800 text-white rounded-xl p-2.5 font-mono text-xs focus:border-amber-500 outline-none"
+                  placeholder="e.g. Thakorbhai, Vasantiben, Hetvi, Vandan"
+                />
+              </div>
+
+              {/* Role & Career Selection */}
+              <div>
+                <label className="text-slate-300 block mb-1 font-semibold text-[11px]">2. Assign Career &amp; Role:</label>
+                <select
+                  value={editPersonRole}
+                  onChange={(e) => setEditPersonRole(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-800 text-white rounded-xl p-2.5 font-mono text-xs focus:border-amber-500 outline-none"
+                >
+                  <option value="father">Father / Household Head</option>
+                  <option value="mother">Mother / Home Manager</option>
+                  <option value="son">Son / Adult Resident</option>
+                  <option value="daughter">Daughter / Resident</option>
+                  <option value="farmer">🌾 Farmer / Agriculture Specialist</option>
+                  <option value="merchant">🏪 Merchant / Shopkeeper</option>
+                  <option value="tailor">👕 Clothier / Tailor</option>
+                  <option value="worker">🏭 Factory Machine Operator</option>
+                  <option value="engineer">🔌 Electrical &amp; Tech Engineer</option>
+                  <option value="chemist">🧪 Petroleum &amp; Chemical Specialist</option>
+                  <option value="captain">⚓ Maritime Fleet Captain</option>
+                  <option value="navigator">🧭 Maritime Navigation Officer</option>
+                  <option value="doctor">🏥 Doctor / Medical Specialist</option>
+                  <option value="teacher">🏫 School Teacher</option>
+                  <option value="student">🎓 Student</option>
+                  <option value="driver">🚚 Commercial Logistic Driver</option>
+                  <option value="police">👮 Municipal Law Officer</option>
+                </select>
+              </div>
+
+              {/* Relation Description */}
+              <div>
+                <label className="text-slate-300 block mb-1 font-semibold text-[11px]">3. Family Relation / Note:</label>
+                <input
+                  type="text"
+                  value={editPersonRelation}
+                  onChange={(e) => setEditPersonRelation(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-800 text-white rounded-xl p-2.5 font-mono text-xs focus:border-amber-500 outline-none"
+                  placeholder="e.g. Head of Thakorbhai Household / Main Person"
+                />
+              </div>
+
+              {/* Commute Vehicle */}
+              <div>
+                <label className="text-slate-300 block mb-1 font-semibold text-[11px]">4. Commuting Vehicle:</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { id: "car", label: "Electric Car", icon: "🚗" },
+                    { id: "scooter", label: "City Scooter", icon: "🛵" },
+                    { id: "bicycle", label: "Bicycle", icon: "🚲" },
+                    { id: "tractor", label: "Heavy Tractor", icon: "🚜" },
+                    { id: "truck", label: "Cargo Truck", icon: "🚚" },
+                    { id: "walk", label: "On Foot / Walk", icon: "🚶" }
+                  ].map((v) => (
+                    <button
+                      key={v.id}
+                      type="button"
+                      onClick={() => setEditPersonVehicle(v.id)}
+                      className={`p-2 rounded-xl text-center flex flex-col items-center justify-center gap-1 border transition-all ${
+                        editPersonVehicle === v.id
+                          ? "bg-amber-500 text-slate-950 border-amber-400 font-extrabold shadow-md"
+                          : "bg-slate-950 text-slate-300 border-slate-800 hover:border-slate-700"
+                      }`}
+                    >
+                      <span className="text-base">{v.icon}</span>
+                      <span className="text-[10px]">{v.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Residence Reassignment */}
+              <div>
+                <label className="text-slate-300 block mb-1 font-semibold text-[11px]">5. Assigned House / Hostel (7 Total):</label>
+                <select
+                  value={editPersonNewFamilyId}
+                  onChange={(e) => setEditPersonNewFamilyId(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-800 text-white rounded-xl p-2.5 font-mono text-xs focus:border-amber-500 outline-none"
+                >
+                  {status.families?.map((f: any) => (
+                    <option key={f.id} value={f.id}>
+                      {f.type === "hostel" || f.id.startsWith("hostel_") ? "🏢" : "🏠"} {f.name} ({f.id})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="flex justify-between items-center pt-3 border-t border-slate-800">
+              <button
+                type="button"
+                onClick={async () => {
+                  const conf = window.confirm(`Are you sure you want to remove ${editPersonOldName} from the household registry?`);
+                  if (!conf) return;
+                  try {
+                    const res = await fetch(`${apiHost}/api/action?user_id=${userId}`, {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        action: "remove_member_from_residence",
+                        family_id: editPersonFamilyId,
+                        member_name: editPersonOldName
+                      })
+                    });
+                    const d = await res.json();
+                    if (d.ok) {
+                      setEditingPersonModalOpen(false);
+                      fetchStatus();
+                    } else {
+                      alert(d.message || "Failed to remove member.");
+                    }
+                  } catch (e: any) {
+                    alert("Error: " + e.message);
+                  }
+                }}
+                className="bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 text-xs font-bold px-3 py-2 rounded-xl transition-all"
+              >
+                🗑️ Remove Citizen
+              </button>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setEditingPersonModalOpen(false)}
+                  className="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold px-4 py-2 rounded-xl transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    try {
+                      const res = await fetch(`${apiHost}/api/action?user_id=${userId}`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                          action: "edit_person_details",
+                          family_id: editPersonFamilyId,
+                          old_name: editPersonOldName,
+                          new_name: editPersonNewName,
+                          role: editPersonRole,
+                          relation: editPersonRelation,
+                          vehicle: editPersonVehicle,
+                          new_family_id: editPersonNewFamilyId
+                        })
+                      });
+                      const d = await res.json();
+                      if (d.ok) {
+                        setEditingPersonModalOpen(false);
+                        fetchStatus();
+                      } else {
+                        alert(d.message || "Failed to save person details.");
+                      }
+                    } catch (e: any) {
+                      alert("Error: " + e.message);
+                    }
+                  }}
+                  className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-xs px-5 py-2 rounded-xl shadow-lg transition-all"
+                >
+                  💾 Save Details
+                </button>
+              </div>
             </div>
           </div>
         </div>

@@ -268,11 +268,10 @@ export function createNewPlayer(userId: string, citizenOptions?: CitizenRegistra
       budget: 50,
       inventory: { milk: 5, wheat: 5, apple: 5, carrot: 5 },
       members: [
-        { name: "Thakorbhai", role: "father", relation: "Main Person", state: "Sleeping", vehicle: "tractor" },
+        { name: "Thakorbhai", role: "father", relation: "Main Person / Household Head", state: "Sleeping", vehicle: "tractor" },
         { name: "vasantiben", role: "mother", relation: "Wife of Thakorbhai", state: "Sleeping", vehicle: "scooter" },
-        { name: "vandan", role: "son", relation: "Son of Thakorbhai", state: "Sleeping", vehicle: "car" },
         { name: "hetvi", role: "daughter", relation: "Daughter of Thakorbhai", state: "Sleeping", vehicle: "bicycle" },
-        { name: "Kiran", role: "worker", relation: "Tailor Shop Assistant", state: "Sleeping", vehicle: "bicycle" }
+        { name: "vandan", role: "son", relation: "Son of Thakorbhai", state: "Sleeping", vehicle: "car" }
       ]
     },
     {
@@ -282,7 +281,7 @@ export function createNewPlayer(userId: string, citizenOptions?: CitizenRegistra
       budget: 40,
       inventory: { milk: 4, wheat: 4, apple: 4, carrot: 4 },
       members: [
-        { name: "bharatbhai", role: "father", relation: "Brother of Vasantiben", state: "Sleeping", vehicle: "scooter" },
+        { name: "bharatbhai", role: "father", relation: "Brother of Vasantiben / Head", state: "Sleeping", vehicle: "scooter" },
         { name: "mayuriben", role: "mother", relation: "Wife of Bharatbhai", state: "Sleeping", vehicle: "scooter" },
         { name: "vainavi", role: "daughter", relation: "Daughter of Bharatbhai", state: "Sleeping", vehicle: "bicycle" },
         { name: "prathav", role: "son", relation: "Son of Bharatbhai", state: "Sleeping", vehicle: "car" },
@@ -297,7 +296,7 @@ export function createNewPlayer(userId: string, citizenOptions?: CitizenRegistra
       budget: 35,
       inventory: { milk: 3, wheat: 3, apple: 3, carrot: 3 },
       members: [
-        { name: "rameshbhai", role: "father", relation: "Husband of Hemuben", state: "Sleeping", vehicle: "car" },
+        { name: "rameshbhai", role: "father", relation: "Husband of Hemuben / Head", state: "Sleeping", vehicle: "car" },
         { name: "hemuben", role: "mother", relation: "Sister of Vasantiben", state: "Sleeping", vehicle: "scooter" },
         { name: "krushil", role: "son", relation: "Son of Rameshbhai", state: "Sleeping", vehicle: "bicycle" },
         { name: "harshil", role: "son", relation: "Son of Rameshbhai", state: "Sleeping", vehicle: "bicycle" },
@@ -349,7 +348,12 @@ export function createNewPlayer(userId: string, citizenOptions?: CitizenRegistra
       capacity: 12,
       budget: 150,
       inventory: { milk: 10, wheat: 10, apple: 10, carrot: 10 },
-      members: []
+      members: [
+        { name: "Ashok Kumar", role: "worker", relation: "High-Tech Fabrication Specialist", state: "Sleeping", vehicle: "scooter" },
+        { name: "Manoj Bhai", role: "worker", relation: "Agricultural Logistician", state: "Sleeping", vehicle: "tractor" },
+        { name: "Suresh Patil", role: "worker", relation: "Municipal Infrastructure Builder", state: "Sleeping", vehicle: "truck" },
+        { name: "Raju Sharma", role: "worker", relation: "Renewable Grid Electrician", state: "Sleeping", vehicle: "bicycle" }
+      ]
     }
   ];
 
