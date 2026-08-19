@@ -132,6 +132,14 @@ export interface PlayerState {
       daily_sales_liters: number;
       revenue: number;
       ev_charging_active: boolean;
+      recent_refuelings?: {
+        citizen: string;
+        vehicle: string;
+        liters: number;
+        cost: number;
+        fuel_type: string;
+        time: string;
+      }[];
     };
     shipyard: {
       ships_docked: number;

@@ -1,5 +1,5 @@
-import { PlayerState, Catalogs } from "./types";
-import { getPlotStatus, harvestCrop, plantCrop, normalizeCropKey } from "./simulation";
+import { PlayerState, getPlotStatus, harvestCrop, plantCrop, normalizeCropKey } from "./simulation";
+export type Catalogs = any;
 
 export interface CropStockDeficit {
   cropId: string;
@@ -198,7 +198,7 @@ export class KisanLangchainAgent {
    * Tool 5: Restock Farmers Market with fresh crop surplus (capped to realistic shelf capacities)
    */
   public restockFarmersMarket(player: PlayerState) {
-    const farmersMarket = player.shops?.find(s => s.id === "farmers_market");
+    const farmersMarket = player.shops?.find((s: any) => s.id === "farmers_market");
     if (!farmersMarket) return;
     if (!farmersMarket.inventory) farmersMarket.inventory = {};
 
