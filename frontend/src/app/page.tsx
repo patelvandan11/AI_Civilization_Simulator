@@ -3910,23 +3910,26 @@ export default function CivilizationDashboard() {
                   </div>
 
                   {/* Farm Quick Actions Strip */}
-                  <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-3 flex flex-wrap items-center justify-between gap-3 shadow-md">
+                  <div className={`${isDayMode ? "bg-white/95 border-amber-250 shadow-sm text-slate-800" : "bg-slate-900/60 border-slate-800 text-white shadow-md"} border rounded-2xl p-3 flex flex-wrap items-center justify-between gap-3`}>
                     <div className="flex items-center gap-2 flex-wrap">
                       <button
                         type="button"
-                        onClick={harvestAll}
+                        onClick={() => {
+                          soundEngine.playChime(true);
+                          harvestAll();
+                        }}
                         className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-slate-950 font-extrabold text-xs px-4 py-2 rounded-xl shadow-lg transition-all flex items-center gap-1.5"
                       >
                         <span>🌾</span>
                         <span>HARVEST ALL READY PLOTS</span>
                       </button>
 
-                      <div className="flex items-center gap-1.5 bg-slate-950/80 p-1 rounded-xl border border-slate-800">
-                        <span className="text-[10px] text-slate-400 font-mono pl-2">Plant All:</span>
+                      <div className={`flex items-center gap-1.5 ${isDayMode ? "bg-amber-50/80 border-amber-200" : "bg-slate-950/80 border-slate-800"} p-1 rounded-xl border`}>
+                        <span className={`text-[10px] ${isDayMode ? "text-slate-700 font-bold" : "text-slate-400"} font-mono pl-2`}>Plant All:</span>
                         <select
                           value={selectedPlantCrop}
                           onChange={(e) => setSelectedPlantCrop(e.target.value)}
-                          className="bg-slate-900 border border-slate-800 text-white rounded-lg px-2 py-1 text-xs font-mono outline-none"
+                          className={`${isDayMode ? "bg-white border-amber-200 text-slate-900 font-semibold" : "bg-slate-900 border-slate-800 text-white"} border rounded-lg px-2 py-1 text-xs font-mono outline-none`}
                         >
                           <option value="wheat">🌾 Wheat (Grain)</option>
                           <option value="carrot">🥕 Carrot (Vegetable)</option>
@@ -3944,7 +3947,10 @@ export default function CivilizationDashboard() {
 
                         <button
                           type="button"
-                          onClick={() => plantAll(selectedPlantCrop)}
+                          onClick={() => {
+                            soundEngine.playClick(650);
+                            plantAll(selectedPlantCrop);
+                          }}
                           className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs px-3 py-1 rounded-lg transition-all shadow-sm"
                         >
                           PLANT ALL
@@ -3952,18 +3958,18 @@ export default function CivilizationDashboard() {
                       </div>
                     </div>
 
-                    <div className="text-slate-400 text-xs font-mono flex items-center gap-2">
-                      <span>🌾 Silo: <strong>{status.farm_barn?.wheat || 0}</strong> Wheat</span>
+                    <div className={`${isDayMode ? "text-slate-700 font-semibold" : "text-slate-400"} text-xs font-mono flex items-center gap-2`}>
+                      <span>🌾 Silo: <strong className={`${isDayMode ? "text-amber-800 font-black" : "text-amber-300"}`}>{status.farm_barn?.wheat || 0}</strong> Wheat</span>
                       <span>•</span>
-                      <span>🥕 Barn: <strong>{status.farm_barn?.carrot || 0}</strong> Carrots</span>
+                      <span>🥕 Barn: <strong className={`${isDayMode ? "text-orange-800 font-black" : "text-orange-300"}`}>{status.farm_barn?.carrot || 0}</strong> Carrots</span>
                     </div>
                   </div>
 
                   {/* Interactive Farm Plots Grid */}
                   <div>
-                    <h3 className="text-white text-xs font-bold uppercase tracking-wider mb-2 flex items-center justify-between">
+                    <h3 className={`${isDayMode ? "text-slate-900 font-black" : "text-white font-bold"} text-xs uppercase tracking-wider mb-2 flex items-center justify-between`}>
                       <span>Farm Plots ({status.plots?.length || 0} Plots)</span>
-                      <span className="text-[10px] text-slate-400 font-mono font-normal">Click to plant or harvest individual plots</span>
+                      <span className={`text-[10px] ${isDayMode ? "text-slate-600 font-medium" : "text-slate-400"} font-mono font-normal`}>Click to plant or harvest individual plots</span>
                     </h3>
 
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
@@ -3976,17 +3982,17 @@ export default function CivilizationDashboard() {
                         return (
                           <div
                             key={p.index}
-                            className={`bg-slate-950/80 hover:bg-slate-950 border rounded-2xl p-3 flex flex-col items-center text-center gap-2 transition-all shadow-md ${isReady ? "border-amber-400/80 shadow-amber-500/10 ring-1 ring-amber-400/30" : isGrowing ? "border-emerald-500/40" : "border-slate-800"}`}
+                            className={`${isDayMode ? "bg-white/95 border-amber-250 hover:border-amber-400 text-slate-800" : "bg-slate-950/80 hover:bg-slate-950 border-slate-800 text-white"} border rounded-2xl p-3 flex flex-col items-center text-center gap-2 transition-all shadow-sm ${isReady ? isDayMode ? "border-amber-400 ring-2 ring-amber-300/60 bg-amber-50/90" : "border-amber-400/80 shadow-amber-500/10 ring-1 ring-amber-400/30" : isGrowing ? isDayMode ? "border-emerald-300" : "border-emerald-500/40" : ""}`}
                           >
-                            <div className="flex justify-between items-center w-full text-[10px] text-slate-400 font-mono">
+                            <div className={`flex justify-between items-center w-full text-[10px] ${isDayMode ? "text-slate-600 font-bold" : "text-slate-400"} font-mono`}>
                               <span>PLOT #{p.index + 1}</span>
-                              <span className={`font-bold px-1.5 py-0.2 rounded text-[9px] ${isReady ? "bg-amber-500 text-slate-950 animate-pulse font-extrabold" : isGrowing ? "bg-emerald-500/20 text-emerald-300" : "bg-slate-900 text-slate-500"}`}>
+                              <span className={`font-bold px-1.5 py-0.2 rounded text-[9px] ${isReady ? "bg-amber-500 text-slate-950 animate-pulse font-black" : isGrowing ? isDayMode ? "bg-emerald-100 text-emerald-950 font-bold" : "bg-emerald-500/20 text-emerald-300" : isDayMode ? "bg-slate-100 text-slate-600" : "bg-slate-900 text-slate-500"}`}>
                                 {isReady ? "READY" : isGrowing ? "GROWING" : "EMPTY"}
                               </span>
                             </div>
 
                             {/* Crop Avatar */}
-                            <div className="w-14 h-14 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-center justify-center p-1.5 shadow-inner relative overflow-hidden">
+                            <div className={`w-14 h-14 rounded-2xl ${isDayMode ? "bg-amber-50 border-amber-200" : "bg-slate-900/80 border-slate-800"} border flex items-center justify-center p-1.5 shadow-inner relative overflow-hidden`}>
                               {p.crop_id ? (
                                 <img
                                   src={getItemIconPath(p.crop_id)}
@@ -4000,17 +4006,17 @@ export default function CivilizationDashboard() {
 
                             {/* Crop Name & Label */}
                             <div className="w-full">
-                              <span className="text-xs font-bold text-slate-200 block truncate capitalize">
+                              <span className={`text-xs font-extrabold ${isDayMode ? "text-slate-900 font-black" : "text-slate-200"} block truncate capitalize`}>
                                 {p.crop_name ? p.crop_name.replace(/^crop_/i, "").replace(/^crop\s+/i, "") : (p.crop_id ? p.crop_id.replace(/^crop_/, "").replace(/_/g, " ") : "Empty Soil")}
                               </span>
-                              <span className="text-[10px] font-mono text-slate-400 block">
+                              <span className={`text-[10px] font-mono ${isDayMode ? "text-slate-600 font-medium" : "text-slate-400"} block`}>
                                 {p.label ? p.label.replace(/^crop_/i, "").replace(/^crop\s+/i, "") : "Available for planting"}
                               </span>
                             </div>
 
                             {/* Growth Progress Bar */}
                             {isGrowing && (
-                              <div className="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden border border-slate-800">
+                              <div className={`w-full ${isDayMode ? "bg-amber-100 border-amber-200" : "bg-slate-900 border-slate-800"} h-1.5 rounded-full overflow-hidden border`}>
                                 <div
                                   className="bg-gradient-to-r from-amber-500 to-emerald-400 h-full transition-all duration-300"
                                   style={{ width: `${progress}%` }}
@@ -4019,11 +4025,14 @@ export default function CivilizationDashboard() {
                             )}
 
                             {/* Plot Action Buttons */}
-                            <div className="w-full pt-1 border-t border-slate-850">
+                            <div className={`w-full pt-1 border-t ${isDayMode ? "border-amber-200" : "border-slate-850"}`}>
                               {isReady && (
                                 <button
                                   type="button"
-                                  onClick={() => harvestPlot(p.index)}
+                                  onClick={() => {
+                                    soundEngine.playChime(true);
+                                    harvestPlot(p.index);
+                                  }}
                                   className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-extrabold text-[10px] py-1.5 rounded-lg shadow transition-all flex items-center justify-center gap-1"
                                 >
                                   <span>🌾</span>
@@ -4032,7 +4041,7 @@ export default function CivilizationDashboard() {
                               )}
 
                               {isGrowing && (
-                                <span className="text-[10px] text-emerald-400 font-mono font-bold block py-1">
+                                <span className={`text-[10px] ${isDayMode ? "text-emerald-700 font-black" : "text-emerald-400 font-bold"} font-mono block py-1`}>
                                   ⏳ {Math.ceil(p.remaining || 0)}s remaining
                                 </span>
                               )}
@@ -4041,8 +4050,11 @@ export default function CivilizationDashboard() {
                                 <div className="flex gap-1 w-full">
                                   <button
                                     type="button"
-                                    onClick={() => plantPlot(p.index, selectedPlantCrop)}
-                                    className="w-full bg-slate-850 hover:bg-slate-800 text-sky-300 font-bold text-[10px] py-1 rounded-lg border border-slate-750 transition-all flex items-center justify-center gap-1"
+                                    onClick={() => {
+                                      soundEngine.playClick(600);
+                                      plantPlot(p.index, selectedPlantCrop);
+                                    }}
+                                    className={`w-full ${isDayMode ? "bg-amber-100 hover:bg-amber-200 text-amber-950 border-amber-300 font-extrabold" : "bg-slate-850 hover:bg-slate-800 text-sky-300 border-slate-750 font-bold"} text-[10px] py-1 rounded-lg border transition-all flex items-center justify-center gap-1`}
                                   >
                                     <span>🌱</span>
                                     <span>PLANT {selectedPlantCrop.toUpperCase()}</span>
@@ -4058,23 +4070,23 @@ export default function CivilizationDashboard() {
                   </div>
 
                   {/* Agricultural Seed Market Section */}
-                  <div className="bg-slate-900/50 border border-slate-800 rounded-3xl p-4 flex flex-col gap-3.5 shadow-lg">
-                    <div className="flex justify-between items-center border-b border-slate-800 pb-2.5 flex-wrap gap-2">
+                  <div className={`${isDayMode ? "bg-white/95 border-amber-250 shadow-md text-slate-800" : "bg-slate-900/50 border-slate-800 text-white shadow-lg"} border rounded-3xl p-4 flex flex-col gap-3.5`}>
+                    <div className={`flex justify-between items-center border-b ${isDayMode ? "border-amber-200" : "border-slate-800"} pb-2.5 flex-wrap gap-2`}>
                       <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-base">
+                        <div className={`w-8 h-8 rounded-xl ${isDayMode ? "bg-amber-100 border-amber-300" : "bg-amber-500/20 border-amber-500/30"} border flex items-center justify-center text-base`}>
                           🌱
                         </div>
                         <div>
-                          <h3 className="text-white font-extrabold text-xs uppercase tracking-wider">
-                            Kisan Agricultural Seed Market & Supply Depot
+                          <h3 className={`${isDayMode ? "text-slate-900 font-black" : "text-white font-extrabold"} text-xs uppercase tracking-wider`}>
+                            Kisan Agricultural Seed Market &amp; Supply Depot
                           </h3>
-                          <p className="text-[10px] text-slate-400 font-mono">
+                          <p className={`text-[10px] ${isDayMode ? "text-slate-600 font-semibold" : "text-slate-400"} font-mono`}>
                             Certified high-germination seeds for vegetable farming, fruit orchards and grain cultivation
                           </p>
                         </div>
                       </div>
 
-                      <span className="text-[10px] bg-slate-950 px-2 py-1 rounded-lg border border-slate-800 text-slate-400 font-mono">
+                      <span className={`text-[10px] ${isDayMode ? "bg-amber-50 text-slate-700 border-amber-200 font-bold" : "bg-slate-950 text-slate-400 border-slate-800"} px-2 py-1 rounded-lg border font-mono`}>
                         Instant Delivery to Personal Bag
                       </span>
                     </div>
@@ -4100,27 +4112,27 @@ export default function CivilizationDashboard() {
                         return (
                           <div
                             key={seed.seedId}
-                            className="bg-slate-950/80 hover:bg-slate-950 border border-slate-800 hover:border-slate-700 rounded-2xl p-3 flex flex-col gap-2.5 transition-all shadow-sm group"
+                            className={`${isDayMode ? "bg-amber-50/80 hover:bg-white border-amber-200 hover:border-amber-400 text-slate-800" : "bg-slate-950/80 hover:bg-slate-950 border-slate-800 hover:border-slate-700 text-slate-200"} border rounded-2xl p-3 flex flex-col gap-2.5 transition-all shadow-sm group`}
                           >
                             <div className="flex items-start justify-between">
                               <div className="flex items-center gap-2">
                                 <img
                                   src={getItemIconPath(seed.seedId)}
-                                  className="w-9 h-9 object-cover rounded-xl shadow border border-slate-800 group-hover:scale-105 transition-transform"
+                                  className={`w-9 h-9 object-cover rounded-xl shadow border ${isDayMode ? "border-amber-200" : "border-slate-800"} group-hover:scale-105 transition-transform`}
                                   alt={seed.name}
                                 />
                                 <div>
-                                  <strong className="text-white text-xs block font-bold truncate max-w-[110px]">{seed.name}</strong>
-                                  <span className="text-[10px] text-slate-400 font-mono">Growth: {seed.time} • {seed.yield}</span>
+                                  <strong className={`${isDayMode ? "text-slate-900 font-black" : "text-white"} text-xs block font-bold truncate max-w-[110px]`}>{seed.name}</strong>
+                                  <span className={`text-[10px] ${isDayMode ? "text-slate-600 font-medium" : "text-slate-400"} font-mono`}>Growth: {seed.time} &bull; {seed.yield}</span>
                                 </div>
                               </div>
 
-                              <span className="text-amber-400 font-mono font-extrabold text-xs">${seed.price}</span>
+                              <span className={`${isDayMode ? "text-amber-800 font-black" : "text-amber-400"} font-mono font-extrabold text-xs`}>${seed.price}</span>
                             </div>
 
-                            <div className="flex justify-between items-center text-[10px] text-slate-400 font-mono pt-1 border-t border-slate-850">
+                            <div className={`flex justify-between items-center text-[10px] ${isDayMode ? "text-slate-600 font-semibold" : "text-slate-400"} font-mono pt-1 border-t ${isDayMode ? "border-amber-200" : "border-slate-850"}`}>
                               <span>Owned in bag:</span>
-                              <span className="text-sky-300 font-bold">x{inPlayerBag}</span>
+                              <span className={`${isDayMode ? "text-sky-700 font-black" : "text-sky-300 font-bold"}`}>x{inPlayerBag}</span>
                             </div>
 
                             {/* Buy Buttons */}
@@ -4128,23 +4140,32 @@ export default function CivilizationDashboard() {
                               <button
                                 type="button"
                                 disabled={(status.money || 0) < seed.price}
-                                onClick={() => buySeeds(seed.seedId, 1)}
-                                className="bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-[10px] font-extrabold py-1 rounded-lg transition-all disabled:opacity-30"
+                                onClick={() => {
+                                  soundEngine.playClick(600);
+                                  buySeeds(seed.seedId, 1);
+                                }}
+                                className={`${isDayMode ? "bg-amber-100 hover:bg-amber-200 text-amber-950 border-amber-300 font-extrabold" : "bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border-amber-500/40"} border text-[10px] font-extrabold py-1 rounded-lg transition-all disabled:opacity-30`}
                               >
                                 Buy 1x
                               </button>
                               <button
                                 type="button"
                                 disabled={(status.money || 0) < seed.price * 5}
-                                onClick={() => buySeeds(seed.seedId, 5)}
+                                onClick={() => {
+                                  soundEngine.playClick(600);
+                                  buySeeds(seed.seedId, 5);
+                                }}
                                 className="bg-amber-500 hover:bg-amber-400 text-slate-950 text-[10px] font-extrabold py-1 rounded-lg transition-all disabled:opacity-30 shadow-sm"
                               >
                                 Buy 5x
                               </button>
                               <button
                                 type="button"
-                                onClick={() => plantAll(seed.cropId)}
-                                className="bg-slate-850 hover:bg-slate-800 text-emerald-300 border border-slate-750 text-[10px] font-bold py-1 rounded-lg transition-all"
+                                onClick={() => {
+                                  soundEngine.playClick(650);
+                                  plantAll(seed.cropId);
+                                }}
+                                className={`${isDayMode ? "bg-white hover:bg-amber-100 text-emerald-950 border-amber-250 font-black" : "bg-slate-850 hover:bg-slate-800 text-emerald-300 border-slate-750 font-bold"} border text-[10px] py-1 rounded-lg transition-all`}
                                 title={`Plant ${seed.name} across all empty farm plots`}
                               >
                                 🌱 Plant
@@ -4428,46 +4449,46 @@ export default function CivilizationDashboard() {
               {activeTab === "industries" && (
                 <div className="flex flex-col gap-5">
                   {/* Top Header */}
-                  <div className="flex justify-between items-center border-b border-slate-800 pb-3 flex-wrap gap-2">
+                  <div className={`flex justify-between items-center border-b ${isDayMode ? "border-amber-200" : "border-slate-800"} pb-3 flex-wrap gap-2`}>
                     <div>
-                      <h2 className="text-white text-base font-bold flex items-center gap-2">
-                        <span>Industrial Revolution, PetroChemicals & Coastal Shipyards</span>
-                        <span className="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full font-mono font-bold">
-                          HEAVY INDUSTRY & ENERGY
+                      <h2 className={`${isDayMode ? "text-slate-900 font-black" : "text-white font-bold"} text-base flex items-center gap-2`}>
+                        <span>Industrial Revolution, PetroChemicals &amp; Coastal Shipyards</span>
+                        <span className={`text-[10px] ${isDayMode ? "bg-amber-100 text-amber-950 border-amber-300 font-bold" : "bg-amber-500/20 text-amber-300 border-amber-500/30"} border px-2 py-0.5 rounded-full font-mono`}>
+                          HEAVY INDUSTRY &amp; ENERGY
                         </span>
                       </h2>
-                      <span className="text-[10px] text-slate-400 font-mono">
-                        Petroleum cracking, Highway 48 fuel superstations, maritime shipyard fleet & smelting foundries
+                      <span className={`text-[10px] ${isDayMode ? "text-slate-600 font-semibold" : "text-slate-400"} font-mono`}>
+                        Petroleum cracking, Highway 48 fuel superstations, maritime shipyard fleet &amp; smelting foundries
                       </span>
                     </div>
 
                     <div className="flex items-center gap-2 flex-wrap">
-                      <div className="bg-slate-950/80 px-3 py-1.5 rounded-xl border border-slate-800 font-mono text-xs">
-                        <span className="text-slate-400">Personal Cash: </span>
-                        <span className="text-emerald-400 font-extrabold">${status.money?.toLocaleString()}</span>
+                      <div className={`${isDayMode ? "bg-white border-amber-250 text-slate-800 shadow-sm" : "bg-slate-950/80 border-slate-800"} px-3 py-1.5 rounded-xl border font-mono text-xs`}>
+                        <span className={`${isDayMode ? "text-slate-600 font-bold" : "text-slate-400"}`}>Personal Cash: </span>
+                        <span className={`${isDayMode ? "text-emerald-700 font-black" : "text-emerald-400 font-extrabold"}`}>${status.money?.toLocaleString()}</span>
                       </div>
-                      <div className="bg-slate-950/80 px-3 py-1.5 rounded-xl border border-slate-800 font-mono text-xs">
-                        <span className="text-slate-400">Civic Treasury: </span>
-                        <span className="text-sky-400 font-extrabold">${status.city_treasury?.toLocaleString()}</span>
+                      <div className={`${isDayMode ? "bg-white border-amber-250 text-slate-800 shadow-sm" : "bg-slate-950/80 border-slate-800"} px-3 py-1.5 rounded-xl border font-mono text-xs`}>
+                        <span className={`${isDayMode ? "text-slate-600 font-bold" : "text-slate-400"}`}>Civic Treasury: </span>
+                        <span className={`${isDayMode ? "text-sky-700 font-black" : "text-sky-400 font-extrabold"}`}>${status.city_treasury?.toLocaleString()}</span>
                       </div>
                     </div>
                   </div>
 
                   {/* Autonomous Industrial Agent Operational Banner */}
-                  <div className="bg-slate-900/60 border border-amber-500/30 rounded-2xl p-3 flex items-center justify-between gap-3 shadow-md flex-wrap">
+                  <div className={`${isDayMode ? "bg-white/95 border-amber-250 shadow-sm text-slate-800" : "bg-slate-900/60 border-amber-500/30 shadow-md"} border rounded-2xl p-3 flex items-center justify-between gap-3 flex-wrap`}>
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-lg shadow-inner">
+                      <div className={`w-9 h-9 rounded-xl ${isDayMode ? "bg-amber-100 border-amber-300" : "bg-amber-500/20 border-amber-500/30"} border flex items-center justify-center text-lg shadow-inner`}>
                         🤖
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <strong className="text-white text-xs font-bold">Autonomous Industrial Supply Chain Agent</strong>
-                          <span className="text-[9px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-1.5 py-0.2 rounded font-mono font-bold">
-                            ONLINE & AUTOMATED
+                          <strong className={`${isDayMode ? "text-slate-900 font-black" : "text-white"} text-xs font-bold`}>Autonomous Industrial Supply Chain Agent</strong>
+                          <span className={`text-[9px] ${isDayMode ? "bg-emerald-100 text-emerald-950 border-emerald-300 font-bold" : "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"} border px-1.5 py-0.2 rounded font-mono`}>
+                            ONLINE &amp; AUTOMATED
                           </span>
                         </div>
-                        <span className="text-[10px] text-slate-400 font-mono">
-                          Auto-extracts crude, distills fuels, replenishes petrol superstation, bunks ships & smelts steel
+                        <span className={`text-[10px] ${isDayMode ? "text-slate-600 font-medium" : "text-slate-400"} font-mono`}>
+                          Auto-extracts crude, distills fuels, replenishes petrol superstation, bunks ships &amp; smelts steel
                         </span>
                       </div>
                     </div>
@@ -4475,6 +4496,7 @@ export default function CivilizationDashboard() {
                     <button
                       type="button"
                       onClick={async () => {
+                        soundEngine.playChime(true);
                         const res = await dispatchAction("run_industrial_agent", {});
                         if (res?.message) {
                           setIndustrialActionMsg(res.message);
@@ -4489,12 +4511,12 @@ export default function CivilizationDashboard() {
                   </div>
 
                   {industrialActionMsg && (
-                    <div className="bg-amber-950/60 border border-amber-500/50 rounded-xl px-4 py-2.5 flex items-center justify-between text-xs text-amber-200 shadow-md animate-fade-in">
+                    <div className={`${isDayMode ? "bg-amber-100 text-amber-950 border-amber-400 shadow-md font-bold" : "bg-amber-950/60 text-amber-200 border-amber-500/50"} border rounded-xl px-4 py-2.5 flex items-center justify-between text-xs shadow-md animate-fade-in`}>
                       <div className="flex items-center gap-2">
                         <span className="text-base">⚡</span>
                         <span className="font-semibold">{industrialActionMsg}</span>
                       </div>
-                      <button onClick={() => setIndustrialActionMsg("")} className="text-amber-400 hover:text-white font-bold text-xs">✕</button>
+                      <button onClick={() => setIndustrialActionMsg("")} className={`${isDayMode ? "text-amber-900" : "text-amber-400 hover:text-white"} font-bold text-xs`}>✕</button>
                     </div>
                   )}
 
@@ -4502,23 +4524,23 @@ export default function CivilizationDashboard() {
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                     
                     {/* Sector 1: ⚓ Navsari Coastal Shipyard & Maritime Docks */}
-                    <div className="bg-slate-950/80 border border-sky-500/30 hover:border-sky-500/50 rounded-3xl p-4 flex flex-col justify-between gap-3.5 shadow-xl transition-all">
+                    <div className={`${isDayMode ? "bg-white/95 border-sky-300/80 hover:border-sky-400 shadow-md text-slate-800" : "bg-slate-950/80 border-sky-500/30 hover:border-sky-500/50 text-slate-200 shadow-xl"} border rounded-3xl p-4 flex flex-col justify-between gap-3.5 transition-all`}>
                       <div className="flex flex-col gap-3">
-                        <div className="flex justify-between items-start border-b border-slate-800 pb-2.5">
+                        <div className={`flex justify-between items-start border-b ${isDayMode ? "border-amber-200" : "border-slate-800"} pb-2.5`}>
                           <div className="flex items-center gap-2.5">
-                            <div className="w-10 h-10 rounded-2xl bg-sky-500/20 border border-sky-500/40 flex items-center justify-center text-xl shadow-inner">
+                            <div className={`w-10 h-10 rounded-2xl ${isDayMode ? "bg-sky-100 border-sky-300" : "bg-sky-500/20 border-sky-500/40"} border flex items-center justify-center text-xl shadow-inner`}>
                               ⚓
                             </div>
                             <div>
-                              <h3 className="text-white text-xs font-extrabold flex items-center gap-1.5">
-                                <span>Navsari Coastal Shipyard & Maritime Docks</span>
-                                <span className="text-[9px] bg-sky-500/20 text-sky-300 px-1.5 py-0.2 rounded font-mono">PORT MARITIME</span>
+                              <h3 className={`${isDayMode ? "text-slate-900 font-black" : "text-white"} text-xs font-extrabold flex items-center gap-1.5`}>
+                                <span>Navsari Coastal Shipyard &amp; Maritime Docks</span>
+                                <span className={`text-[9px] ${isDayMode ? "bg-sky-100 text-sky-950 font-bold" : "bg-sky-500/20 text-sky-300"} px-1.5 py-0.2 rounded font-mono`}>PORT MARITIME</span>
                               </h3>
-                              <span className="text-[10px] text-slate-400 font-mono">Harbor Master: Captain Vikram • {status.industry?.shipyard?.fleet?.length || 3} vessels active</span>
+                              <span className={`text-[10px] ${isDayMode ? "text-slate-600 font-medium" : "text-slate-400"} font-mono`}>Harbor Master: Captain Vikram &bull; {status.industry?.shipyard?.fleet?.length || 3} vessels active</span>
                             </div>
                           </div>
 
-                          <span className="text-[10px] bg-sky-500/20 text-sky-300 border border-sky-500/40 px-2 py-0.5 rounded-full font-mono font-bold">
+                          <span className={`text-[10px] ${isDayMode ? "bg-sky-100 text-sky-950 border-sky-300 font-bold" : "bg-sky-500/20 text-sky-300 border-sky-500/40"} border px-2 py-0.5 rounded-full font-mono`}>
                             BERTHS ACTIVE
                           </span>
                         </div>
@@ -4526,25 +4548,28 @@ export default function CivilizationDashboard() {
                         {/* Maritime Fleet List */}
                         <div className="flex flex-col gap-2 max-h-44 overflow-y-auto pr-1">
                           {status.industry?.shipyard?.fleet?.map((ship: any) => (
-                            <div key={ship.id} className="bg-slate-900/70 border border-slate-850 rounded-2xl p-2.5 flex items-center justify-between gap-2 text-xs">
+                            <div key={ship.id} className={`${isDayMode ? "bg-amber-50/80 border-amber-200" : "bg-slate-900/70 border-slate-850"} border rounded-2xl p-2.5 flex items-center justify-between gap-2 text-xs`}>
                               <div className="flex items-center gap-2">
                                 <span className="text-lg">{ship.type === "cargo_ship" ? "🚢" : ship.type === "passenger_ferry" ? "⛴️" : "🛥️"}</span>
                                 <div>
-                                  <strong className="text-slate-200 block text-xs">{ship.name}</strong>
-                                  <span className="text-[10px] text-slate-400 font-mono capitalize">
-                                    {ship.type.replace(/_/g, " ")} • {ship.status}
+                                  <strong className={`${isDayMode ? "text-slate-900 font-bold" : "text-slate-200"} block text-xs`}>{ship.name}</strong>
+                                  <span className={`text-[10px] ${isDayMode ? "text-slate-600 font-semibold" : "text-slate-400"} font-mono capitalize`}>
+                                    {ship.type.replace(/_/g, " ")} &bull; {ship.status}
                                   </span>
                                 </div>
                               </div>
 
                               <div className="flex items-center gap-2">
                                 <div className="text-right font-mono text-[10px]">
-                                  <span className="text-slate-500 block">Bunker Fuel</span>
-                                  <span className={`font-bold ${ship.fuel > 30 ? "text-emerald-400" : "text-rose-400"}`}>{ship.fuel}%</span>
+                                  <span className={`${isDayMode ? "text-slate-600 font-bold" : "text-slate-500"} block`}>Bunker Fuel</span>
+                                  <span className={`font-bold ${ship.fuel > 30 ? isDayMode ? "text-emerald-700 font-black" : "text-emerald-400" : "text-rose-500"}`}>{ship.fuel}%</span>
                                 </div>
                                 <button
                                   type="button"
-                                  onClick={() => dispatchShipVoyage(ship.id)}
+                                  onClick={() => {
+                                    soundEngine.playClick(650);
+                                    dispatchShipVoyage(ship.id);
+                                  }}
                                   className="bg-sky-500 hover:bg-sky-400 text-slate-950 font-extrabold text-[10px] px-2.5 py-1.5 rounded-xl transition-all shadow"
                                 >
                                   VOYAGE 🚀
@@ -4555,20 +4580,20 @@ export default function CivilizationDashboard() {
                         </div>
 
                         {/* Commission New Vessel Form */}
-                        <div className="bg-slate-900/50 p-2.5 rounded-2xl border border-slate-850 flex flex-col gap-2">
-                          <span className="text-[10px] font-mono text-slate-400 uppercase font-bold tracking-wider">Commission New Maritime Vessel</span>
+                        <div className={`${isDayMode ? "bg-amber-50/60 border-amber-200" : "bg-slate-900/50 border-slate-850"} p-2.5 rounded-2xl border flex flex-col gap-2`}>
+                          <span className={`text-[10px] font-mono ${isDayMode ? "text-slate-700 font-bold" : "text-slate-400"} uppercase tracking-wider`}>Commission New Maritime Vessel</span>
                           <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
                             <input
                               type="text"
                               placeholder="Vessel Name (e.g. INS Tapi Express)"
                               value={newShipNameInput}
                               onChange={(e) => setNewShipNameInput(e.target.value)}
-                              className="bg-slate-950 border border-slate-800 text-white rounded-xl px-2.5 py-1.5 text-xs font-mono flex-1 min-w-[140px]"
+                              className={`${isDayMode ? "bg-white border-amber-200 text-slate-900 font-semibold" : "bg-slate-950 border-slate-800 text-white font-mono"} border rounded-xl px-2.5 py-1.5 text-xs flex-1 min-w-[140px] outline-none`}
                             />
                             <select
                               value={newShipTypeInput}
                               onChange={(e: any) => setNewShipTypeInput(e.target.value)}
-                              className="bg-slate-950 border border-slate-800 text-white rounded-xl px-2 py-1.5 text-xs font-mono"
+                              className={`${isDayMode ? "bg-white border-amber-200 text-slate-900 font-semibold" : "bg-slate-950 border-slate-800 text-white font-mono"} border rounded-xl px-2 py-1.5 text-xs outline-none`}
                             >
                               <option value="cargo_ship">Cargo Ship ($150)</option>
                               <option value="passenger_ferry">Passenger Ferry ($100)</option>
@@ -4576,7 +4601,10 @@ export default function CivilizationDashboard() {
                             </select>
                             <button
                               type="button"
-                              onClick={commissionShip}
+                              onClick={() => {
+                                soundEngine.playChime(true);
+                                commissionShip();
+                              }}
                               className="bg-gradient-to-r from-sky-500 to-teal-500 hover:from-sky-400 hover:to-teal-400 text-slate-950 font-extrabold text-xs px-3 py-1.5 rounded-xl shadow transition-all whitespace-nowrap"
                             >
                               COMMISSION
@@ -4587,63 +4615,66 @@ export default function CivilizationDashboard() {
                     </div>
 
                     {/* Sector 2: 🛢️ PetroChem Oil Refinery & Catalytic Cracker */}
-                    <div className="bg-slate-950/80 border border-amber-500/30 hover:border-amber-500/50 rounded-3xl p-4 flex flex-col justify-between gap-3.5 shadow-xl transition-all">
+                    <div className={`${isDayMode ? "bg-white/95 border-amber-250 hover:border-amber-400 shadow-md text-slate-800" : "bg-slate-950/80 border-amber-500/30 hover:border-amber-500/50 text-slate-200 shadow-xl"} border rounded-3xl p-4 flex flex-col justify-between gap-3.5 transition-all`}>
                       <div className="flex flex-col gap-3">
-                        <div className="flex justify-between items-start border-b border-slate-800 pb-2.5">
+                        <div className={`flex justify-between items-start border-b ${isDayMode ? "border-amber-200" : "border-slate-800"} pb-2.5`}>
                           <div className="flex items-center gap-2.5">
-                            <div className="w-10 h-10 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-xl shadow-inner">
+                            <div className={`w-10 h-10 rounded-2xl ${isDayMode ? "bg-amber-100 border-amber-300" : "bg-amber-500/20 border-amber-500/40"} border flex items-center justify-center text-xl shadow-inner`}>
                               🛢️
                             </div>
                             <div>
-                              <h3 className="text-white text-xs font-extrabold flex items-center gap-1.5">
-                                <span>Gulf Oil Refinery & Distillation Complex</span>
-                                <span className="text-[9px] bg-amber-500/20 text-amber-300 px-1.5 py-0.2 rounded font-mono">ENERGY REFINERY</span>
+                              <h3 className={`${isDayMode ? "text-slate-900 font-black" : "text-white"} text-xs font-extrabold flex items-center gap-1.5`}>
+                                <span>Gulf Oil Refinery &amp; Distillation Complex</span>
+                                <span className={`text-[9px] ${isDayMode ? "bg-amber-100 text-amber-950 font-bold" : "bg-amber-500/20 text-amber-300"} px-1.5 py-0.2 rounded font-mono`}>ENERGY REFINERY</span>
                               </h3>
-                              <span className="text-[10px] text-slate-400 font-mono">Chief Engineer: Arjun Patel • Catalytic Cracking Unit Online</span>
+                              <span className={`text-[10px] ${isDayMode ? "text-slate-600 font-medium" : "text-slate-400"} font-mono`}>Chief Engineer: Arjun Patel &bull; Catalytic Cracking Unit Online</span>
                             </div>
                           </div>
 
-                          <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-full font-mono font-bold">
+                          <span className={`text-[10px] ${isDayMode ? "bg-emerald-100 text-emerald-950 border-emerald-300 font-bold" : "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"} border px-2 py-0.5 rounded-full font-mono`}>
                             REFINERY 95% EFFICIENCY
                           </span>
                         </div>
 
                         {/* Fuel Storage Gauges Grid */}
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                          <div className="bg-slate-900/80 border border-slate-850 p-2.5 rounded-2xl text-center flex flex-col gap-0.5">
-                            <span className="text-[10px] text-slate-500 font-mono uppercase">Crude Oil</span>
-                            <span className="text-sm font-extrabold text-amber-400 font-mono">{status.industry?.oil_refinery?.crude_oil || 120} BBL</span>
+                          <div className={`${isDayMode ? "bg-amber-50/80 border-amber-200" : "bg-slate-900/80 border-slate-850"} border p-2.5 rounded-2xl text-center flex flex-col gap-0.5`}>
+                            <span className={`text-[10px] ${isDayMode ? "text-slate-600 font-bold" : "text-slate-500"} font-mono uppercase`}>Crude Oil</span>
+                            <span className={`text-sm font-extrabold ${isDayMode ? "text-amber-800 font-black" : "text-amber-400"} font-mono`}>{status.industry?.oil_refinery?.crude_oil || 120} BBL</span>
                           </div>
-                          <div className="bg-slate-900/80 border border-slate-850 p-2.5 rounded-2xl text-center flex flex-col gap-0.5">
-                            <span className="text-[10px] text-slate-500 font-mono uppercase">Refined Petrol</span>
-                            <span className="text-sm font-extrabold text-emerald-400 font-mono">{status.industry?.oil_refinery?.refined_petrol || 85} L</span>
+                          <div className={`${isDayMode ? "bg-amber-50/80 border-amber-200" : "bg-slate-900/80 border-slate-850"} border p-2.5 rounded-2xl text-center flex flex-col gap-0.5`}>
+                            <span className={`text-[10px] ${isDayMode ? "text-slate-600 font-bold" : "text-slate-500"} font-mono uppercase`}>Refined Petrol</span>
+                            <span className={`text-sm font-extrabold ${isDayMode ? "text-emerald-700 font-black" : "text-emerald-400"} font-mono`}>{status.industry?.oil_refinery?.refined_petrol || 85} L</span>
                           </div>
-                          <div className="bg-slate-900/80 border border-slate-850 p-2.5 rounded-2xl text-center flex flex-col gap-0.5">
-                            <span className="text-[10px] text-slate-500 font-mono uppercase">Diesel Fuel</span>
-                            <span className="text-sm font-extrabold text-sky-400 font-mono">{status.industry?.oil_refinery?.diesel || 60} L</span>
+                          <div className={`${isDayMode ? "bg-amber-50/80 border-amber-200" : "bg-slate-900/80 border-slate-850"} border p-2.5 rounded-2xl text-center flex flex-col gap-0.5`}>
+                            <span className={`text-[10px] ${isDayMode ? "text-slate-600 font-bold" : "text-slate-500"} font-mono uppercase`}>Diesel Fuel</span>
+                            <span className={`text-sm font-extrabold ${isDayMode ? "text-sky-700 font-black" : "text-sky-400"} font-mono`}>{status.industry?.oil_refinery?.diesel || 60} L</span>
                           </div>
-                          <div className="bg-slate-900/80 border border-slate-850 p-2.5 rounded-2xl text-center flex flex-col gap-0.5">
-                            <span className="text-[10px] text-slate-500 font-mono uppercase">Marine Bunker</span>
-                            <span className="text-sm font-extrabold text-indigo-400 font-mono">{status.industry?.oil_refinery?.marine_fuel || 40} L</span>
+                          <div className={`${isDayMode ? "bg-amber-50/80 border-amber-200" : "bg-slate-900/80 border-slate-850"} border p-2.5 rounded-2xl text-center flex flex-col gap-0.5`}>
+                            <span className={`text-[10px] ${isDayMode ? "text-slate-600 font-bold" : "text-slate-500"} font-mono uppercase`}>Marine Bunker</span>
+                            <span className={`text-sm font-extrabold ${isDayMode ? "text-purple-800 font-black" : "text-indigo-400"} font-mono`}>{status.industry?.oil_refinery?.marine_fuel || 40} L</span>
                           </div>
                         </div>
 
-                        <p className="text-[11px] text-slate-300 bg-slate-900/50 p-2.5 rounded-xl border border-slate-850 leading-relaxed">
+                        <p className={`text-[11px] ${isDayMode ? "text-slate-700 bg-amber-50/60 border-amber-200 font-medium" : "text-slate-300 bg-slate-900/50 border-slate-850"} p-2.5 rounded-xl border leading-relaxed`}>
                           Extracts raw coastal petroleum and distills high-octane gasoline for automobiles, heavy diesel for freight trucks, and bunker fuel for shipyard cargo vessels.
                         </p>
 
-                        <div className="flex items-center gap-2 bg-slate-900/70 p-2.5 rounded-2xl border border-slate-850">
-                          <span className="text-[10px] text-slate-400 font-mono">Refining Batch:</span>
+                        <div className={`flex items-center gap-2 ${isDayMode ? "bg-amber-50/80 border-amber-200" : "bg-slate-900/70 border-slate-850"} p-2.5 rounded-2xl border`}>
+                          <span className={`text-[10px] ${isDayMode ? "text-slate-700 font-bold" : "text-slate-400"} font-mono`}>Refining Batch:</span>
                           <input
                             type="number"
                             value={refiningBarrelsInput}
                             onChange={(e) => setRefiningBarrelsInput(Number(e.target.value))}
-                            className="bg-slate-950 border border-slate-800 text-white rounded-xl px-2 py-1 text-xs font-mono w-20"
+                            className={`${isDayMode ? "bg-white border-amber-200 text-slate-900 font-bold" : "bg-slate-950 border-slate-800 text-white font-mono"} border rounded-xl px-2 py-1 text-xs w-20 outline-none`}
                           />
-                          <span className="text-[10px] text-slate-400 font-mono">Barrels</span>
+                          <span className={`text-[10px] ${isDayMode ? "text-slate-700 font-bold" : "text-slate-400"} font-mono`}>Barrels</span>
                           <button
                             type="button"
-                            onClick={refinePetrol}
+                            onClick={() => {
+                              soundEngine.playChime(true);
+                              refinePetrol();
+                            }}
                             className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs px-3 py-1.5 rounded-xl shadow transition-all ml-auto"
                           >
                             ⚡ REFINE FUEL NOW
@@ -4653,82 +4684,85 @@ export default function CivilizationDashboard() {
                     </div>
 
                     {/* Sector 3: ⛽ Highway 48 Petrol & EV Superstation */}
-                    <div className="bg-slate-950/80 border border-rose-500/30 hover:border-rose-500/50 rounded-3xl p-4 flex flex-col justify-between gap-3.5 shadow-xl transition-all">
+                    <div className={`${isDayMode ? "bg-white/95 border-amber-250 hover:border-amber-400 shadow-md text-slate-800" : "bg-slate-950/80 border-rose-500/30 hover:border-rose-500/50 text-slate-200 shadow-xl"} border rounded-3xl p-4 flex flex-col justify-between gap-3.5 transition-all`}>
                       <div className="flex flex-col gap-3">
-                        <div className="flex justify-between items-start border-b border-slate-800 pb-2.5">
+                        <div className={`flex justify-between items-start border-b ${isDayMode ? "border-amber-200" : "border-slate-800"} pb-2.5`}>
                           <div className="flex items-center gap-2.5">
-                            <div className="w-10 h-10 rounded-2xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-xl shadow-inner">
+                            <div className={`w-10 h-10 rounded-2xl ${isDayMode ? "bg-rose-100 border-rose-300" : "bg-rose-500/20 border-rose-500/40"} border flex items-center justify-center text-xl shadow-inner`}>
                               ⛽
                             </div>
                             <div>
-                              <h3 className="text-white text-xs font-extrabold flex items-center gap-1.5">
-                                <span>Highway 48 Petrol & EV Superstation</span>
-                                <span className="text-[9px] bg-rose-500/20 text-rose-300 px-1.5 py-0.2 rounded font-mono">FUEL RETAIL</span>
+                              <h3 className={`${isDayMode ? "text-slate-900 font-black" : "text-white"} text-xs font-extrabold flex items-center gap-1.5`}>
+                                <span>Highway 48 Petrol &amp; EV Superstation</span>
+                                <span className={`text-[9px] ${isDayMode ? "bg-rose-100 text-rose-950 font-bold" : "bg-rose-500/20 text-rose-300"} px-1.5 py-0.2 rounded font-mono`}>FUEL RETAIL</span>
                               </h3>
-                              <span className="text-[10px] text-slate-400 font-mono">Attendant: Rohan Mistri • High-Octane Dispensers & EV Hyperchargers</span>
+                              <span className={`text-[10px] ${isDayMode ? "text-slate-600 font-medium" : "text-slate-400"} font-mono`}>Attendant: Rohan Mistri &bull; High-Octane Dispensers &amp; EV Hyperchargers</span>
                             </div>
                           </div>
 
-                          <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-full font-mono font-bold">
+                          <span className={`text-[10px] ${isDayMode ? "bg-emerald-100 text-emerald-950 border-emerald-300 font-bold" : "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"} border px-2 py-0.5 rounded-full font-mono`}>
                             DISPENSING
                           </span>
                         </div>
 
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                          <div className="bg-slate-900/80 border border-slate-850 p-2.5 rounded-2xl text-center flex flex-col gap-0.5">
-                            <span className="text-[10px] text-slate-500 font-mono uppercase">Pump Petrol Stock</span>
-                            <span className="text-sm font-extrabold text-rose-400 font-mono">{status.industry?.petrol_pump?.fuel_stock || 450} Liters</span>
+                          <div className={`${isDayMode ? "bg-amber-50/80 border-amber-200" : "bg-slate-900/80 border-slate-850"} border p-2.5 rounded-2xl text-center flex flex-col gap-0.5`}>
+                            <span className={`text-[10px] ${isDayMode ? "text-slate-600 font-bold" : "text-slate-500"} font-mono uppercase`}>Pump Petrol Stock</span>
+                            <span className={`text-sm font-extrabold ${isDayMode ? "text-rose-700 font-black" : "text-rose-400"} font-mono`}>{status.industry?.petrol_pump?.fuel_stock || 450} Liters</span>
                           </div>
-                          <div className="bg-slate-900/80 border border-slate-850 p-2.5 rounded-2xl text-center flex flex-col gap-0.5">
-                            <span className="text-[10px] text-slate-500 font-mono uppercase">Pump Diesel Stock</span>
-                            <span className="text-sm font-extrabold text-sky-400 font-mono">{status.industry?.petrol_pump?.diesel_stock || 350} Liters</span>
+                          <div className={`${isDayMode ? "bg-amber-50/80 border-amber-200" : "bg-slate-900/80 border-slate-850"} border p-2.5 rounded-2xl text-center flex flex-col gap-0.5`}>
+                            <span className={`text-[10px] ${isDayMode ? "text-slate-600 font-bold" : "text-slate-500"} font-mono uppercase`}>Pump Diesel Stock</span>
+                            <span className={`text-sm font-extrabold ${isDayMode ? "text-sky-700 font-black" : "text-sky-400"} font-mono`}>{status.industry?.petrol_pump?.diesel_stock || 350} Liters</span>
                           </div>
-                          <div className="bg-slate-900/80 border border-slate-850 p-2.5 rounded-2xl text-center flex flex-col gap-0.5">
-                            <span className="text-[10px] text-slate-500 font-mono uppercase">Station Revenue</span>
-                            <span className="text-sm font-extrabold text-emerald-400 font-mono">${status.industry?.petrol_pump?.revenue?.toLocaleString() || "1,800"}</span>
+                          <div className={`${isDayMode ? "bg-amber-50/80 border-amber-200" : "bg-slate-900/80 border-slate-850"} border p-2.5 rounded-2xl text-center flex flex-col gap-0.5`}>
+                            <span className={`text-[10px] ${isDayMode ? "text-slate-600 font-bold" : "text-slate-500"} font-mono uppercase`}>Station Revenue</span>
+                            <span className={`text-sm font-extrabold ${isDayMode ? "text-emerald-700 font-black" : "text-emerald-400"} font-mono`}>${status.industry?.petrol_pump?.revenue?.toLocaleString() || "1,800"}</span>
                           </div>
                         </div>
 
                         {/* Live Vehicle Refueling Telemetry */}
-                        <div className="bg-slate-900/50 p-2.5 rounded-2xl border border-slate-850 flex flex-col gap-1.5">
-                          <div className="flex justify-between items-center text-[10px] font-mono text-slate-400">
-                            <span className="font-bold uppercase tracking-wider text-rose-300">Live Citizen Vehicle Fueling Log</span>
-                            <span className="text-emerald-400 font-bold">10% City Tax Credited</span>
+                        <div className={`${isDayMode ? "bg-amber-50/60 border-amber-200" : "bg-slate-900/50 border-slate-850"} p-2.5 rounded-2xl border flex flex-col gap-1.5`}>
+                          <div className="flex justify-between items-center text-[10px] font-mono">
+                            <span className={`font-bold uppercase tracking-wider ${isDayMode ? "text-rose-800 font-extrabold" : "text-rose-300"}`}>Live Citizen Vehicle Fueling Log</span>
+                            <span className={`${isDayMode ? "text-emerald-700 font-extrabold" : "text-emerald-400 font-bold"}`}>10% City Tax Credited</span>
                           </div>
                           <div className="flex flex-col gap-1 max-h-24 overflow-y-auto pr-1">
                             {(status.industry?.petrol_pump?.recent_refuelings && status.industry?.petrol_pump?.recent_refuelings.length > 0) ? (
                               status.industry?.petrol_pump?.recent_refuelings.slice(0, 5).map((r: any, idx: number) => (
-                                <div key={idx} className="flex justify-between items-center bg-slate-950/80 px-2 py-1 rounded-lg text-[10px] font-mono border border-slate-850">
+                                <div key={idx} className={`flex justify-between items-center ${isDayMode ? "bg-white border-amber-200 text-slate-800" : "bg-slate-950/80 border-slate-850 text-white"} px-2 py-1 rounded-lg text-[10px] font-mono border`}>
                                   <div className="flex items-center gap-1.5">
                                     <span>{r.vehicle === "car" ? "🚗" : r.vehicle === "scooter" ? "🛵" : r.vehicle === "tractor" ? "🚜" : "🚛"}</span>
-                                    <span className="text-slate-200 font-bold">{r.citizen}</span>
-                                    <span className="text-slate-500 capitalize">({r.vehicle})</span>
+                                    <span className={`${isDayMode ? "text-slate-900 font-bold" : "text-slate-200 font-bold"}`}>{r.citizen}</span>
+                                    <span className={`${isDayMode ? "text-slate-600" : "text-slate-500"} capitalize`}>({r.vehicle})</span>
                                   </div>
                                   <div className="flex items-center gap-2">
-                                    <span className="text-rose-400 font-bold">-{r.liters}L {r.fuel_type}</span>
-                                    <span className="text-emerald-400 font-bold">${r.cost}</span>
+                                    <span className={`${isDayMode ? "text-rose-700 font-black" : "text-rose-400 font-bold"}`}>-{r.liters}L {r.fuel_type}</span>
+                                    <span className={`${isDayMode ? "text-emerald-700 font-black" : "text-emerald-400 font-bold"}`}>${r.cost}</span>
                                   </div>
                                 </div>
                               ))
                             ) : (
-                              <div className="text-[10px] text-slate-500 font-mono text-center py-1">
-                                Citizen cars, scooters & tractors actively fueling on road routes.
+                              <div className={`text-[10px] ${isDayMode ? "text-slate-600 font-medium" : "text-slate-500"} font-mono text-center py-1`}>
+                                Citizen cars, scooters &amp; tractors actively fueling on road routes.
                               </div>
                             )}
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-2 bg-slate-900/70 p-2.5 rounded-2xl border border-slate-850">
-                          <span className="text-[10px] text-slate-400 font-mono">Fuel Price ($/L):</span>
+                        <div className={`flex items-center gap-2 ${isDayMode ? "bg-amber-50/80 border-amber-200" : "bg-slate-900/70 border-slate-850"} p-2.5 rounded-2xl border`}>
+                          <span className={`text-[10px] ${isDayMode ? "text-slate-700 font-bold" : "text-slate-400"} font-mono`}>Fuel Price ($/L):</span>
                           <input
                             type="number"
                             value={fuelPriceInput}
                             onChange={(e) => setFuelPriceInput(Number(e.target.value))}
-                            className="bg-slate-950 border border-slate-800 text-white rounded-xl px-2 py-1 text-xs font-mono w-20"
+                            className={`${isDayMode ? "bg-white border-amber-200 text-slate-900 font-bold" : "bg-slate-950 border-slate-800 text-white font-mono"} border rounded-xl px-2 py-1 text-xs w-20 outline-none`}
                           />
                           <button
                             type="button"
-                            onClick={saveFuelPrice}
+                            onClick={() => {
+                              soundEngine.playClick(600);
+                              saveFuelPrice();
+                            }}
                             className="bg-rose-500 hover:bg-rose-400 text-slate-950 font-extrabold text-xs px-3 py-1.5 rounded-xl shadow transition-all ml-auto"
                           >
                             SET FUEL PRICE
@@ -4738,50 +4772,53 @@ export default function CivilizationDashboard() {
                     </div>
 
                     {/* Sector 4: 🏭 Navsari Heavy Foundry & Steel Smelting Works */}
-                    <div className="bg-slate-950/80 border border-slate-700 hover:border-slate-500 rounded-3xl p-4 flex flex-col justify-between gap-3.5 shadow-xl transition-all">
+                    <div className={`${isDayMode ? "bg-white/95 border-amber-250 hover:border-amber-400 shadow-md text-slate-800" : "bg-slate-950/80 border-slate-700 hover:border-slate-500 text-slate-200 shadow-xl"} border rounded-3xl p-4 flex flex-col justify-between gap-3.5 transition-all`}>
                       <div className="flex flex-col gap-3">
-                        <div className="flex justify-between items-start border-b border-slate-800 pb-2.5">
+                        <div className={`flex justify-between items-start border-b ${isDayMode ? "border-amber-200" : "border-slate-800"} pb-2.5`}>
                           <div className="flex items-center gap-2.5">
-                            <div className="w-10 h-10 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center text-xl shadow-inner">
+                            <div className={`w-10 h-10 rounded-2xl ${isDayMode ? "bg-amber-100 border-amber-300" : "bg-slate-800 border border-slate-700"} border flex items-center justify-center text-xl shadow-inner`}>
                               🏭
                             </div>
                             <div>
-                              <h3 className="text-white text-xs font-extrabold flex items-center gap-1.5">
-                                <span>Navsari Heavy Foundry & Smelting Works</span>
-                                <span className="text-[9px] bg-slate-800 text-slate-300 px-1.5 py-0.2 rounded font-mono">HEAVY INDUSTRY</span>
+                              <h3 className={`${isDayMode ? "text-slate-900 font-black" : "text-white"} text-xs font-extrabold flex items-center gap-1.5`}>
+                                <span>Navsari Heavy Foundry &amp; Smelting Works</span>
+                                <span className={`text-[9px] ${isDayMode ? "bg-amber-100 text-amber-950 font-bold" : "bg-slate-800 text-slate-300"} px-1.5 py-0.2 rounded font-mono`}>HEAVY INDUSTRY</span>
                               </h3>
-                              <span className="text-[10px] text-slate-400 font-mono">Blast Furnaces & Industrial Steel Rolling Mills</span>
+                              <span className={`text-[10px] ${isDayMode ? "text-slate-600 font-medium" : "text-slate-400"} font-mono`}>Blast Furnaces &amp; Industrial Steel Rolling Mills</span>
                             </div>
                           </div>
 
-                          <span className="text-[10px] bg-slate-800 text-slate-300 border border-slate-700 px-2 py-0.5 rounded-full font-mono font-bold">
+                          <span className={`text-[10px] ${isDayMode ? "bg-amber-100 text-amber-950 border-amber-300 font-bold" : "bg-slate-800 text-slate-300 border-slate-700"} border px-2 py-0.5 rounded-full font-mono`}>
                             2 SMELTERS ACTIVE
                           </span>
                         </div>
 
                         <div className="grid grid-cols-3 gap-2">
-                          <div className="bg-slate-900/80 border border-slate-850 p-2.5 rounded-2xl text-center flex flex-col gap-0.5">
-                            <span className="text-[10px] text-slate-500 font-mono uppercase">Iron Ore Stock</span>
-                            <span className="text-sm font-extrabold text-slate-300 font-mono">{status.industry?.heavy_manufacturing?.iron_ore_stock || 75} Units</span>
+                          <div className={`${isDayMode ? "bg-amber-50/80 border-amber-200" : "bg-slate-900/80 border-slate-850"} border p-2.5 rounded-2xl text-center flex flex-col gap-0.5`}>
+                            <span className={`text-[10px] ${isDayMode ? "text-slate-600 font-bold" : "text-slate-500"} font-mono uppercase`}>Iron Ore Stock</span>
+                            <span className={`text-sm font-extrabold ${isDayMode ? "text-slate-900 font-black" : "text-slate-300"} font-mono`}>{status.industry?.heavy_manufacturing?.iron_ore_stock || 75} Units</span>
                           </div>
-                          <div className="bg-slate-900/80 border border-slate-850 p-2.5 rounded-2xl text-center flex flex-col gap-0.5">
-                            <span className="text-[10px] text-slate-500 font-mono uppercase">Steel Beams</span>
-                            <span className="text-sm font-extrabold text-amber-400 font-mono">{status.industry?.heavy_manufacturing?.steel_beams || 45} Beams</span>
+                          <div className={`${isDayMode ? "bg-amber-50/80 border-amber-200" : "bg-slate-900/80 border-slate-850"} border p-2.5 rounded-2xl text-center flex flex-col gap-0.5`}>
+                            <span className={`text-[10px] ${isDayMode ? "text-slate-600 font-bold" : "text-slate-500"} font-mono uppercase`}>Steel Beams</span>
+                            <span className={`text-sm font-extrabold ${isDayMode ? "text-amber-800 font-black" : "text-amber-400"} font-mono`}>{status.industry?.heavy_manufacturing?.steel_beams || 45} Beams</span>
                           </div>
-                          <div className="bg-slate-900/80 border border-slate-850 p-2.5 rounded-2xl text-center flex flex-col gap-0.5">
-                            <span className="text-[10px] text-slate-500 font-mono uppercase">Concrete</span>
-                            <span className="text-sm font-extrabold text-sky-300 font-mono">{status.industry?.heavy_manufacturing?.concrete_stock || 90} Tons</span>
+                          <div className={`${isDayMode ? "bg-amber-50/80 border-amber-200" : "bg-slate-900/80 border-slate-850"} border p-2.5 rounded-2xl text-center flex flex-col gap-0.5`}>
+                            <span className={`text-[10px] ${isDayMode ? "text-slate-600 font-bold" : "text-slate-500"} font-mono uppercase`}>Concrete</span>
+                            <span className={`text-sm font-extrabold ${isDayMode ? "text-sky-700 font-black" : "text-sky-300"} font-mono`}>{status.industry?.heavy_manufacturing?.concrete_stock || 90} Tons</span>
                           </div>
                         </div>
 
-                        <p className="text-[11px] text-slate-300 bg-slate-900/50 p-2.5 rounded-xl border border-slate-850 leading-relaxed">
+                        <p className={`text-[11px] ${isDayMode ? "text-slate-700 bg-amber-50/60 border-amber-200 font-medium" : "text-slate-300 bg-slate-900/50 border-slate-850"} p-2.5 rounded-xl border leading-relaxed`}>
                           Converts raw iron ore and carbon into structural steel beams used for constructing civic bridges, port shipyard berths, and municipal highway infrastructure.
                         </p>
 
                         <button
                           type="button"
-                          onClick={smeltSteel}
-                          className="bg-slate-700 hover:bg-slate-600 text-white font-extrabold text-xs px-3 py-2 rounded-xl shadow transition-all flex items-center justify-center gap-1.5"
+                          onClick={() => {
+                            soundEngine.playChime(true);
+                            smeltSteel();
+                          }}
+                          className={`${isDayMode ? "bg-amber-500 hover:bg-amber-400 text-slate-950 font-black" : "bg-slate-700 hover:bg-slate-600 text-white font-extrabold"} text-xs px-3 py-2 rounded-xl shadow transition-all flex items-center justify-center gap-1.5`}
                         >
                           <span>🔥</span>
                           <span>SMELT IRON ORE INTO STEEL BEAMS</span>
@@ -4794,48 +4831,49 @@ export default function CivilizationDashboard() {
               )}
 
               {/* Tab: Autonomous Agents & Agent Management System */}
+              {/* Tab: Agent Settings & AI Operations */}
               {activeTab === "agents" && (
                 <div className="flex flex-col gap-5">
                   {/* Top Header */}
-                  <div className="flex justify-between items-center border-b border-slate-800 pb-3 flex-wrap gap-2">
+                  <div className={`flex justify-between items-center border-b ${isDayMode ? "border-amber-200" : "border-slate-800"} pb-3 flex-wrap gap-2`}>
                     <div>
-                      <h2 className="text-white text-base font-bold flex items-center gap-2">
+                      <h2 className={`${isDayMode ? "text-slate-900 font-black" : "text-white font-bold"} text-base flex items-center gap-2`}>
                         <span>Autonomous Multi-Agent Management Console</span>
-                        <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full font-mono font-bold">
-                          ACTIVE & ENABLED
+                        <span className={`text-[10px] ${isDayMode ? "bg-emerald-100 text-emerald-950 border-emerald-300 font-bold" : "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"} border px-2 py-0.5 rounded-full font-mono`}>
+                          ACTIVE &amp; ENABLED
                         </span>
                       </h2>
-                      <span className="text-[10px] text-slate-400 font-mono">
-                        Configure, monitor, and trigger decentralized LangChain & NVIDIA NIM AI agents governing the civilization
+                      <span className={`text-[10px] ${isDayMode ? "text-slate-600 font-semibold" : "text-slate-400"} font-mono`}>
+                        Configure, monitor, and trigger decentralized LangChain &amp; NVIDIA NIM AI agents governing the civilization
                       </span>
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <div className="bg-slate-950/80 px-3 py-1.5 rounded-xl border border-slate-800 font-mono text-xs text-slate-300 flex items-center gap-1.5">
+                      <div className={`${isDayMode ? "bg-white border-amber-300 text-slate-800 shadow-sm" : "bg-slate-950/80 border-slate-800 text-slate-300"} px-3 py-1.5 rounded-xl border font-mono text-xs flex items-center gap-1.5`}>
                         <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-                        <span className="text-emerald-400 font-bold">6 AI AGENTS OPERATIONAL</span>
+                        <span className={`${isDayMode ? "text-emerald-700 font-black" : "text-emerald-400 font-bold"}`}>6 AI AGENTS OPERATIONAL</span>
                       </div>
                     </div>
                   </div>
 
                   {/* Global Architecture Configuration Strip */}
-                  <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-3.5 flex flex-wrap items-center justify-between gap-3 shadow-md">
+                  <div className={`${isDayMode ? "bg-white/95 border-amber-250 shadow-sm text-slate-800" : "bg-slate-900/60 border-slate-800 text-white"} border rounded-2xl p-3.5 flex flex-wrap items-center justify-between gap-3 shadow-md`}>
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-lg">
+                      <div className={`w-9 h-9 rounded-xl ${isDayMode ? "bg-emerald-100 border-emerald-300" : "bg-emerald-500/20 border-emerald-500/30"} border flex items-center justify-center text-lg`}>
                         🧠
                       </div>
                       <div>
-                        <strong className="text-white text-xs block font-bold">Primary Intelligence Engine</strong>
-                        <span className="text-[10px] text-slate-400 font-mono">NVIDIA NIM AI API (meta/llama-3.3-70b-instruct) + LangChain Structured Tools</span>
+                        <strong className={`${isDayMode ? "text-slate-900 font-black" : "text-white"} text-xs block`}>Primary Intelligence Engine</strong>
+                        <span className={`text-[10px] ${isDayMode ? "text-slate-600 font-semibold" : "text-slate-400"} font-mono`}>NVIDIA NIM AI API (meta/llama-3.3-70b-instruct) + LangChain Structured Tools</span>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-[10px] bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800 font-mono text-slate-400">
-                        Per-User Autonomous Provisioning: <strong className="text-sky-300">ACTIVE</strong>
+                      <span className={`text-[10px] ${isDayMode ? "bg-amber-50/80 border-amber-200 text-slate-700" : "bg-slate-950 border-slate-800 text-slate-400"} px-2.5 py-1 rounded-lg border font-mono`}>
+                        Per-User Autonomous Provisioning: <strong className={`${isDayMode ? "text-sky-700 font-black" : "text-sky-300"}`}>ACTIVE</strong>
                       </span>
-                      <span className="text-[10px] bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800 font-mono text-slate-400">
-                        Minimum Stock Buffer Target: <strong className="text-amber-300">≥ 5 Units</strong>
+                      <span className={`text-[10px] ${isDayMode ? "bg-amber-50/80 border-amber-200 text-slate-700" : "bg-slate-950 border-slate-800 text-slate-400"} px-2.5 py-1 rounded-lg border font-mono`}>
+                        Minimum Stock Buffer Target: <strong className={`${isDayMode ? "text-amber-800 font-black" : "text-amber-300"}`}>&ge; 5 Units</strong>
                       </span>
                     </div>
                   </div>
@@ -4844,49 +4882,52 @@ export default function CivilizationDashboard() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     
                     {/* Agent 1: Kisan Agriculture Agent */}
-                    <div className="bg-slate-950/80 border border-emerald-500/30 hover:border-emerald-500/60 rounded-3xl p-4 flex flex-col justify-between gap-3 shadow-lg transition-all">
+                    <div className={`${isDayMode ? "bg-white/95 border-emerald-300/80 shadow-md text-slate-800" : "bg-slate-950/80 border-emerald-500/30 hover:border-emerald-500/60 shadow-lg text-slate-200"} border rounded-3xl p-4 flex flex-col justify-between gap-3 transition-all`}>
                       <div className="flex flex-col gap-2">
                         <div className="flex justify-between items-start">
                           <div className="flex items-center gap-2.5">
-                            <div className="w-10 h-10 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-xl">
+                            <div className={`w-10 h-10 rounded-2xl ${isDayMode ? "bg-emerald-100 border-emerald-300" : "bg-emerald-500/20 border-emerald-500/40"} border flex items-center justify-center text-xl`}>
                               🌾
                             </div>
                             <div>
-                              <h3 className="text-white text-xs font-extrabold flex items-center gap-1.5">
+                              <h3 className={`${isDayMode ? "text-slate-900 font-black" : "text-white font-extrabold"} text-xs flex items-center gap-1.5`}>
                                 <span>Kisan AI Agriculture Agent</span>
-                                <span className="text-[9px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.2 rounded font-mono">LANGCHAIN</span>
+                                <span className={`text-[9px] ${isDayMode ? "bg-emerald-100 text-emerald-950 border-emerald-300 font-bold" : "bg-emerald-500/20 text-emerald-300"} px-1.5 py-0.2 rounded font-mono border`}>LANGCHAIN</span>
                               </h3>
-                              <span className="text-[10px] text-slate-400 font-mono">Crops, Seeds & Silo Stock Management</span>
+                              <span className={`text-[10px] ${isDayMode ? "text-slate-600 font-semibold" : "text-slate-400"} font-mono`}>Crops, Seeds &amp; Silo Stock Management</span>
                             </div>
                           </div>
 
-                          <span className={`text-[10px] font-bold font-mono px-2 py-0.5 rounded-full border ${status.automated_farming_enabled ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40" : "bg-slate-900 text-slate-500 border-slate-800"}`}>
+                          <span className={`text-[10px] font-bold font-mono px-2 py-0.5 rounded-full border ${status.automated_farming_enabled ? isDayMode ? "bg-emerald-100 text-emerald-950 border-emerald-300" : "bg-emerald-500/20 text-emerald-300 border-emerald-500/40" : isDayMode ? "bg-slate-100 text-slate-500 border-slate-300" : "bg-slate-900 text-slate-500 border-slate-800"}`}>
                             {status.automated_farming_enabled ? "🟢 ACTIVE" : "⏸ PAUSED"}
                           </span>
                         </div>
 
-                        <p className="text-[11px] text-slate-300 leading-relaxed bg-slate-900/50 p-2.5 rounded-xl border border-slate-850">
-                          Automatically harvests ready farm plots, auto-procures seeds from the depot, maintains a guaranteed buffer of <strong>≥5 seeds and ≥5 vegetables</strong>, and maintains a <strong>personal cash reserve ($200+)</strong> via surplus commerce.
+                        <p className={`text-[11px] ${isDayMode ? "text-slate-700 bg-amber-50/70 border-amber-200 font-medium" : "text-slate-300 bg-slate-900/50 border-slate-850"} leading-relaxed p-2.5 rounded-xl border`}>
+                          Automatically harvests ready farm plots, auto-procures seeds from the depot, maintains a guaranteed buffer of <strong>&ge;5 seeds and &ge;5 vegetables</strong>, and maintains a <strong>personal cash reserve ($200+)</strong> via surplus commerce.
                         </p>
 
-                        <div className="grid grid-cols-2 gap-2 text-[10px] font-mono text-slate-400">
-                          <div className="bg-slate-900/70 p-2 rounded-lg border border-slate-850">
-                            <span className="text-slate-500 block">Harvest Trigger:</span>
-                            <span className="text-emerald-300 font-bold">Instant On-Maturity</span>
+                        <div className={`grid grid-cols-2 gap-2 text-[10px] font-mono ${isDayMode ? "text-slate-600" : "text-slate-400"}`}>
+                          <div className={`${isDayMode ? "bg-amber-50/90 border-amber-200" : "bg-slate-900/70 border-slate-850"} p-2 rounded-lg border`}>
+                            <span className={`${isDayMode ? "text-slate-600 font-bold" : "text-slate-500"} block`}>Harvest Trigger:</span>
+                            <span className={`${isDayMode ? "text-emerald-700 font-black" : "text-emerald-300 font-bold"}`}>Instant On-Maturity</span>
                           </div>
-                          <div className="bg-slate-900/70 p-2 rounded-lg border border-slate-850">
-                            <span className="text-slate-500 block">Stock Buffer:</span>
-                            <span className="text-amber-300 font-bold">≥5 Units / Crop</span>
+                          <div className={`${isDayMode ? "bg-amber-50/90 border-amber-200" : "bg-slate-900/70 border-slate-850"} p-2 rounded-lg border`}>
+                            <span className={`${isDayMode ? "text-slate-600 font-bold" : "text-slate-500"} block`}>Stock Buffer:</span>
+                            <span className={`${isDayMode ? "text-amber-800 font-black" : "text-amber-300 font-bold"}`}>&ge;5 Units / Crop</span>
                           </div>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2 pt-2 border-t border-slate-850 flex-wrap">
+                      <div className={`flex items-center gap-2 pt-2 border-t ${isDayMode ? "border-amber-200" : "border-slate-850"} flex-wrap`}>
                         {isAdmin && (
                           <button
                             type="button"
-                            onClick={() => dispatchAction("toggle_automated_farming", {})}
-                            className="bg-slate-850 hover:bg-slate-800 text-slate-200 text-xs font-bold px-3 py-1.5 rounded-xl border border-slate-750 transition-all flex-1"
+                            onClick={() => {
+                              soundEngine.playClick(600);
+                              dispatchAction("toggle_automated_farming", {});
+                            }}
+                            className={`${isDayMode ? "bg-amber-100 hover:bg-amber-200 text-slate-800 border-amber-300" : "bg-slate-850 hover:bg-slate-800 text-slate-200 border-slate-750"} text-xs font-bold px-3 py-1.5 rounded-xl border transition-all flex-1`}
                           >
                             {status.automated_farming_enabled ? "⏸ Pause Agent" : "▶ Enable Agent"}
                           </button>
@@ -4894,7 +4935,10 @@ export default function CivilizationDashboard() {
                         <button
                           type="button"
                           disabled={kisanAgentRunning}
-                          onClick={triggerKisanAgent}
+                          onClick={() => {
+                            soundEngine.playChime(true);
+                            triggerKisanAgent();
+                          }}
                           className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-extrabold px-3 py-1.5 rounded-xl transition-all shadow flex-1 flex items-center justify-center gap-1.5 disabled:opacity-50"
                         >
                           <span>⚡</span>
@@ -4904,47 +4948,48 @@ export default function CivilizationDashboard() {
                     </div>
 
                     {/* Agent 2: Town Market Commerce Agent */}
-                    <div className="bg-slate-950/80 border border-amber-500/30 hover:border-amber-500/60 rounded-3xl p-4 flex flex-col justify-between gap-3 shadow-lg transition-all">
+                    <div className={`${isDayMode ? "bg-white/95 border-amber-300/80 shadow-md text-slate-800" : "bg-slate-950/80 border-amber-500/30 hover:border-amber-500/60 shadow-lg text-slate-200"} border rounded-3xl p-4 flex flex-col justify-between gap-3 transition-all`}>
                       <div className="flex flex-col gap-2">
                         <div className="flex justify-between items-start">
                           <div className="flex items-center gap-2.5">
-                            <div className="w-10 h-10 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-xl">
+                            <div className={`w-10 h-10 rounded-2xl ${isDayMode ? "bg-amber-100 border-amber-300" : "bg-amber-500/20 border-amber-500/40"} border flex items-center justify-center text-xl`}>
                               🏪
                             </div>
                             <div>
-                              <h3 className="text-white text-xs font-extrabold flex items-center gap-1.5">
+                              <h3 className={`${isDayMode ? "text-slate-900 font-black" : "text-white font-extrabold"} text-xs flex items-center gap-1.5`}>
                                 <span>Market Commerce Agent</span>
-                                <span className="text-[9px] bg-amber-500/20 text-amber-300 px-1.5 py-0.2 rounded font-mono">COMMERCE</span>
+                                <span className={`text-[9px] ${isDayMode ? "bg-amber-100 text-amber-950 border-amber-300 font-bold" : "bg-amber-500/20 text-amber-300"} px-1.5 py-0.2 rounded font-mono border`}>COMMERCE</span>
                               </h3>
-                              <span className="text-[10px] text-slate-400 font-mono">Retail Shelves, Pricing & Liquidity</span>
+                              <span className={`text-[10px] ${isDayMode ? "text-slate-600 font-semibold" : "text-slate-400"} font-mono`}>Retail Shelves, Pricing &amp; Liquidity</span>
                             </div>
                           </div>
 
-                          <span className="text-[10px] font-bold font-mono px-2 py-0.5 rounded-full border bg-emerald-500/20 text-emerald-300 border-emerald-500/40">
+                          <span className={`text-[10px] font-bold font-mono px-2 py-0.5 rounded-full border ${isDayMode ? "bg-emerald-100 text-emerald-950 border-emerald-300" : "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"}`}>
                             🟢 ACTIVE
                           </span>
                         </div>
 
-                        <p className="text-[11px] text-slate-300 leading-relaxed bg-slate-900/50 p-2.5 rounded-xl border border-slate-850">
+                        <p className={`text-[11px] ${isDayMode ? "text-slate-700 bg-amber-50/70 border-amber-200 font-medium" : "text-slate-300 bg-slate-900/50 border-slate-850"} leading-relaxed p-2.5 rounded-xl border`}>
                           Maintains store retail inventories, restocks Navsari Farmers Market from farm harvest silos, and ensures continuous merchant trading liquidity.
                         </p>
 
-                        <div className="grid grid-cols-2 gap-2 text-[10px] font-mono text-slate-400">
-                          <div className="bg-slate-900/70 p-2 rounded-lg border border-slate-850">
-                            <span className="text-slate-500 block">Restock Routine:</span>
-                            <span className="text-amber-300 font-bold">Daily 06:00 AM</span>
+                        <div className={`grid grid-cols-2 gap-2 text-[10px] font-mono ${isDayMode ? "text-slate-600" : "text-slate-400"}`}>
+                          <div className={`${isDayMode ? "bg-amber-50/90 border-amber-200" : "bg-slate-900/70 border-slate-850"} p-2 rounded-lg border`}>
+                            <span className={`${isDayMode ? "text-slate-600 font-bold" : "text-slate-500"} block`}>Restock Routine:</span>
+                            <span className={`${isDayMode ? "text-amber-800 font-black" : "text-amber-300 font-bold"}`}>Daily 06:00 AM</span>
                           </div>
-                          <div className="bg-slate-900/70 p-2 rounded-lg border border-slate-850">
-                            <span className="text-slate-500 block">Market Liquidity:</span>
-                            <span className="text-sky-300 font-bold">Real-Time Sync</span>
+                          <div className={`${isDayMode ? "bg-amber-50/90 border-amber-200" : "bg-slate-900/70 border-slate-850"} p-2 rounded-lg border`}>
+                            <span className={`${isDayMode ? "text-slate-600 font-bold" : "text-slate-500"} block`}>Market Liquidity:</span>
+                            <span className={`${isDayMode ? "text-sky-700 font-black" : "text-sky-300 font-bold"}`}>Real-Time Sync</span>
                           </div>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2 pt-2 border-t border-slate-850 flex-wrap">
+                      <div className={`flex items-center gap-2 pt-2 border-t ${isDayMode ? "border-amber-200" : "border-slate-850"} flex-wrap`}>
                         <button
                           type="button"
                           onClick={() => {
+                            soundEngine.playChime(true);
                             dispatchAction("buy_from_shop", { shop_id: "farmers_market", item_id: "carrot", qty: 1 });
                             setFarmActionMsg("Commerce Agent: Synchronized market inventory shelves.");
                             setTimeout(() => setFarmActionMsg(""), 4000);
@@ -4958,47 +5003,48 @@ export default function CivilizationDashboard() {
                     </div>
 
                     {/* Agent 3: Household Procurement & Nutrition Agent */}
-                    <div className="bg-slate-950/80 border border-sky-500/30 hover:border-sky-500/60 rounded-3xl p-4 flex flex-col justify-between gap-3 shadow-lg transition-all">
+                    <div className={`${isDayMode ? "bg-white/95 border-sky-300/80 shadow-md text-slate-800" : "bg-slate-950/80 border-sky-500/30 hover:border-sky-500/60 shadow-lg text-slate-200"} border rounded-3xl p-4 flex flex-col justify-between gap-3 transition-all`}>
                       <div className="flex flex-col gap-2">
                         <div className="flex justify-between items-start">
                           <div className="flex items-center gap-2.5">
-                            <div className="w-10 h-10 rounded-2xl bg-sky-500/20 border border-sky-500/40 flex items-center justify-center text-xl">
+                            <div className={`w-10 h-10 rounded-2xl ${isDayMode ? "bg-sky-100 border-sky-300" : "bg-sky-500/20 border-sky-500/40"} border flex items-center justify-center text-xl`}>
                               🛒
                             </div>
                             <div>
-                              <h3 className="text-white text-xs font-extrabold flex items-center gap-1.5">
+                              <h3 className={`${isDayMode ? "text-slate-900 font-black" : "text-white font-extrabold"} text-xs flex items-center gap-1.5`}>
                                 <span>Household Procurement Agent</span>
-                                <span className="text-[9px] bg-sky-500/20 text-sky-300 px-1.5 py-0.2 rounded font-mono">LOGISTICS</span>
+                                <span className={`text-[9px] ${isDayMode ? "bg-sky-100 text-sky-950 border-sky-300 font-bold" : "bg-sky-500/20 text-sky-300"} px-1.5 py-0.2 rounded font-mono border`}>LOGISTICS</span>
                               </h3>
-                              <span className="text-[10px] text-slate-400 font-mono">Family Shopping & Market Deductions</span>
+                              <span className={`text-[10px] ${isDayMode ? "text-slate-600 font-semibold" : "text-slate-400"} font-mono`}>Family Shopping &amp; Market Deductions</span>
                             </div>
                           </div>
 
-                          <span className="text-[10px] font-bold font-mono px-2 py-0.5 rounded-full border bg-emerald-500/20 text-emerald-300 border-emerald-500/40">
+                          <span className={`text-[10px] font-bold font-mono px-2 py-0.5 rounded-full border ${isDayMode ? "bg-emerald-100 text-emerald-950 border-emerald-300" : "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"}`}>
                             🟢 ACTIVE
                           </span>
                         </div>
 
-                        <p className="text-[11px] text-slate-300 leading-relaxed bg-slate-900/50 p-2.5 rounded-xl border border-slate-850">
+                        <p className={`text-[11px] ${isDayMode ? "text-slate-700 bg-amber-50/70 border-amber-200 font-medium" : "text-slate-300 bg-slate-900/50 border-slate-850"} leading-relaxed p-2.5 rounded-xl border`}>
                           Dispatches family shoppers along road networks to buy fresh groceries from town markets, deducting store stock in real-time and serving household dinners.
                         </p>
 
-                        <div className="grid grid-cols-2 gap-2 text-[10px] font-mono text-slate-400">
-                          <div className="bg-slate-900/70 p-2 rounded-lg border border-slate-850">
-                            <span className="text-slate-500 block">Shopping Hours:</span>
-                            <span className="text-sky-300 font-bold">16:30 - 17:30</span>
+                        <div className={`grid grid-cols-2 gap-2 text-[10px] font-mono ${isDayMode ? "text-slate-600" : "text-slate-400"}`}>
+                          <div className={`${isDayMode ? "bg-amber-50/90 border-amber-200" : "bg-slate-900/70 border-slate-850"} p-2 rounded-lg border`}>
+                            <span className={`${isDayMode ? "text-slate-600 font-bold" : "text-slate-500"} block`}>Shopping Hours:</span>
+                            <span className={`${isDayMode ? "text-sky-700 font-black" : "text-sky-300 font-bold"}`}>16:30 - 17:30</span>
                           </div>
-                          <div className="bg-slate-900/70 p-2 rounded-lg border border-slate-850">
-                            <span className="text-slate-500 block">Dinner Nourishment:</span>
-                            <span className="text-emerald-300 font-bold">19:00 - 20:00</span>
+                          <div className={`${isDayMode ? "bg-amber-50/90 border-amber-200" : "bg-slate-900/70 border-slate-850"} p-2 rounded-lg border`}>
+                            <span className={`${isDayMode ? "text-slate-600 font-bold" : "text-slate-500"} block`}>Dinner Nourishment:</span>
+                            <span className={`${isDayMode ? "text-emerald-700 font-black" : "text-emerald-300 font-bold"}`}>19:00 - 20:00</span>
                           </div>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2 pt-2 border-t border-slate-850 flex-wrap">
+                      <div className={`flex items-center gap-2 pt-2 border-t ${isDayMode ? "border-amber-200" : "border-slate-850"} flex-wrap`}>
                         <button
                           type="button"
                           onClick={() => {
+                            soundEngine.playChime(true);
                             status.families?.forEach((f: any) => {
                               dispatchAction("buy_groceries_now", { family_id: f.id });
                             });
@@ -5014,49 +5060,52 @@ export default function CivilizationDashboard() {
                     </div>
 
                     {/* Agent 4: Civilization City Manager Agent */}
-                    <div className="bg-slate-950/80 border border-purple-500/30 hover:border-purple-500/60 rounded-3xl p-4 flex flex-col justify-between gap-3 shadow-lg transition-all">
+                    <div className={`${isDayMode ? "bg-white/95 border-purple-300/80 shadow-md text-slate-800" : "bg-slate-950/80 border-purple-500/30 hover:border-purple-500/60 shadow-lg text-slate-200"} border rounded-3xl p-4 flex flex-col justify-between gap-3 transition-all`}>
                       <div className="flex flex-col gap-2">
                         <div className="flex justify-between items-start">
                           <div className="flex items-center gap-2.5">
-                            <div className="w-10 h-10 rounded-2xl bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-xl">
+                            <div className={`w-10 h-10 rounded-2xl ${isDayMode ? "bg-purple-100 border-purple-300" : "bg-purple-500/20 border-purple-500/40"} border flex items-center justify-center text-xl`}>
                               🏛️
                             </div>
                             <div>
-                              <h3 className="text-white text-xs font-extrabold flex items-center gap-1.5">
+                              <h3 className={`${isDayMode ? "text-slate-900 font-black" : "text-white font-extrabold"} text-xs flex items-center gap-1.5`}>
                                 <span>City Manager Governance Agent</span>
-                                <span className="text-[9px] bg-purple-500/20 text-purple-300 px-1.5 py-0.2 rounded font-mono">GOVERNANCE</span>
+                                <span className={`text-[9px] ${isDayMode ? "bg-purple-100 text-purple-950 border-purple-300 font-bold" : "bg-purple-500/20 text-purple-300"} px-1.5 py-0.2 rounded font-mono border`}>GOVERNANCE</span>
                               </h3>
-                              <span className="text-[10px] text-slate-400 font-mono">Civic Projects, Treasury & PMO</span>
+                              <span className={`text-[10px] ${isDayMode ? "text-slate-600 font-semibold" : "text-slate-400"} font-mono`}>Civic Projects, Treasury &amp; PMO</span>
                             </div>
                           </div>
 
-                          <span className={`text-[10px] font-bold font-mono px-2 py-0.5 rounded-full border ${status.city_manager_enabled ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40" : "bg-slate-900 text-slate-500 border-slate-800"}`}>
+                          <span className={`text-[10px] font-bold font-mono px-2 py-0.5 rounded-full border ${status.city_manager_enabled ? isDayMode ? "bg-emerald-100 text-emerald-950 border-emerald-300" : "bg-emerald-500/20 text-emerald-300 border-emerald-500/40" : isDayMode ? "bg-slate-100 text-slate-500 border-slate-300" : "bg-slate-900 text-slate-500 border-slate-800"}`}>
                             {status.city_manager_enabled ? "🟢 ACTIVE" : "⏸ PAUSED"}
                           </span>
                         </div>
 
-                        <p className="text-[11px] text-slate-300 leading-relaxed bg-slate-900/50 p-2.5 rounded-xl border border-slate-850">
+                        <p className={`text-[11px] ${isDayMode ? "text-slate-700 bg-amber-50/70 border-amber-200 font-medium" : "text-slate-300 bg-slate-900/50 border-slate-850"} leading-relaxed p-2.5 rounded-xl border`}>
                           Allocates municipal treasury funds to public infrastructure (School, Hospital, Park, Roads), balances tax rates, and conducts democratic elections.
                         </p>
 
-                        <div className="grid grid-cols-2 gap-2 text-[10px] font-mono text-slate-400">
-                          <div className="bg-slate-900/70 p-2 rounded-lg border border-slate-850">
-                            <span className="text-slate-500 block">Treasury Balance:</span>
-                            <span className="text-emerald-300 font-bold">${status.city_treasury?.toLocaleString()}</span>
+                        <div className={`grid grid-cols-2 gap-2 text-[10px] font-mono ${isDayMode ? "text-slate-600" : "text-slate-400"}`}>
+                          <div className={`${isDayMode ? "bg-amber-50/90 border-amber-200" : "bg-slate-900/70 border-slate-850"} p-2 rounded-lg border`}>
+                            <span className={`${isDayMode ? "text-slate-600 font-bold" : "text-slate-500"} block`}>Treasury Balance:</span>
+                            <span className={`${isDayMode ? "text-emerald-700 font-black" : "text-emerald-300 font-bold"}`}>${status.city_treasury?.toLocaleString()}</span>
                           </div>
-                          <div className="bg-slate-900/70 p-2 rounded-lg border border-slate-850">
-                            <span className="text-slate-500 block">Cabinet Review:</span>
-                            <span className="text-purple-300 font-bold">Daily 12:00 PM</span>
+                          <div className={`${isDayMode ? "bg-amber-50/90 border-amber-200" : "bg-slate-900/70 border-slate-850"} p-2 rounded-lg border`}>
+                            <span className={`${isDayMode ? "text-slate-600 font-bold" : "text-slate-500"} block`}>Cabinet Review:</span>
+                            <span className={`${isDayMode ? "text-purple-800 font-black" : "text-purple-300 font-bold"}`}>Daily 12:00 PM</span>
                           </div>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2 pt-2 border-t border-slate-850 flex-wrap">
+                      <div className={`flex items-center gap-2 pt-2 border-t ${isDayMode ? "border-amber-200" : "border-slate-850"} flex-wrap`}>
                         {isAdmin && (
                           <button
                             type="button"
-                            onClick={toggleCityManager}
-                            className="bg-slate-850 hover:bg-slate-800 text-slate-200 text-xs font-bold px-3 py-1.5 rounded-xl border border-slate-750 transition-all flex-1"
+                            onClick={() => {
+                              soundEngine.playClick(600);
+                              toggleCityManager();
+                            }}
+                            className={`${isDayMode ? "bg-amber-100 hover:bg-amber-200 text-slate-800 border-amber-300" : "bg-slate-850 hover:bg-slate-800 text-slate-200 border-slate-750"} text-xs font-bold px-3 py-1.5 rounded-xl border transition-all flex-1`}
                           >
                             {status.city_manager_enabled ? "⏸ Pause Manager" : "▶ Enable Manager"}
                           </button>
@@ -5064,6 +5113,7 @@ export default function CivilizationDashboard() {
                         <button
                           type="button"
                           onClick={() => {
+                            soundEngine.playChime(true);
                             conductElection();
                             setFarmActionMsg("Governance Agent: Conducted democratic civic election cycle.");
                             setTimeout(() => setFarmActionMsg(""), 5000);
@@ -5077,47 +5127,48 @@ export default function CivilizationDashboard() {
                     </div>
 
                     {/* Agent 5: Heavy Industry & Energy Supply Chain Agent */}
-                    <div className="bg-slate-950/80 border border-amber-500/30 hover:border-amber-500/60 rounded-3xl p-4 flex flex-col justify-between gap-3 shadow-lg transition-all">
+                    <div className={`${isDayMode ? "bg-white/95 border-amber-300/80 shadow-md text-slate-800" : "bg-slate-950/80 border-amber-500/30 hover:border-amber-500/60 shadow-lg text-slate-200"} border rounded-3xl p-4 flex flex-col justify-between gap-3 transition-all`}>
                       <div className="flex flex-col gap-2">
                         <div className="flex justify-between items-start">
                           <div className="flex items-center gap-2.5">
-                            <div className="w-10 h-10 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-xl">
+                            <div className={`w-10 h-10 rounded-2xl ${isDayMode ? "bg-amber-100 border-amber-300" : "bg-amber-500/20 border-amber-500/40"} border flex items-center justify-center text-xl`}>
                               🏭
                             </div>
                             <div>
-                              <h3 className="text-white text-xs font-extrabold flex items-center gap-1.5">
-                                <span>Industrial Revolution & Energy Supply Chain Agent</span>
-                                <span className="text-[9px] bg-amber-500/20 text-amber-300 px-1.5 py-0.2 rounded font-mono">ENERGY & REFINERY</span>
+                              <h3 className={`${isDayMode ? "text-slate-900 font-black" : "text-white font-extrabold"} text-xs flex items-center gap-1.5`}>
+                                <span>Industrial Revolution &amp; Energy Supply Chain Agent</span>
+                                <span className={`text-[9px] ${isDayMode ? "bg-amber-100 text-amber-950 border-amber-300 font-bold" : "bg-amber-500/20 text-amber-300"} px-1.5 py-0.2 rounded font-mono border`}>ENERGY &amp; REFINERY</span>
                               </h3>
-                              <span className="text-[10px] text-slate-400 font-mono">Crude Refining, Shipyard Bunkering & Foundry Works</span>
+                              <span className={`text-[10px] ${isDayMode ? "text-slate-600 font-semibold" : "text-slate-400"} font-mono`}>Crude Refining, Shipyard Bunkering &amp; Foundry Works</span>
                             </div>
                           </div>
 
-                          <span className="text-[10px] font-bold font-mono px-2 py-0.5 rounded-full border bg-emerald-500/20 text-emerald-300 border-emerald-500/40">
+                          <span className={`text-[10px] font-bold font-mono px-2 py-0.5 rounded-full border ${isDayMode ? "bg-emerald-100 text-emerald-950 border-emerald-300" : "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"}`}>
                             🟢 ACTIVE
                           </span>
                         </div>
 
-                        <p className="text-[11px] text-slate-300 leading-relaxed bg-slate-900/50 p-2.5 rounded-xl border border-slate-850">
+                        <p className={`text-[11px] ${isDayMode ? "text-slate-700 bg-amber-50/70 border-amber-200 font-medium" : "text-slate-300 bg-slate-900/50 border-slate-850"} leading-relaxed p-2.5 rounded-xl border`}>
                           Automates crude petroleum extraction and catalytic cracking into petrol/diesel, keeps Gulf refinery operating at peak 95% efficiency, automatically refuels shipyard vessels, and smelts iron ore into structural steel beams.
                         </p>
 
-                        <div className="grid grid-cols-2 gap-2 text-[10px] font-mono text-slate-400">
-                          <div className="bg-slate-900/70 p-2 rounded-lg border border-slate-850">
-                            <span className="text-slate-500 block">Crude Reserve:</span>
-                            <span className="text-amber-300 font-bold">{status.industry?.oil_refinery?.crude_oil || 120} BBL</span>
+                        <div className={`grid grid-cols-2 gap-2 text-[10px] font-mono ${isDayMode ? "text-slate-600" : "text-slate-400"}`}>
+                          <div className={`${isDayMode ? "bg-amber-50/90 border-amber-200" : "bg-slate-900/70 border-slate-850"} p-2 rounded-lg border`}>
+                            <span className={`${isDayMode ? "text-slate-600 font-bold" : "text-slate-500"} block`}>Crude Reserve:</span>
+                            <span className={`${isDayMode ? "text-amber-800 font-black" : "text-amber-300 font-bold"}`}>{status.industry?.oil_refinery?.crude_oil || 120} BBL</span>
                           </div>
-                          <div className="bg-slate-900/70 p-2 rounded-lg border border-slate-850">
-                            <span className="text-slate-500 block">Active Vessels:</span>
-                            <span className="text-sky-300 font-bold">{status.industry?.shipyard?.fleet?.length || 3} Ships</span>
+                          <div className={`${isDayMode ? "bg-amber-50/90 border-amber-200" : "bg-slate-900/70 border-slate-850"} p-2 rounded-lg border`}>
+                            <span className={`${isDayMode ? "text-slate-600 font-bold" : "text-slate-500"} block`}>Active Vessels:</span>
+                            <span className={`${isDayMode ? "text-sky-700 font-black" : "text-sky-300 font-bold"}`}>{status.industry?.shipyard?.fleet?.length || 3} Ships</span>
                           </div>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2 pt-2 border-t border-slate-850 flex-wrap">
+                      <div className={`flex items-center gap-2 pt-2 border-t ${isDayMode ? "border-amber-200" : "border-slate-850"} flex-wrap`}>
                         <button
                           type="button"
                           onClick={async () => {
+                            soundEngine.playChime(true);
                             const res = await dispatchAction("run_industrial_agent", {});
                             if (res?.message) {
                               setIndustrialActionMsg(res.message);
@@ -5133,47 +5184,48 @@ export default function CivilizationDashboard() {
                     </div>
 
                     {/* Agent 6: Highway 48 Petrol Pump & Citizen Vehicle Fueling Agent */}
-                    <div className="bg-slate-950/80 border border-rose-500/30 hover:border-rose-500/60 rounded-3xl p-4 flex flex-col justify-between gap-3 shadow-lg transition-all">
+                    <div className={`${isDayMode ? "bg-white/95 border-rose-300/80 shadow-md text-slate-800" : "bg-slate-950/80 border-rose-500/30 hover:border-rose-500/60 shadow-lg text-slate-200"} border rounded-3xl p-4 flex flex-col justify-between gap-3 transition-all`}>
                       <div className="flex flex-col gap-2">
                         <div className="flex justify-between items-start">
                           <div className="flex items-center gap-2.5">
-                            <div className="w-10 h-10 rounded-2xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-xl">
+                            <div className={`w-10 h-10 rounded-2xl ${isDayMode ? "bg-rose-100 border-rose-300" : "bg-rose-500/20 border-rose-500/40"} border flex items-center justify-center text-xl`}>
                               ⛽
                             </div>
                             <div>
-                              <h3 className="text-white text-xs font-extrabold flex items-center gap-1.5">
-                                <span>Highway 48 Petrol Pump & Vehicle Fueling Agent</span>
-                                <span className="text-[9px] bg-rose-500/20 text-rose-300 px-1.5 py-0.2 rounded font-mono">FLEET LOGISTICS</span>
+                              <h3 className={`${isDayMode ? "text-slate-900 font-black" : "text-white font-extrabold"} text-xs flex items-center gap-1.5`}>
+                                <span>Highway 48 Petrol Pump &amp; Vehicle Fueling Agent</span>
+                                <span className={`text-[9px] ${isDayMode ? "bg-rose-100 text-rose-950 border-rose-300 font-bold" : "bg-rose-500/20 text-rose-300"} px-1.5 py-0.2 rounded font-mono border`}>FLEET LOGISTICS</span>
                               </h3>
-                              <span className="text-[10px] text-slate-400 font-mono">Automotive Petrol, Diesel Dispensers & Fuel Tax</span>
+                              <span className={`text-[10px] ${isDayMode ? "text-slate-600 font-semibold" : "text-slate-400"} font-mono`}>Automotive Petrol, Diesel Dispensers &amp; Fuel Tax</span>
                             </div>
                           </div>
 
-                          <span className="text-[10px] font-bold font-mono px-2 py-0.5 rounded-full border bg-emerald-500/20 text-emerald-300 border-emerald-500/40">
+                          <span className={`text-[10px] font-bold font-mono px-2 py-0.5 rounded-full border ${isDayMode ? "bg-emerald-100 text-emerald-950 border-emerald-300" : "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"}`}>
                             🟢 ACTIVE
                           </span>
                         </div>
 
-                        <p className="text-[11px] text-slate-300 leading-relaxed bg-slate-900/50 p-2.5 rounded-xl border border-slate-850">
+                        <p className={`text-[11px] ${isDayMode ? "text-slate-700 bg-amber-50/70 border-amber-200 font-medium" : "text-slate-300 bg-slate-900/50 border-slate-850"} leading-relaxed p-2.5 rounded-xl border`}>
                           Manages vehicle fuel logistics for citizens traveling on roads (Cars, Scooters, Tractors, Trucks), automatically requests refinery fuel tankers, collects gas payments from family budgets, and transfers 10% fuel tax to the city treasury.
                         </p>
 
-                        <div className="grid grid-cols-2 gap-2 text-[10px] font-mono text-slate-400">
-                          <div className="bg-slate-900/70 p-2 rounded-lg border border-slate-850">
-                            <span className="text-slate-500 block">Pump Fuel Reserve:</span>
-                            <span className="text-rose-300 font-bold">{status.industry?.petrol_pump?.fuel_stock || 450}L Petrol</span>
+                        <div className={`grid grid-cols-2 gap-2 text-[10px] font-mono ${isDayMode ? "text-slate-600" : "text-slate-400"}`}>
+                          <div className={`${isDayMode ? "bg-amber-50/90 border-amber-200" : "bg-slate-900/70 border-slate-850"} p-2 rounded-lg border`}>
+                            <span className={`${isDayMode ? "text-slate-600 font-bold" : "text-slate-500"} block`}>Pump Fuel Reserve:</span>
+                            <span className={`${isDayMode ? "text-rose-700 font-black" : "text-rose-300 font-bold"}`}>{status.industry?.petrol_pump?.fuel_stock || 450}L Petrol</span>
                           </div>
-                          <div className="bg-slate-900/70 p-2 rounded-lg border border-slate-850">
-                            <span className="text-slate-500 block">Diesel Reserve:</span>
-                            <span className="text-sky-300 font-bold">{status.industry?.petrol_pump?.diesel_stock || 350}L Diesel</span>
+                          <div className={`${isDayMode ? "bg-amber-50/90 border-amber-200" : "bg-slate-900/70 border-slate-850"} p-2 rounded-lg border`}>
+                            <span className={`${isDayMode ? "text-slate-600 font-bold" : "text-slate-500"} block`}>Diesel Reserve:</span>
+                            <span className={`${isDayMode ? "text-sky-700 font-black" : "text-sky-300 font-bold"}`}>{status.industry?.petrol_pump?.diesel_stock || 350}L Diesel</span>
                           </div>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2 pt-2 border-t border-slate-850 flex-wrap">
+                      <div className={`flex items-center gap-2 pt-2 border-t ${isDayMode ? "border-amber-200" : "border-slate-850"} flex-wrap`}>
                         <button
                           type="button"
                           onClick={async () => {
+                            soundEngine.playChime(true);
                             const res = await dispatchAction("run_industrial_agent", {});
                             if (res?.message) {
                               setIndustrialActionMsg(res.message);
@@ -5183,7 +5235,7 @@ export default function CivilizationDashboard() {
                           className="bg-rose-500 hover:bg-rose-400 text-slate-950 text-xs font-extrabold px-3 py-1.5 rounded-xl transition-all shadow w-full flex items-center justify-center gap-1.5"
                         >
                           <span>⛽</span>
-                          <span>Dispatch Fuel Tanker & Refuel Fleet Now</span>
+                          <span>Dispatch Fuel Tanker &amp; Refuel Fleet Now</span>
                         </button>
                       </div>
                     </div>
@@ -5191,33 +5243,33 @@ export default function CivilizationDashboard() {
                   </div>
 
                   {/* Multi-Agent Live Thought & Reasoning Log Terminal */}
-                  <div className="bg-slate-950 border border-slate-800 rounded-3xl p-4 flex flex-col gap-2.5 shadow-lg">
-                    <div className="flex justify-between items-center border-b border-slate-800 pb-2 flex-wrap gap-2">
+                  <div className={`${isDayMode ? "bg-white/95 border-amber-250 shadow-sm text-slate-800" : "bg-slate-950 border-slate-800 text-white"} border rounded-3xl p-4 flex flex-col gap-2.5 shadow-lg`}>
+                    <div className={`flex justify-between items-center border-b ${isDayMode ? "border-amber-200" : "border-slate-800"} pb-2 flex-wrap gap-2`}>
                       <div className="flex items-center gap-2">
                         <span className="text-base">📜</span>
-                        <h3 className="text-white text-xs font-extrabold uppercase tracking-wider">
-                          Autonomous Multi-Agent Activity & Thought Log
+                        <h3 className={`${isDayMode ? "text-slate-900 font-black" : "text-white font-extrabold"} text-xs uppercase tracking-wider`}>
+                          Autonomous Multi-Agent Activity &amp; Thought Log
                         </h3>
                       </div>
-                      <span className="text-[9px] font-mono text-emerald-400 animate-pulse">
+                      <span className={`text-[9px] font-mono ${isDayMode ? "text-emerald-700 font-black" : "text-emerald-400"} animate-pulse`}>
                         LIVE TELEMETRY STREAM
                       </span>
                     </div>
 
-                    <div className="bg-slate-900/60 p-3 rounded-2xl border border-slate-850 font-mono text-xs text-slate-300 max-h-48 overflow-y-auto space-y-1.5 shadow-inner">
+                    <div className={`${isDayMode ? "bg-amber-50/70 border-amber-200 text-slate-800" : "bg-slate-900/60 border-slate-850 text-slate-300"} p-3 rounded-2xl border font-mono text-xs max-h-48 overflow-y-auto space-y-1.5 shadow-inner`}>
                       {status.agent_logs?.slice(-12).reverse().map((log: string, i: number) => {
-                        let badgeColor = "bg-slate-800 text-slate-400";
-                        if (log.includes("Kisan") || log.includes("Agriculture")) badgeColor = "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40";
-                        else if (log.includes("Commerce") || log.includes("Shop") || log.includes("Market")) badgeColor = "bg-amber-500/20 text-amber-300 border border-amber-500/40";
-                        else if (log.includes("Household") || log.includes("groceries")) badgeColor = "bg-sky-500/20 text-sky-300 border border-sky-500/40";
-                        else if (log.includes("Government") || log.includes("Cabinet") || log.includes("Democracy")) badgeColor = "bg-purple-500/20 text-purple-300 border border-purple-500/40";
+                        let badgeColor = isDayMode ? "bg-slate-200 text-slate-700" : "bg-slate-800 text-slate-400";
+                        if (log.includes("Kisan") || log.includes("Agriculture")) badgeColor = isDayMode ? "bg-emerald-100 text-emerald-950 border border-emerald-300 font-bold" : "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40";
+                        else if (log.includes("Commerce") || log.includes("Shop") || log.includes("Market")) badgeColor = isDayMode ? "bg-amber-100 text-amber-950 border border-amber-300 font-bold" : "bg-amber-500/20 text-amber-300 border border-amber-500/40";
+                        else if (log.includes("Household") || log.includes("groceries")) badgeColor = isDayMode ? "bg-sky-100 text-sky-950 border border-sky-300 font-bold" : "bg-sky-500/20 text-sky-300 border border-sky-500/40";
+                        else if (log.includes("Government") || log.includes("Cabinet") || log.includes("Democracy")) badgeColor = isDayMode ? "bg-purple-100 text-purple-950 border border-purple-300 font-bold" : "bg-purple-500/20 text-purple-300 border border-purple-500/40";
 
                         return (
-                          <div key={i} className="flex items-start gap-2 py-0.5 border-b border-slate-850/40 last:border-0">
+                          <div key={i} className={`flex items-start gap-2 py-0.5 border-b ${isDayMode ? "border-amber-200/50" : "border-slate-850/40"} last:border-0`}>
                             <span className={`text-[9px] font-bold px-1.5 py-0.2 rounded shrink-0 ${badgeColor}`}>
                               AI EVENT
                             </span>
-                            <span className="text-slate-300 text-[11px] leading-relaxed break-words">{log}</span>
+                            <span className={`${isDayMode ? "text-slate-800 font-medium" : "text-slate-300"} text-[11px] leading-relaxed break-words`}>{log}</span>
                           </div>
                         );
                       })}
@@ -5542,21 +5594,21 @@ export default function CivilizationDashboard() {
 
       {/* Admin Manual Role & Vehicle Assignment Modal Dialog */}
       {editMemberModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-slate-900 border-2 border-amber-500/70 rounded-2xl p-5 max-w-lg w-full shadow-2xl flex flex-col gap-4 text-xs animate-fade-in my-auto">
-            <div className="flex justify-between items-center border-b border-slate-800 pb-2.5">
+        <div className={`fixed inset-0 z-50 ${isDayMode ? "bg-slate-900/60" : "bg-slate-950/85"} backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto`}>
+          <div className={`${isDayMode ? "bg-amber-50/95 border-2 border-amber-300 text-slate-800 shadow-2xl" : "bg-slate-900 border-2 border-amber-500/70 text-slate-200 shadow-2xl"} rounded-2xl p-5 max-w-lg w-full flex flex-col gap-4 text-xs animate-fade-in my-auto`}>
+            <div className={`flex justify-between items-center border-b ${isDayMode ? "border-amber-200" : "border-slate-800"} pb-2.5`}>
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-base">
+                <div className={`w-8 h-8 rounded-xl ${isDayMode ? "bg-amber-100 border-amber-300" : "bg-amber-500/20 border-amber-500/40"} border flex items-center justify-center text-base`}>
                   👨‍👩‍👧‍👦
                 </div>
                 <div>
-                  <h3 className="text-white font-bold text-sm">Assign Member Role & Vehicle</h3>
-                  <span className="text-[10px] text-amber-400 font-mono">Supreme Admin Governance Deck</span>
+                  <h3 className={`${isDayMode ? "text-slate-900 font-black" : "text-white font-bold"} text-sm`}>Assign Member Role &amp; Vehicle</h3>
+                  <span className={`text-[10px] ${isDayMode ? "text-amber-800 font-bold" : "text-amber-400"} font-mono`}>Supreme Admin Governance Deck</span>
                 </div>
               </div>
               <button
                 onClick={() => setEditMemberModalOpen(false)}
-                className="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-bold flex items-center justify-center transition-all"
+                className={`w-7 h-7 rounded-lg ${isDayMode ? "bg-slate-200 hover:bg-slate-300 text-slate-800" : "bg-slate-800 hover:bg-slate-700 text-slate-300"} font-bold flex items-center justify-center transition-all`}
               >
                 ✕
               </button>
@@ -5566,7 +5618,7 @@ export default function CivilizationDashboard() {
               {/* Select Family & Member */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 <div>
-                  <label className="text-slate-300 block mb-1 font-semibold text-[11px]">1. Select Family:</label>
+                  <label className={`${isDayMode ? "text-slate-700 font-bold" : "text-slate-300"} block mb-1 font-semibold text-[11px]`}>1. Select Family:</label>
                   <select
                     value={editMemberFamilyId}
                     onChange={(e) => {
@@ -5579,7 +5631,7 @@ export default function CivilizationDashboard() {
                         setEditMemberVehicle(fam.members[0].vehicle || "bicycle");
                       }
                     }}
-                    className="w-full bg-slate-950 border border-slate-800 text-white rounded-xl p-2.5 font-mono text-xs focus:border-amber-500 outline-none"
+                    className={`w-full ${isDayMode ? "bg-white border-amber-200 text-slate-900 font-semibold" : "bg-slate-950 border-slate-800 text-white font-mono"} border rounded-xl p-2.5 text-xs outline-none`}
                   >
                     {status?.families?.map((f: any) => (
                       <option key={f.id} value={f.id}>{f.name} ({f.id})</option>
@@ -5588,7 +5640,7 @@ export default function CivilizationDashboard() {
                 </div>
 
                 <div>
-                  <label className="text-slate-300 block mb-1 font-semibold text-[11px]">2. Select Citizen Member:</label>
+                  <label className={`${isDayMode ? "text-slate-700 font-bold" : "text-slate-300"} block mb-1 font-semibold text-[11px]`}>2. Select Citizen Member:</label>
                   <select
                     value={editMemberName}
                     onChange={(e) => {
@@ -5601,7 +5653,7 @@ export default function CivilizationDashboard() {
                         setEditMemberVehicle(m.vehicle || "bicycle");
                       }
                     }}
-                    className="w-full bg-slate-950 border border-slate-800 text-white rounded-xl p-2.5 font-mono text-xs focus:border-amber-500 outline-none"
+                    className={`w-full ${isDayMode ? "bg-white border-amber-200 text-slate-900 font-semibold" : "bg-slate-950 border-slate-800 text-white font-mono"} border rounded-xl p-2.5 text-xs outline-none`}
                   >
                     {status?.families?.find((f: any) => f.id === editMemberFamilyId)?.members?.map((m: any) => (
                       <option key={m.name} value={m.name}>{m.name} ({m.role})</option>
@@ -5612,11 +5664,11 @@ export default function CivilizationDashboard() {
 
               {/* Role Selection */}
               <div>
-                <label className="text-slate-300 block mb-1 font-semibold text-[11px]">3. Assign Role & Career:</label>
+                <label className={`${isDayMode ? "text-slate-700 font-bold" : "text-slate-300"} block mb-1 font-semibold text-[11px]`}>3. Assign Role &amp; Career:</label>
                 <select
                   value={editMemberRole}
                   onChange={(e) => setEditMemberRole(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 text-white rounded-xl p-2.5 font-mono text-xs focus:border-amber-500 outline-none"
+                  className={`w-full ${isDayMode ? "bg-white border-amber-200 text-slate-900 font-semibold" : "bg-slate-950 border-slate-800 text-white font-mono"} border rounded-xl p-2.5 text-xs outline-none`}
                 >
                   <option value="father">Father / Household Head</option>
                   <option value="mother">Mother / Home Manager</option>
@@ -5626,7 +5678,7 @@ export default function CivilizationDashboard() {
                   <option value="merchant">🏪 Merchant / Shopkeeper</option>
                   <option value="tailor">👕 Clothier / Tailor</option>
                   <option value="worker">🏭 Factory Machine Operator</option>
-                  <option value="engineer">🔌 Electrical & Tech Engineer</option>
+                  <option value="engineer">🔌 Electrical &amp; Tech Engineer</option>
                   <option value="doctor">🏥 Doctor / Medical Specialist</option>
                   <option value="teacher">🏫 School Teacher</option>
                   <option value="student">🎓 Student</option>
@@ -5637,7 +5689,7 @@ export default function CivilizationDashboard() {
 
               {/* Vehicle Selection Grid */}
               <div>
-                <label className="text-slate-300 block mb-1.5 font-semibold text-[11px]">4. Assign Commuting Vehicle:</label>
+                <label className={`${isDayMode ? "text-slate-700 font-bold" : "text-slate-300"} block mb-1.5 font-semibold text-[11px]`}>4. Assign Commuting Vehicle:</label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {[
                     { id: "tractor", name: "Heavy Tractor", icon: "🚜" },
@@ -5651,12 +5703,12 @@ export default function CivilizationDashboard() {
                       key={v.id}
                       type="button"
                       onClick={() => setEditMemberVehicle(v.id)}
-                      className={`p-2.5 rounded-xl border flex items-center gap-2 transition-all text-left ${editMemberVehicle === v.id ? "bg-amber-500/20 border-amber-400 text-white shadow-md ring-1 ring-amber-400" : "bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white hover:border-slate-700"}`}
+                      className={`p-2.5 rounded-xl border flex items-center gap-2 transition-all text-left ${editMemberVehicle === v.id ? isDayMode ? "bg-amber-100 border-amber-400 text-slate-900 shadow ring-1 ring-amber-400 font-bold" : "bg-amber-500/20 border-amber-400 text-white shadow-md ring-1 ring-amber-400" : isDayMode ? "bg-white border-amber-250 text-slate-700 hover:bg-amber-50" : "bg-slate-950/60 border-slate-800 text-slate-400 hover:text-white hover:border-slate-700"}`}
                     >
                       <span className="text-xl">{v.icon}</span>
                       <div>
                         <span className="text-xs font-bold block">{v.name}</span>
-                        <span className="text-[9px] text-slate-400 font-mono capitalize">{v.id}</span>
+                        <span className={`text-[9px] ${isDayMode ? "text-slate-500" : "text-slate-400"} font-mono capitalize`}>{v.id}</span>
                       </div>
                     </button>
                   ))}
@@ -5665,32 +5717,35 @@ export default function CivilizationDashboard() {
 
               {/* Relation Description */}
               <div>
-                <label className="text-slate-300 block mb-1 font-semibold text-[11px]">5. Custom Household Relation Description:</label>
+                <label className={`${isDayMode ? "text-slate-700 font-bold" : "text-slate-300"} block mb-1 font-semibold text-[11px]`}>5. Custom Household Relation Description:</label>
                 <input
                   type="text"
                   value={editMemberRelation}
                   onChange={(e) => setEditMemberRelation(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 text-white rounded-xl p-2.5 font-mono text-xs focus:border-amber-500 outline-none"
+                  className={`w-full ${isDayMode ? "bg-white border-amber-200 text-slate-900 placeholder-slate-400 font-medium" : "bg-slate-950 border-slate-800 text-white font-mono"} border rounded-xl p-2.5 text-xs outline-none`}
                   placeholder="e.g. Main Person, Wife of Thakorbhai, Agricultural Manager..."
                 />
               </div>
 
               {/* Action Buttons */}
-              <div className="flex gap-2 justify-end mt-2 pt-2 border-t border-slate-800">
+              <div className={`flex gap-2 justify-end mt-2 pt-2 border-t ${isDayMode ? "border-amber-200" : "border-slate-800"}`}>
                 <button
                   type="button"
                   onClick={() => setEditMemberModalOpen(false)}
-                  className="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold px-4 py-2.5 rounded-xl transition-all text-xs"
+                  className={`${isDayMode ? "bg-slate-200 hover:bg-slate-300 text-slate-800" : "bg-slate-800 hover:bg-slate-700 text-slate-300"} font-bold px-4 py-2.5 rounded-xl transition-all text-xs`}
                 >
                   Cancel
                 </button>
                 <button
                   type="button"
-                  onClick={submitAssignMemberRole}
+                  onClick={() => {
+                    soundEngine.playChime(true);
+                    submitAssignMemberRole();
+                  }}
                   className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-extrabold px-6 py-2.5 rounded-xl shadow-lg transition-all flex items-center gap-1.5 text-xs"
                 >
                   <span>💾</span>
-                  <span>ASSIGN & FIX PERMANENTLY</span>
+                  <span>ASSIGN &amp; FIX PERMANENTLY</span>
                 </button>
               </div>
             </div>
@@ -5700,23 +5755,23 @@ export default function CivilizationDashboard() {
 
       {/* Admin Create Residence (House / Worker Hostel) Modal Dialog */}
       {createResidenceModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-slate-900 border-2 border-sky-500/70 rounded-2xl p-5 max-w-lg w-full shadow-2xl flex flex-col gap-4 text-xs animate-fade-in my-auto">
-            <div className="flex justify-between items-center border-b border-slate-800 pb-2.5">
+        <div className={`fixed inset-0 z-50 ${isDayMode ? "bg-slate-900/60" : "bg-slate-950/85"} backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto`}>
+          <div className={`${isDayMode ? "bg-amber-50/95 border-2 border-sky-400 text-slate-800 shadow-2xl" : "bg-slate-900 border-2 border-sky-500/70 text-slate-200 shadow-2xl"} rounded-2xl p-5 max-w-lg w-full flex flex-col gap-4 text-xs animate-fade-in my-auto`}>
+            <div className={`flex justify-between items-center border-b ${isDayMode ? "border-amber-200" : "border-slate-800"} pb-2.5`}>
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-sky-500/20 border border-sky-500/40 flex items-center justify-center text-base">
+                <div className={`w-8 h-8 rounded-xl ${isDayMode ? "bg-sky-100 border-sky-300" : "bg-sky-500/20 border-sky-500/40"} border flex items-center justify-center text-base`}>
                   {newResidenceType === "hostel" ? "🏢" : "🏠"}
                 </div>
                 <div>
-                  <h3 className="text-white font-bold text-sm">
+                  <h3 className={`${isDayMode ? "text-slate-900 font-black" : "text-white font-bold"} text-sm`}>
                     {newResidenceType === "hostel" ? "Commission New Worker Hostel / Dormitory" : "Build New Residential House"}
                   </h3>
-                  <span className="text-[10px] text-sky-400 font-mono">Civilization Housing & Infrastructure Bureau</span>
+                  <span className={`text-[10px] ${isDayMode ? "text-sky-800 font-bold" : "text-sky-400"} font-mono`}>Civilization Housing &amp; Infrastructure Bureau</span>
                 </div>
               </div>
               <button
                 onClick={() => setCreateResidenceModalOpen(false)}
-                className="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-bold flex items-center justify-center transition-all"
+                className={`w-7 h-7 rounded-lg ${isDayMode ? "bg-slate-200 hover:bg-slate-300 text-slate-800" : "bg-slate-800 hover:bg-slate-700 text-slate-300"} font-bold flex items-center justify-center transition-all`}
               >
                 ✕
               </button>
@@ -5725,7 +5780,7 @@ export default function CivilizationDashboard() {
             <div className="flex flex-col gap-3">
               {/* Type selector */}
               <div>
-                <label className="text-slate-300 block mb-1.5 font-semibold text-[11px]">1. Residence Category:</label>
+                <label className={`${isDayMode ? "text-slate-700 font-bold" : "text-slate-300"} block mb-1.5 font-semibold text-[11px]`}>1. Residence Category:</label>
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
@@ -5737,12 +5792,12 @@ export default function CivilizationDashboard() {
                       setNewResidenceCapacity(6);
                       setNewResidenceBudget(60);
                     }}
-                    className={`p-2.5 rounded-xl border flex items-center gap-2 transition-all ${newResidenceType === "house" ? "bg-sky-500/20 border-sky-400 text-white ring-1 ring-sky-400 shadow" : "bg-slate-950/60 border-slate-800 text-slate-400"}`}
+                    className={`p-2.5 rounded-xl border flex items-center gap-2 transition-all ${newResidenceType === "house" ? isDayMode ? "bg-sky-100 border-sky-400 text-sky-950 font-bold shadow" : "bg-sky-500/20 border-sky-400 text-white ring-1 ring-sky-400 shadow" : isDayMode ? "bg-white border-amber-250 text-slate-700" : "bg-slate-950/60 border-slate-800 text-slate-400"}`}
                   >
                     <span className="text-xl">🏠</span>
                     <div>
                       <span className="text-xs font-bold block">Private House</span>
-                      <span className="text-[9px] text-slate-400 font-mono">Citizen Family Home</span>
+                      <span className={`text-[9px] ${isDayMode ? "text-slate-500" : "text-slate-400"} font-mono`}>Citizen Family Home</span>
                     </div>
                   </button>
 
@@ -5754,12 +5809,12 @@ export default function CivilizationDashboard() {
                       setNewResidenceCapacity(12);
                       setNewResidenceBudget(150);
                     }}
-                    className={`p-2.5 rounded-xl border flex items-center gap-2 transition-all ${newResidenceType === "hostel" ? "bg-purple-500/20 border-purple-400 text-white ring-1 ring-purple-400 shadow" : "bg-slate-950/60 border-slate-800 text-slate-400"}`}
+                    className={`p-2.5 rounded-xl border flex items-center gap-2 transition-all ${newResidenceType === "hostel" ? isDayMode ? "bg-purple-100 border-purple-400 text-purple-950 font-bold shadow" : "bg-purple-500/20 border-purple-400 text-white ring-1 ring-purple-400 shadow" : isDayMode ? "bg-white border-amber-250 text-slate-700" : "bg-slate-950/60 border-slate-800 text-slate-400"}`}
                   >
                     <span className="text-xl">🏢</span>
                     <div>
                       <span className="text-xs font-bold block">Worker Hostel</span>
-                      <span className="text-[9px] text-slate-400 font-mono">Staff & Labor Dormitory</span>
+                      <span className={`text-[9px] ${isDayMode ? "text-slate-500" : "text-slate-400"} font-mono`}>Staff &amp; Labor Dormitory</span>
                     </div>
                   </button>
                 </div>
@@ -5768,23 +5823,23 @@ export default function CivilizationDashboard() {
               {/* Name & ID */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 <div>
-                  <label className="text-slate-300 block mb-1 font-semibold text-[11px]">2. Residence Name:</label>
+                  <label className={`${isDayMode ? "text-slate-700 font-bold" : "text-slate-300"} block mb-1 font-semibold text-[11px]`}>2. Residence Name:</label>
                   <input
                     type="text"
                     value={newResidenceName}
                     onChange={(e) => setNewResidenceName(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 text-white rounded-xl p-2.5 font-mono text-xs focus:border-sky-500 outline-none"
+                    className={`w-full ${isDayMode ? "bg-white border-amber-200 text-slate-900 font-semibold" : "bg-slate-950 border-slate-800 text-white font-mono"} border rounded-xl p-2.5 text-xs outline-none`}
                     placeholder="e.g. Navsari Factory Workers Hostel"
                   />
                 </div>
 
                 <div>
-                  <label className="text-slate-300 block mb-1 font-semibold text-[11px]">3. Custom ID (Optional):</label>
+                  <label className={`${isDayMode ? "text-slate-700 font-bold" : "text-slate-300"} block mb-1 font-semibold text-[11px]`}>3. Custom ID (Optional):</label>
                   <input
                     type="text"
                     value={newResidenceId}
                     onChange={(e) => setNewResidenceId(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 text-white rounded-xl p-2.5 font-mono text-xs focus:border-sky-500 outline-none"
+                    className={`w-full ${isDayMode ? "bg-white border-amber-200 text-slate-900 font-semibold" : "bg-slate-950 border-slate-800 text-white font-mono"} border rounded-xl p-2.5 text-xs outline-none`}
                     placeholder="e.g. hostel_factory_north"
                   />
                 </div>
@@ -5793,22 +5848,22 @@ export default function CivilizationDashboard() {
               {/* Budget & Capacity */}
               <div className="grid grid-cols-2 gap-2.5">
                 <div>
-                  <label className="text-slate-300 block mb-1 font-semibold text-[11px]">4. Starter Bank Reserves ($):</label>
+                  <label className={`${isDayMode ? "text-slate-700 font-bold" : "text-slate-300"} block mb-1 font-semibold text-[11px]`}>4. Starter Bank Reserves ($):</label>
                   <input
                     type="number"
                     value={newResidenceBudget}
                     onChange={(e) => setNewResidenceBudget(Number(e.target.value))}
-                    className="w-full bg-slate-950 border border-slate-800 text-white rounded-xl p-2.5 font-mono text-xs focus:border-sky-500 outline-none"
+                    className={`w-full ${isDayMode ? "bg-white border-amber-200 text-slate-900 font-bold" : "bg-slate-950 border-slate-800 text-white font-mono"} border rounded-xl p-2.5 text-xs outline-none`}
                   />
                 </div>
 
                 <div>
-                  <label className="text-slate-300 block mb-1 font-semibold text-[11px]">5. Max Bed Capacity:</label>
+                  <label className={`${isDayMode ? "text-slate-700 font-bold" : "text-slate-300"} block mb-1 font-semibold text-[11px]`}>5. Max Bed Capacity:</label>
                   <input
                     type="number"
                     value={newResidenceCapacity}
                     onChange={(e) => setNewResidenceCapacity(Number(e.target.value))}
-                    className="w-full bg-slate-950 border border-slate-800 text-white rounded-xl p-2.5 font-mono text-xs focus:border-sky-500 outline-none"
+                    className={`w-full ${isDayMode ? "bg-white border-amber-200 text-slate-900 font-bold" : "bg-slate-950 border-slate-800 text-white font-mono"} border rounded-xl p-2.5 text-xs outline-none`}
                   />
                 </div>
               </div>
@@ -5816,38 +5871,41 @@ export default function CivilizationDashboard() {
               {/* GPS Coordinates */}
               <div className="grid grid-cols-2 gap-2.5">
                 <div>
-                  <label className="text-slate-300 block mb-1 font-semibold text-[11px]">6. Latitude (e.g. 20.9485):</label>
+                  <label className={`${isDayMode ? "text-slate-700 font-bold" : "text-slate-300"} block mb-1 font-semibold text-[11px]`}>6. Latitude (e.g. 20.9485):</label>
                   <input
                     type="text"
                     value={newResidenceLat}
                     onChange={(e) => setNewResidenceLat(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 text-white rounded-xl p-2.5 font-mono text-xs focus:border-sky-500 outline-none"
+                    className={`w-full ${isDayMode ? "bg-white border-amber-200 text-slate-900 font-bold" : "bg-slate-950 border-slate-800 text-white font-mono"} border rounded-xl p-2.5 text-xs outline-none`}
                   />
                 </div>
 
                 <div>
-                  <label className="text-slate-300 block mb-1 font-semibold text-[11px]">7. Longitude (e.g. 72.9525):</label>
+                  <label className={`${isDayMode ? "text-slate-700 font-bold" : "text-slate-300"} block mb-1 font-semibold text-[11px]`}>7. Longitude (e.g. 72.9525):</label>
                   <input
                     type="text"
                     value={newResidenceLng}
                     onChange={(e) => setNewResidenceLng(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 text-white rounded-xl p-2.5 font-mono text-xs focus:border-sky-500 outline-none"
+                    className={`w-full ${isDayMode ? "bg-white border-amber-200 text-slate-900 font-bold" : "bg-slate-950 border-slate-800 text-white font-mono"} border rounded-xl p-2.5 text-xs outline-none`}
                   />
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="flex gap-2 justify-end mt-2 pt-2 border-t border-slate-800">
+              <div className={`flex gap-2 justify-end mt-2 pt-2 border-t ${isDayMode ? "border-amber-200" : "border-slate-800"}`}>
                 <button
                   type="button"
                   onClick={() => setCreateResidenceModalOpen(false)}
-                  className="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold px-4 py-2.5 rounded-xl transition-all text-xs"
+                  className={`${isDayMode ? "bg-slate-200 hover:bg-slate-300 text-slate-800" : "bg-slate-800 hover:bg-slate-700 text-slate-300"} font-bold px-4 py-2.5 rounded-xl transition-all text-xs`}
                 >
                   Cancel
                 </button>
                 <button
                   type="button"
-                  onClick={submitCreateResidence}
+                  onClick={() => {
+                    soundEngine.playChime(true);
+                    submitCreateResidence();
+                  }}
                   className="bg-gradient-to-r from-sky-500 to-sky-600 hover:from-sky-400 hover:to-sky-500 text-slate-950 font-extrabold px-6 py-2.5 rounded-xl shadow-lg transition-all flex items-center gap-1.5 text-xs"
                 >
                   <span>💾</span>
@@ -5861,19 +5919,19 @@ export default function CivilizationDashboard() {
 
       {/* Admin Edit Residence Modal Dialog */}
       {editResidenceModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-slate-900 border-2 border-slate-700 rounded-2xl p-5 max-w-md w-full shadow-2xl flex flex-col gap-4 text-xs animate-fade-in my-auto">
-            <div className="flex justify-between items-center border-b border-slate-800 pb-2.5">
+        <div className={`fixed inset-0 z-50 ${isDayMode ? "bg-slate-900/60" : "bg-slate-950/85"} backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto`}>
+          <div className={`${isDayMode ? "bg-amber-50/95 border-2 border-amber-300 text-slate-800 shadow-2xl" : "bg-slate-900 border-2 border-slate-700 text-slate-200 shadow-2xl"} rounded-2xl p-5 max-w-md w-full flex flex-col gap-4 text-xs animate-fade-in my-auto`}>
+            <div className={`flex justify-between items-center border-b ${isDayMode ? "border-amber-200" : "border-slate-800"} pb-2.5`}>
               <div className="flex items-center gap-2">
                 <span className="text-xl">✏️</span>
                 <div>
-                  <h3 className="text-white font-bold text-sm">Edit Residence Details</h3>
-                  <span className="text-[10px] text-slate-400 font-mono">{editResidenceId}</span>
+                  <h3 className={`${isDayMode ? "text-slate-900 font-black" : "text-white font-bold"} text-sm`}>Edit Residence Details</h3>
+                  <span className={`text-[10px] ${isDayMode ? "text-slate-600 font-bold" : "text-slate-400"} font-mono`}>{editResidenceId}</span>
                 </div>
               </div>
               <button
                 onClick={() => setEditResidenceModalOpen(false)}
-                className="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-bold flex items-center justify-center transition-all"
+                className={`w-7 h-7 rounded-lg ${isDayMode ? "bg-slate-200 hover:bg-slate-300 text-slate-800" : "bg-slate-800 hover:bg-slate-700 text-slate-300"} font-bold flex items-center justify-center transition-all`}
               >
                 ✕
               </button>
@@ -5881,22 +5939,22 @@ export default function CivilizationDashboard() {
 
             <div className="flex flex-col gap-3">
               <div>
-                <label className="text-slate-300 block mb-1 font-semibold text-[11px]">Residence Name:</label>
+                <label className={`${isDayMode ? "text-slate-700 font-bold" : "text-slate-300"} block mb-1 font-semibold text-[11px]`}>Residence Name:</label>
                 <input
                   type="text"
                   value={editResidenceName}
                   onChange={(e) => setEditResidenceName(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 text-white rounded-xl p-2.5 font-mono text-xs focus:border-amber-500 outline-none"
+                  className={`w-full ${isDayMode ? "bg-white border-amber-200 text-slate-900 font-semibold" : "bg-slate-950 border-slate-800 text-white font-mono"} border rounded-xl p-2.5 text-xs outline-none`}
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="text-slate-300 block mb-1 font-semibold text-[11px]">Type:</label>
+                  <label className={`${isDayMode ? "text-slate-700 font-bold" : "text-slate-300"} block mb-1 font-semibold text-[11px]`}>Type:</label>
                   <select
                     value={editResidenceType}
                     onChange={(e) => setEditResidenceType(e.target.value as any)}
-                    className="w-full bg-slate-950 border border-slate-800 text-white rounded-xl p-2.5 font-mono text-xs focus:border-amber-500 outline-none"
+                    className={`w-full ${isDayMode ? "bg-white border-amber-200 text-slate-900 font-semibold" : "bg-slate-950 border-slate-800 text-white font-mono"} border rounded-xl p-2.5 text-xs outline-none`}
                   >
                     <option value="house">🏠 Private House</option>
                     <option value="hostel">🏢 Worker Hostel</option>
@@ -5904,37 +5962,40 @@ export default function CivilizationDashboard() {
                 </div>
 
                 <div>
-                  <label className="text-slate-300 block mb-1 font-semibold text-[11px]">Bed Capacity:</label>
+                  <label className={`${isDayMode ? "text-slate-700 font-bold" : "text-slate-300"} block mb-1 font-semibold text-[11px]`}>Bed Capacity:</label>
                   <input
                     type="number"
                     value={editResidenceCapacity}
                     onChange={(e) => setEditResidenceCapacity(Number(e.target.value))}
-                    className="w-full bg-slate-950 border border-slate-800 text-white rounded-xl p-2.5 font-mono text-xs focus:border-amber-500 outline-none"
+                    className={`w-full ${isDayMode ? "bg-white border-amber-200 text-slate-900 font-bold" : "bg-slate-950 border-slate-800 text-white font-mono"} border rounded-xl p-2.5 text-xs outline-none`}
                   />
                 </div>
               </div>
 
               <div>
-                <label className="text-slate-300 block mb-1 font-semibold text-[11px]">Bank Reserves ($):</label>
+                <label className={`${isDayMode ? "text-slate-700 font-bold" : "text-slate-300"} block mb-1 font-semibold text-[11px]`}>Bank Reserves ($):</label>
                 <input
                   type="number"
                   value={editResidenceBudget}
                   onChange={(e) => setEditResidenceBudget(Number(e.target.value))}
-                  className="w-full bg-slate-950 border border-slate-800 text-white rounded-xl p-2.5 font-mono text-xs focus:border-amber-500 outline-none"
+                  className={`w-full ${isDayMode ? "bg-white border-amber-200 text-slate-900 font-bold" : "bg-slate-950 border-slate-800 text-white font-mono"} border rounded-xl p-2.5 text-xs outline-none`}
                 />
               </div>
 
-              <div className="flex gap-2 justify-end mt-2 pt-2 border-t border-slate-800">
+              <div className={`flex gap-2 justify-end mt-2 pt-2 border-t ${isDayMode ? "border-amber-200" : "border-slate-800"}`}>
                 <button
                   type="button"
                   onClick={() => setEditResidenceModalOpen(false)}
-                  className="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold px-4 py-2 rounded-xl text-xs"
+                  className={`${isDayMode ? "bg-slate-200 hover:bg-slate-300 text-slate-800" : "bg-slate-800 hover:bg-slate-700 text-slate-300"} font-bold px-4 py-2 rounded-xl text-xs`}
                 >
                   Cancel
                 </button>
                 <button
                   type="button"
-                  onClick={submitEditResidence}
+                  onClick={() => {
+                    soundEngine.playChime(true);
+                    submitEditResidence();
+                  }}
                   className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-extrabold px-5 py-2 rounded-xl shadow-md text-xs flex items-center gap-1"
                 >
                   <span>💾</span>
@@ -5948,21 +6009,21 @@ export default function CivilizationDashboard() {
 
       {/* Admin Add Person / Worker Modal Dialog */}
       {addMemberModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-slate-900 border-2 border-emerald-500/70 rounded-2xl p-5 max-w-lg w-full shadow-2xl flex flex-col gap-4 text-xs animate-fade-in my-auto">
-            <div className="flex justify-between items-center border-b border-slate-800 pb-2.5">
+        <div className={`fixed inset-0 z-50 ${isDayMode ? "bg-slate-900/60" : "bg-slate-950/85"} backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto`}>
+          <div className={`${isDayMode ? "bg-amber-50/95 border-2 border-emerald-400 text-slate-800 shadow-2xl" : "bg-slate-900 border-2 border-emerald-500/70 text-slate-200 shadow-2xl"} rounded-2xl p-5 max-w-lg w-full flex flex-col gap-4 text-xs animate-fade-in my-auto`}>
+            <div className={`flex justify-between items-center border-b ${isDayMode ? "border-amber-200" : "border-slate-800"} pb-2.5`}>
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-base">
+                <div className={`w-8 h-8 rounded-xl ${isDayMode ? "bg-emerald-100 border-emerald-300" : "bg-emerald-500/20 border-emerald-500/40"} border flex items-center justify-center text-base`}>
                   👤
                 </div>
                 <div>
-                  <h3 className="text-white font-bold text-sm">Register Citizen or Worker</h3>
-                  <span className="text-[10px] text-emerald-400 font-mono">Civilization Population Bureau</span>
+                  <h3 className={`${isDayMode ? "text-slate-900 font-black" : "text-white font-bold"} text-sm`}>Register Citizen or Worker</h3>
+                  <span className={`text-[10px] ${isDayMode ? "text-emerald-800 font-bold" : "text-emerald-400"} font-mono`}>Civilization Population Bureau</span>
                 </div>
               </div>
               <button
                 onClick={() => setAddMemberModalOpen(false)}
-                className="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-bold flex items-center justify-center transition-all"
+                className={`w-7 h-7 rounded-lg ${isDayMode ? "bg-slate-200 hover:bg-slate-300 text-slate-800" : "bg-slate-800 hover:bg-slate-700 text-slate-300"} font-bold flex items-center justify-center transition-all`}
               >
                 ✕
               </button>
@@ -5970,11 +6031,11 @@ export default function CivilizationDashboard() {
 
             <div className="flex flex-col gap-3.5">
               <div>
-                <label className="text-slate-300 block mb-1 font-semibold text-[11px]">1. Assign to Residence / Hostel:</label>
+                <label className={`${isDayMode ? "text-slate-700 font-bold" : "text-slate-300"} block mb-1 font-semibold text-[11px]`}>1. Assign to Residence / Hostel:</label>
                 <select
                   value={addMemberFamilyId}
                   onChange={(e) => setAddMemberFamilyId(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 text-white rounded-xl p-2.5 font-mono text-xs focus:border-emerald-500 outline-none"
+                  className={`w-full ${isDayMode ? "bg-white border-amber-200 text-slate-900 font-semibold" : "bg-slate-950 border-slate-800 text-white font-mono"} border rounded-xl p-2.5 text-xs outline-none`}
                 >
                   {status?.families?.map((f: any) => (
                     <option key={f.id} value={f.id}>{f.type === "hostel" || f.id.startsWith("hostel_") ? "🏢 [Hostel]" : "🏠 [House]"} {f.name} ({f.id})</option>
@@ -5983,23 +6044,23 @@ export default function CivilizationDashboard() {
               </div>
 
               <div>
-                <label className="text-slate-300 block mb-1 font-semibold text-[11px]">2. Citizen / Worker Full Name:</label>
+                <label className={`${isDayMode ? "text-slate-700 font-bold" : "text-slate-300"} block mb-1 font-semibold text-[11px]`}>2. Citizen / Worker Full Name:</label>
                 <input
                   type="text"
                   value={newMemberName}
                   onChange={(e) => setNewMemberName(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 text-white rounded-xl p-2.5 font-mono text-xs focus:border-emerald-500 outline-none"
+                  className={`w-full ${isDayMode ? "bg-white border-amber-200 text-slate-900 font-semibold" : "bg-slate-950 border-slate-800 text-white font-mono"} border rounded-xl p-2.5 text-xs outline-none`}
                   placeholder="e.g. Ramesh Patel, Amit Shah, Pravinbhai..."
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 <div>
-                  <label className="text-slate-300 block mb-1 font-semibold text-[11px]">3. Assigned Role / Career:</label>
+                  <label className={`${isDayMode ? "text-slate-700 font-bold" : "text-slate-300"} block mb-1 font-semibold text-[11px]`}>3. Assigned Role / Career:</label>
                   <select
                     value={newMemberRole}
                     onChange={(e) => setNewMemberRole(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 text-white rounded-xl p-2.5 font-mono text-xs focus:border-emerald-500 outline-none"
+                    className={`w-full ${isDayMode ? "bg-white border-amber-200 text-slate-900 font-semibold" : "bg-slate-950 border-slate-800 text-white font-mono"} border rounded-xl p-2.5 text-xs outline-none`}
                   >
                     <option value="worker">🏭 Factory Machine Operator</option>
                     <option value="farmer">🌾 Farmer / Agriculture</option>
@@ -6019,11 +6080,11 @@ export default function CivilizationDashboard() {
                 </div>
 
                 <div>
-                  <label className="text-slate-300 block mb-1 font-semibold text-[11px]">4. Commute Vehicle:</label>
+                  <label className={`${isDayMode ? "text-slate-700 font-bold" : "text-slate-300"} block mb-1 font-semibold text-[11px]`}>4. Commute Vehicle:</label>
                   <select
                     value={newMemberVehicle}
                     onChange={(e) => setNewMemberVehicle(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 text-white rounded-xl p-2.5 font-mono text-xs focus:border-emerald-500 outline-none"
+                    className={`w-full ${isDayMode ? "bg-white border-amber-200 text-slate-900 font-semibold" : "bg-slate-950 border-slate-800 text-white font-mono"} border rounded-xl p-2.5 text-xs outline-none`}
                   >
                     <option value="tractor">🚜 Heavy Field Tractor</option>
                     <option value="scooter">🛵 City Scooter / Moped</option>
@@ -6036,27 +6097,30 @@ export default function CivilizationDashboard() {
               </div>
 
               <div>
-                <label className="text-slate-300 block mb-1 font-semibold text-[11px]">5. Relation / Role Description:</label>
+                <label className={`${isDayMode ? "text-slate-700 font-bold" : "text-slate-300"} block mb-1 font-semibold text-[11px]`}>5. Relation / Role Description:</label>
                 <input
                   type="text"
                   value={newMemberRelation}
                   onChange={(e) => setNewMemberRelation(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 text-white rounded-xl p-2.5 font-mono text-xs focus:border-emerald-500 outline-none"
+                  className={`w-full ${isDayMode ? "bg-white border-amber-200 text-slate-900 font-medium" : "bg-slate-950 border-slate-800 text-white font-mono"} border rounded-xl p-2.5 text-xs outline-none`}
                   placeholder="e.g. Senior Agricultural Specialist, Resident Factory Operator..."
                 />
               </div>
 
-              <div className="flex gap-2 justify-end mt-2 pt-2 border-t border-slate-800">
+              <div className={`flex gap-2 justify-end mt-2 pt-2 border-t ${isDayMode ? "border-amber-200" : "border-slate-800"}`}>
                 <button
                   type="button"
                   onClick={() => setAddMemberModalOpen(false)}
-                  className="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold px-4 py-2.5 rounded-xl transition-all text-xs"
+                  className={`${isDayMode ? "bg-slate-200 hover:bg-slate-300 text-slate-800" : "bg-slate-800 hover:bg-slate-700 text-slate-300"} font-bold px-4 py-2.5 rounded-xl transition-all text-xs`}
                 >
                   Cancel
                 </button>
                 <button
                   type="button"
-                  onClick={submitAddMember}
+                  onClick={() => {
+                    soundEngine.playChime(true);
+                    submitAddMember();
+                  }}
                   className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-slate-950 font-extrabold px-6 py-2.5 rounded-xl shadow-lg transition-all flex items-center gap-1.5 text-xs"
                 >
                   <span>💾</span>
@@ -6070,21 +6134,21 @@ export default function CivilizationDashboard() {
 
       {/* Admin Transfer Worker Modal Dialog */}
       {transferWorkerModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-slate-900 border-2 border-amber-500/70 rounded-2xl p-5 max-w-lg w-full shadow-2xl flex flex-col gap-4 text-xs animate-fade-in my-auto">
-            <div className="flex justify-between items-center border-b border-slate-800 pb-2.5">
+        <div className={`fixed inset-0 z-50 ${isDayMode ? "bg-slate-900/60" : "bg-slate-950/85"} backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto`}>
+          <div className={`${isDayMode ? "bg-amber-50/95 border-2 border-amber-300 text-slate-800 shadow-2xl" : "bg-slate-900 border-2 border-amber-500/70 text-slate-200 shadow-2xl"} rounded-2xl p-5 max-w-lg w-full flex flex-col gap-4 text-xs animate-fade-in my-auto`}>
+            <div className={`flex justify-between items-center border-b ${isDayMode ? "border-amber-200" : "border-slate-800"} pb-2.5`}>
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-base">
+                <div className={`w-8 h-8 rounded-xl ${isDayMode ? "bg-amber-100 border-amber-300" : "bg-amber-500/20 border-amber-500/40"} border flex items-center justify-center text-base`}>
                   🔄
                 </div>
                 <div>
-                  <h3 className="text-white font-bold text-sm">Transfer Worker Between Residences</h3>
-                  <span className="text-[10px] text-amber-400 font-mono">Civilization Labor Logistics Bureau</span>
+                  <h3 className={`${isDayMode ? "text-slate-900 font-black" : "text-white font-bold"} text-sm`}>Transfer Worker Between Residences</h3>
+                  <span className={`text-[10px] ${isDayMode ? "text-amber-800 font-bold" : "text-amber-400"} font-mono`}>Civilization Labor Logistics Bureau</span>
                 </div>
               </div>
               <button
                 onClick={() => setTransferWorkerModalOpen(false)}
-                className="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-bold flex items-center justify-center transition-all"
+                className={`w-7 h-7 rounded-lg ${isDayMode ? "bg-slate-200 hover:bg-slate-300 text-slate-800" : "bg-slate-800 hover:bg-slate-700 text-slate-300"} font-bold flex items-center justify-center transition-all`}
               >
                 ✕
               </button>
@@ -6094,7 +6158,7 @@ export default function CivilizationDashboard() {
               {/* From residence & Worker selection */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 <div>
-                  <label className="text-slate-300 block mb-1 font-semibold text-[11px]">1. Source Residence / Hostel:</label>
+                  <label className={`${isDayMode ? "text-slate-700 font-bold" : "text-slate-300"} block mb-1 font-semibold text-[11px]`}>1. Source Residence / Hostel:</label>
                   <select
                     value={transferFromFamilyId}
                     onChange={(e) => {
@@ -6106,7 +6170,7 @@ export default function CivilizationDashboard() {
                         setTransferWorkerName("");
                       }
                     }}
-                    className="w-full bg-slate-950 border border-slate-800 text-white rounded-xl p-2.5 font-mono text-xs focus:border-amber-500 outline-none"
+                    className={`w-full ${isDayMode ? "bg-white border-amber-200 text-slate-900 font-semibold" : "bg-slate-950 border-slate-800 text-white font-mono"} border rounded-xl p-2.5 text-xs outline-none`}
                   >
                     {status?.families?.map((f: any) => (
                       <option key={f.id} value={f.id}>{f.type === "hostel" || f.id.startsWith("hostel_") ? "🏢 [Hostel]" : "🏠 [House]"} {f.name} ({f.members?.length || 0} residents)</option>
@@ -6115,11 +6179,11 @@ export default function CivilizationDashboard() {
                 </div>
 
                 <div>
-                  <label className="text-slate-300 block mb-1 font-semibold text-[11px]">2. Select Worker / Person to Transfer:</label>
+                  <label className={`${isDayMode ? "text-slate-700 font-bold" : "text-slate-300"} block mb-1 font-semibold text-[11px]`}>2. Select Worker / Person to Transfer:</label>
                   <select
                     value={transferWorkerName}
                     onChange={(e) => setTransferWorkerName(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 text-white rounded-xl p-2.5 font-mono text-xs focus:border-amber-500 outline-none"
+                    className={`w-full ${isDayMode ? "bg-white border-amber-200 text-slate-900 font-semibold" : "bg-slate-950 border-slate-800 text-white font-mono"} border rounded-xl p-2.5 text-xs outline-none`}
                   >
                     {status?.families?.find((f: any) => f.id === transferFromFamilyId)?.members?.map((m: any) => (
                       <option key={m.name} value={m.name}>{m.name} ({m.role})</option>
@@ -6130,11 +6194,11 @@ export default function CivilizationDashboard() {
 
               {/* Destination Residence */}
               <div>
-                <label className="text-slate-300 block mb-1 font-semibold text-[11px]">3. Target Destination Residence / Worker Hostel:</label>
+                <label className={`${isDayMode ? "text-slate-700 font-bold" : "text-slate-300"} block mb-1 font-semibold text-[11px]`}>3. Target Destination Residence / Worker Hostel:</label>
                 <select
                   value={transferToFamilyId}
                   onChange={(e) => setTransferToFamilyId(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 text-white rounded-xl p-2.5 font-mono text-xs focus:border-amber-500 outline-none"
+                  className={`w-full ${isDayMode ? "bg-white border-amber-200 text-slate-900 font-semibold" : "bg-slate-950 border-slate-800 text-white font-mono"} border rounded-xl p-2.5 text-xs outline-none`}
                 >
                   {status?.families?.filter((f: any) => f.id !== transferFromFamilyId)?.map((f: any) => (
                     <option key={f.id} value={f.id}>{f.type === "hostel" || f.id.startsWith("hostel_") ? "🏢 [Hostel]" : "🏠 [House]"} {f.name} ({f.members?.length || 0} residents)</option>
@@ -6145,11 +6209,11 @@ export default function CivilizationDashboard() {
               {/* Optional promotion / role change */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 <div>
-                  <label className="text-slate-300 block mb-1 font-semibold text-[11px]">4. Update Role (Optional):</label>
+                  <label className={`${isDayMode ? "text-slate-700 font-bold" : "text-slate-300"} block mb-1 font-semibold text-[11px]`}>4. Update Role (Optional):</label>
                   <select
                     value={transferNewRole}
                     onChange={(e) => setTransferNewRole(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 text-white rounded-xl p-2.5 font-mono text-xs focus:border-amber-500 outline-none"
+                    className={`w-full ${isDayMode ? "bg-white border-amber-200 text-slate-900 font-semibold" : "bg-slate-950 border-slate-800 text-white font-mono"} border rounded-xl p-2.5 text-xs outline-none`}
                   >
                     <option value="">(Keep current role)</option>
                     <option value="worker">🏭 Factory Machine Operator</option>
@@ -6164,11 +6228,11 @@ export default function CivilizationDashboard() {
                 </div>
 
                 <div>
-                  <label className="text-slate-300 block mb-1 font-semibold text-[11px]">5. Update Vehicle (Optional):</label>
+                  <label className={`${isDayMode ? "text-slate-700 font-bold" : "text-slate-300"} block mb-1 font-semibold text-[11px]`}>5. Update Vehicle (Optional):</label>
                   <select
                     value={transferNewVehicle}
                     onChange={(e) => setTransferNewVehicle(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 text-white rounded-xl p-2.5 font-mono text-xs focus:border-amber-500 outline-none"
+                    className={`w-full ${isDayMode ? "bg-white border-amber-200 text-slate-900 font-semibold" : "bg-slate-950 border-slate-800 text-white font-mono"} border rounded-xl p-2.5 text-xs outline-none`}
                   >
                     <option value="">(Keep current vehicle)</option>
                     <option value="tractor">🚜 Heavy Field Tractor</option>
@@ -6181,17 +6245,20 @@ export default function CivilizationDashboard() {
                 </div>
               </div>
 
-              <div className="flex gap-2 justify-end mt-2 pt-2 border-t border-slate-800">
+              <div className={`flex gap-2 justify-end mt-2 pt-2 border-t ${isDayMode ? "border-amber-200" : "border-slate-800"}`}>
                 <button
                   type="button"
                   onClick={() => setTransferWorkerModalOpen(false)}
-                  className="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold px-4 py-2.5 rounded-xl transition-all text-xs"
+                  className={`${isDayMode ? "bg-slate-200 hover:bg-slate-300 text-slate-800" : "bg-slate-800 hover:bg-slate-700 text-slate-300"} font-bold px-4 py-2.5 rounded-xl transition-all text-xs`}
                 >
                   Cancel
                 </button>
                 <button
                   type="button"
-                  onClick={submitTransferWorker}
+                  onClick={() => {
+                    soundEngine.playChime(true);
+                    submitTransferWorker();
+                  }}
                   className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-extrabold px-6 py-2.5 rounded-xl shadow-lg transition-all flex items-center gap-1.5 text-xs"
                 >
                   <span>🔄</span>
@@ -6205,24 +6272,24 @@ export default function CivilizationDashboard() {
 
       {/* Master Civilization Resource & Inventory Monitoring Window Modal */}
       {masterInventoryModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 md:p-6 overflow-y-auto">
-          <div className="bg-slate-900 border-2 border-emerald-500/70 rounded-3xl p-5 max-w-5xl w-full shadow-2xl flex flex-col gap-4 text-xs animate-fade-in my-auto max-h-[90vh] overflow-hidden">
+        <div className={`fixed inset-0 z-50 ${isDayMode ? "bg-slate-900/60" : "bg-slate-950/85"} backdrop-blur-md flex items-center justify-center p-3 md:p-6 overflow-y-auto`}>
+          <div className={`${isDayMode ? "bg-amber-50/95 border-2 border-emerald-500/80 shadow-2xl text-slate-800" : "bg-slate-900 border-2 border-emerald-500/70 shadow-2xl text-slate-200"} rounded-3xl p-5 max-w-5xl w-full flex flex-col gap-4 text-xs animate-fade-in my-auto max-h-[90vh] overflow-hidden`}>
             
             {/* Modal Header */}
-            <div className="flex justify-between items-center border-b border-slate-800 pb-3 flex-none flex-wrap gap-2">
+            <div className={`flex justify-between items-center border-b ${isDayMode ? "border-amber-200" : "border-slate-800"} pb-3 flex-none flex-wrap gap-2`}>
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-xl shadow">
+                <div className={`w-10 h-10 rounded-2xl ${isDayMode ? "bg-emerald-100 border-emerald-300" : "bg-emerald-500/20 border-emerald-500/40"} border flex items-center justify-center text-xl shadow`}>
                   📦
                 </div>
                 <div>
-                  <h3 className="text-white font-extrabold text-base tracking-wide flex items-center gap-2">
-                    <span>Civilization Master Inventory & Resource Monitor</span>
-                    <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full font-mono font-bold">
+                  <h3 className={`${isDayMode ? "text-slate-900 font-black" : "text-white font-extrabold"} text-base tracking-wide flex items-center gap-2`}>
+                    <span>Civilization Master Inventory &amp; Resource Monitor</span>
+                    <span className={`text-[10px] ${isDayMode ? "bg-emerald-100 text-emerald-950 border-emerald-300 font-black" : "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"} border px-2 py-0.5 rounded-full font-mono`}>
                       LIVE MONITOR
                     </span>
                   </h3>
-                  <p className="text-[10px] text-slate-400 font-mono">
-                    Real-time stockpile tracking across Farm Barns, Industrial Factories, Commercial Markets & Household Pantries
+                  <p className={`text-[10px] ${isDayMode ? "text-slate-600 font-semibold" : "text-slate-400"} font-mono`}>
+                    Real-time stockpile tracking across Farm Barns, Industrial Factories, Commercial Markets &amp; Household Pantries
                   </p>
                 </div>
               </div>
@@ -6231,8 +6298,11 @@ export default function CivilizationDashboard() {
                 {isAdmin && (
                   <button
                     type="button"
-                    onClick={() => dispatchAction("toggle_automated_farming", {})}
-                    className={`px-3 py-1.5 rounded-xl font-extrabold text-xs transition-all flex items-center gap-1.5 border shadow ${status.automated_farming_enabled ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40" : "bg-amber-500/20 text-amber-300 border-amber-500/40"}`}
+                    onClick={() => {
+                      soundEngine.playClick(600);
+                      dispatchAction("toggle_automated_farming", {});
+                    }}
+                    className={`px-3 py-1.5 rounded-xl font-extrabold text-xs transition-all flex items-center gap-1.5 border shadow-sm ${status.automated_farming_enabled ? isDayMode ? "bg-emerald-100 text-emerald-950 border-emerald-300 font-black" : "bg-emerald-500/20 text-emerald-300 border-emerald-500/40" : isDayMode ? "bg-white text-slate-700 border-amber-300" : "bg-amber-500/20 text-amber-300 border-amber-500/40"}`}
                     title="Toggle Automated AI Farm Planting and Harvesting"
                   >
                     <span>{status.automated_farming_enabled ? "🟢" : "⏸"}</span>
@@ -6242,7 +6312,7 @@ export default function CivilizationDashboard() {
 
                 <button
                   onClick={() => setMasterInventoryModalOpen(false)}
-                  className="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-bold flex items-center justify-center transition-all"
+                  className={`w-8 h-8 rounded-xl ${isDayMode ? "bg-slate-200 hover:bg-slate-300 text-slate-800" : "bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white"} font-bold flex items-center justify-center transition-all`}
                 >
                   ✕
                 </button>
@@ -6252,49 +6322,49 @@ export default function CivilizationDashboard() {
             {/* Quick Metrics & Livestock Barn Ribbon */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 flex-none">
               {/* Livestock produce badge */}
-              <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-3 flex flex-col justify-between shadow-sm">
-                <div className="flex justify-between items-center text-slate-400 text-[10px] uppercase font-bold">
+              <div className={`${isDayMode ? "bg-white/95 border-amber-250 text-slate-800 shadow-sm" : "bg-slate-950/80 border-slate-800 text-white"} border rounded-2xl p-3 flex flex-col justify-between`}>
+                <div className={`flex justify-between items-center ${isDayMode ? "text-slate-600 font-bold" : "text-slate-400"} text-[10px] uppercase font-bold`}>
                   <span>🐄 Livestock Stockpile</span>
                   <span>Produce</span>
                 </div>
                 <div className="flex items-center gap-2 mt-1">
-                  <span className="text-xs font-mono font-bold text-amber-400">🥛 {status.farm_barn?.milk || 0} Milk</span>
-                  <span className="text-xs font-mono font-bold text-sky-400">🧶 {status.farm_barn?.wool || 0} Wool</span>
-                  <span className="text-xs font-mono font-bold text-emerald-400">🥚 {status.farm_barn?.egg || 0} Eggs</span>
+                  <span className={`text-xs font-mono font-bold ${isDayMode ? "text-amber-800 font-black" : "text-amber-400"}`}>🥛 {status.farm_barn?.milk || 0} Milk</span>
+                  <span className={`text-xs font-mono font-bold ${isDayMode ? "text-sky-700 font-black" : "text-sky-400"}`}>🧶 {status.farm_barn?.wool || 0} Wool</span>
+                  <span className={`text-xs font-mono font-bold ${isDayMode ? "text-emerald-700 font-black" : "text-emerald-400"}`}>🥚 {status.farm_barn?.egg || 0} Eggs</span>
                 </div>
               </div>
 
               {/* Livestock Herds with admin controls */}
-              <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-3 flex flex-col justify-between shadow-sm">
-                <div className="flex justify-between items-center text-slate-400 text-[10px] uppercase font-bold">
+              <div className={`${isDayMode ? "bg-white/95 border-amber-250 text-slate-800 shadow-sm" : "bg-slate-950/80 border-slate-800 text-white"} border rounded-2xl p-3 flex flex-col justify-between`}>
+                <div className={`flex justify-between items-center ${isDayMode ? "text-slate-600 font-bold" : "text-slate-400"} text-[10px] uppercase font-bold`}>
                   <span>🐾 Livestock Herds</span>
                   <span>Barn</span>
                 </div>
                 <div className="flex items-center justify-between mt-1 text-xs font-mono">
                   <div className="flex items-center gap-1">
-                    <span>🐄 {status.livestock?.cows ?? 4}</span>
+                    <span className="font-bold">🐄 {status.livestock?.cows ?? 4}</span>
                     {isAdmin && (
                       <div className="flex gap-0.5">
-                        <button onClick={() => dispatchAction("adjust_livestock", { cows: (status.livestock?.cows ?? 4) + 1 })} className="px-1 bg-slate-800 hover:bg-slate-700 rounded text-[9px]">+</button>
-                        <button onClick={() => dispatchAction("adjust_livestock", { cows: Math.max(0, (status.livestock?.cows ?? 4) - 1) })} className="px-1 bg-slate-800 hover:bg-slate-700 rounded text-[9px]">-</button>
+                        <button onClick={() => dispatchAction("adjust_livestock", { cows: (status.livestock?.cows ?? 4) + 1 })} className={`px-1 ${isDayMode ? "bg-slate-200 hover:bg-slate-300 text-slate-800" : "bg-slate-800 hover:bg-slate-700 text-white"} rounded text-[9px] font-bold`}>+</button>
+                        <button onClick={() => dispatchAction("adjust_livestock", { cows: Math.max(0, (status.livestock?.cows ?? 4) - 1) })} className={`px-1 ${isDayMode ? "bg-slate-200 hover:bg-slate-300 text-slate-800" : "bg-slate-800 hover:bg-slate-700 text-white"} rounded text-[9px] font-bold`}>-</button>
                       </div>
                     )}
                   </div>
                   <div className="flex items-center gap-1">
-                    <span>🐑 {status.livestock?.sheep ?? 6}</span>
+                    <span className="font-bold">🐑 {status.livestock?.sheep ?? 6}</span>
                     {isAdmin && (
                       <div className="flex gap-0.5">
-                        <button onClick={() => dispatchAction("adjust_livestock", { sheep: (status.livestock?.sheep ?? 6) + 1 })} className="px-1 bg-slate-800 hover:bg-slate-700 rounded text-[9px]">+</button>
-                        <button onClick={() => dispatchAction("adjust_livestock", { sheep: Math.max(0, (status.livestock?.sheep ?? 6) - 1) })} className="px-1 bg-slate-800 hover:bg-slate-700 rounded text-[9px]">-</button>
+                        <button onClick={() => dispatchAction("adjust_livestock", { sheep: (status.livestock?.sheep ?? 6) + 1 })} className={`px-1 ${isDayMode ? "bg-slate-200 hover:bg-slate-300 text-slate-800" : "bg-slate-800 hover:bg-slate-700 text-white"} rounded text-[9px] font-bold`}>+</button>
+                        <button onClick={() => dispatchAction("adjust_livestock", { sheep: Math.max(0, (status.livestock?.sheep ?? 6) - 1) })} className={`px-1 ${isDayMode ? "bg-slate-200 hover:bg-slate-300 text-slate-800" : "bg-slate-800 hover:bg-slate-700 text-white"} rounded text-[9px] font-bold`}>-</button>
                       </div>
                     )}
                   </div>
                   <div className="flex items-center gap-1">
-                    <span>🐔 {status.livestock?.chickens ?? 10}</span>
+                    <span className="font-bold">🐔 {status.livestock?.chickens ?? 10}</span>
                     {isAdmin && (
                       <div className="flex gap-0.5">
-                        <button onClick={() => dispatchAction("adjust_livestock", { chickens: (status.livestock?.chickens ?? 10) + 1 })} className="px-1 bg-slate-800 hover:bg-slate-700 rounded text-[9px]">+</button>
-                        <button onClick={() => dispatchAction("adjust_livestock", { chickens: Math.max(0, (status.livestock?.chickens ?? 10) - 1) })} className="px-1 bg-slate-800 hover:bg-slate-700 rounded text-[9px]">-</button>
+                        <button onClick={() => dispatchAction("adjust_livestock", { chickens: (status.livestock?.chickens ?? 10) + 1 })} className={`px-1 ${isDayMode ? "bg-slate-200 hover:bg-slate-300 text-slate-800" : "bg-slate-800 hover:bg-slate-700 text-white"} rounded text-[9px] font-bold`}>+</button>
+                        <button onClick={() => dispatchAction("adjust_livestock", { chickens: Math.max(0, (status.livestock?.chickens ?? 10) - 1) })} className={`px-1 ${isDayMode ? "bg-slate-200 hover:bg-slate-300 text-slate-800" : "bg-slate-800 hover:bg-slate-700 text-white"} rounded text-[9px] font-bold`}>-</button>
                       </div>
                     )}
                   </div>
@@ -6302,27 +6372,27 @@ export default function CivilizationDashboard() {
               </div>
 
               {/* Farm Barn Grain Silos */}
-              <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-3 flex flex-col justify-between shadow-sm">
-                <div className="flex justify-between items-center text-slate-400 text-[10px] uppercase font-bold">
-                  <span>🌾 Farm Barn & Silos</span>
+              <div className={`${isDayMode ? "bg-white/95 border-amber-250 text-slate-800 shadow-sm" : "bg-slate-950/80 border-slate-800 text-white"} border rounded-2xl p-3 flex flex-col justify-between`}>
+                <div className={`flex justify-between items-center ${isDayMode ? "text-slate-600 font-bold" : "text-slate-400"} text-[10px] uppercase font-bold`}>
+                  <span>🌾 Farm Barn &amp; Silos</span>
                   <span>Crops</span>
                 </div>
                 <div className="flex items-center gap-2 mt-1">
-                  <span className="text-xs font-mono font-bold text-amber-400">🌾 {status.farm_barn?.wheat || 0} Wheat</span>
-                  <span className="text-xs font-mono font-bold text-orange-400">🥕 {status.farm_barn?.carrot || 0} Carrots</span>
-                  <span className="text-xs font-mono font-bold text-rose-400">🍎 {status.farm_barn?.apple || 0} Apples</span>
+                  <span className={`text-xs font-mono font-bold ${isDayMode ? "text-amber-800 font-black" : "text-amber-400"}`}>🌾 {status.farm_barn?.wheat || 0} Wheat</span>
+                  <span className={`text-xs font-mono font-bold ${isDayMode ? "text-orange-700 font-black" : "text-orange-400"}`}>🥕 {status.farm_barn?.carrot || 0} Carrots</span>
+                  <span className={`text-xs font-mono font-bold ${isDayMode ? "text-rose-700 font-black" : "text-rose-400"}`}>🍎 {status.farm_barn?.apple || 0} Apples</span>
                 </div>
               </div>
 
               {/* Commercial Market Shelves */}
-              <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-3 flex flex-col justify-between shadow-sm">
-                <div className="flex justify-between items-center text-slate-400 text-[10px] uppercase font-bold">
+              <div className={`${isDayMode ? "bg-white/95 border-amber-250 text-slate-800 shadow-sm" : "bg-slate-950/80 border-slate-800 text-white"} border rounded-2xl p-3 flex flex-col justify-between`}>
+                <div className={`flex justify-between items-center ${isDayMode ? "text-slate-600 font-bold" : "text-slate-400"} text-[10px] uppercase font-bold`}>
                   <span>🏪 Commercial Shelves</span>
                   <span>Stores</span>
                 </div>
-                <div className="flex items-center justify-between mt-1 text-xs font-mono font-bold text-emerald-400">
+                <div className={`flex items-center justify-between mt-1 text-xs font-mono font-bold ${isDayMode ? "text-emerald-700 font-black" : "text-emerald-400"}`}>
                   <span>{((status.shops as any[]) || []).reduce((acc: number, s: any) => acc + ((Object.values(s.inventory || {}) as any[]).reduce((a: number, b: any) => a + Number(b || 0), 0)), 0)} Total Units</span>
-                  <span className="text-[10px] text-slate-500 font-normal">5 Town Shops</span>
+                  <span className={`text-[10px] ${isDayMode ? "text-slate-600 font-semibold" : "text-slate-500"} font-normal`}>5 Town Shops</span>
                 </div>
               </div>
             </div>
@@ -6338,8 +6408,11 @@ export default function CivilizationDashboard() {
               ].map((tab) => (
                 <button
                   key={tab.id}
-                  onClick={() => setInventoryCategoryFilter(tab.id as any)}
-                  className={`px-3 py-1.5 rounded-xl font-bold text-xs whitespace-nowrap transition-all border ${inventoryCategoryFilter === tab.id ? "bg-emerald-500 text-slate-950 border-emerald-400 shadow-md" : "bg-slate-950 text-slate-400 border-slate-800 hover:text-white"}`}
+                  onClick={() => {
+                    soundEngine.playClick(600);
+                    setInventoryCategoryFilter(tab.id as any);
+                  }}
+                  className={`px-3 py-1.5 rounded-xl font-bold text-xs whitespace-nowrap transition-all border ${inventoryCategoryFilter === tab.id ? "bg-emerald-500 text-slate-950 border-emerald-400 shadow-md font-black" : isDayMode ? "bg-white text-slate-700 border-amber-250 hover:bg-amber-100" : "bg-slate-950 text-slate-400 border-slate-800 hover:text-white"}`}
                 >
                   {tab.label}
                 </button>
@@ -6404,48 +6477,48 @@ export default function CivilizationDashboard() {
                     const price = status.item_prices?.[item.id] || 5;
 
                     return (
-                      <div key={item.id} className="bg-slate-950/80 hover:bg-slate-950 border border-slate-800 hover:border-slate-700 p-3 rounded-2xl flex flex-col gap-2.5 transition-all shadow-sm">
+                      <div key={item.id} className={`${isDayMode ? "bg-white/95 border-amber-250 hover:border-amber-400 shadow-sm text-slate-800" : "bg-slate-950/80 hover:bg-slate-950 border-slate-800 hover:border-slate-700 shadow-sm text-slate-200"} border p-3 rounded-2xl flex flex-col gap-2.5 transition-all`}>
                         <div className="flex justify-between items-start">
                           <div className="flex items-center gap-2">
                             <img
                               src={getItemIconPath(item.id)}
                               onError={(e: any) => { e.currentTarget.src = createSvgIcon(getItemEmoji(item.id), "#1e293b", "#0f172a"); }}
-                              className="w-8 h-8 rounded-lg object-cover border border-slate-800 shadow"
+                              className={`w-8 h-8 rounded-lg object-cover border ${isDayMode ? "border-amber-200" : "border-slate-800"} shadow`}
                               alt={item.name}
                             />
                             <div>
-                              <strong className="text-white font-bold text-xs block">{item.name}</strong>
-                              <span className="text-[9px] text-slate-400 font-mono capitalize">{item.category} • ${price}/unit</span>
+                              <strong className={`${isDayMode ? "text-slate-900 font-black" : "text-white font-bold"} text-xs block`}>{item.name}</strong>
+                              <span className={`text-[9px] ${isDayMode ? "text-slate-600 font-semibold" : "text-slate-400"} font-mono capitalize`}>{item.category} &bull; ${price}/unit</span>
                             </div>
                           </div>
 
                           <div className="text-right">
-                            <span className="text-emerald-400 font-mono font-extrabold text-sm block">
-                              {totalCivQty} <span className="text-[10px] text-slate-500 font-normal">{item.unit}</span>
+                            <span className={`${isDayMode ? "text-emerald-700 font-black" : "text-emerald-400 font-extrabold"} font-mono text-sm block`}>
+                              {totalCivQty} <span className={`text-[10px] ${isDayMode ? "text-slate-600 font-bold" : "text-slate-500"} font-normal`}>{item.unit}</span>
                             </span>
-                            <span className="text-[9px] px-1.5 py-0.2 rounded font-mono font-bold bg-slate-900 border border-slate-800 text-slate-400">
+                            <span className={`text-[9px] px-1.5 py-0.2 rounded font-mono font-bold ${isDayMode ? "bg-amber-100 text-amber-950 border-amber-300" : "bg-slate-900 border-slate-800 text-slate-400"} border`}>
                               Total Stock
                             </span>
                           </div>
                         </div>
 
                         {/* Breakdown Row */}
-                        <div className="grid grid-cols-4 gap-1 pt-2 border-t border-slate-850 text-[10px] font-mono text-center">
-                          <div className="bg-slate-900/60 p-1.5 rounded-lg border border-slate-850">
-                            <span className="text-slate-500 block text-[8px] uppercase">Barn/Silo</span>
-                            <span className="text-amber-300 font-bold">{barnQty}</span>
+                        <div className={`grid grid-cols-4 gap-1 pt-2 border-t ${isDayMode ? "border-amber-200" : "border-slate-850"} text-[10px] font-mono text-center`}>
+                          <div className={`${isDayMode ? "bg-amber-50/90 border-amber-200" : "bg-slate-900/60 border-slate-850"} p-1.5 rounded-lg border`}>
+                            <span className={`${isDayMode ? "text-slate-600 font-bold" : "text-slate-500"} block text-[8px] uppercase`}>Barn/Silo</span>
+                            <span className={`${isDayMode ? "text-amber-800 font-black" : "text-amber-300 font-bold"}`}>{barnQty}</span>
                           </div>
-                          <div className="bg-slate-900/60 p-1.5 rounded-lg border border-slate-850">
-                            <span className="text-slate-500 block text-[8px] uppercase">Warehouse</span>
-                            <span className="text-sky-300 font-bold">{playerQty}</span>
+                          <div className={`${isDayMode ? "bg-amber-50/90 border-amber-200" : "bg-slate-900/60 border-slate-850"} p-1.5 rounded-lg border`}>
+                            <span className={`${isDayMode ? "text-slate-600 font-bold" : "text-slate-500"} block text-[8px] uppercase`}>Warehouse</span>
+                            <span className={`${isDayMode ? "text-sky-700 font-black" : "text-sky-300 font-bold"}`}>{playerQty}</span>
                           </div>
-                          <div className="bg-slate-900/60 p-1.5 rounded-lg border border-slate-850">
-                            <span className="text-slate-500 block text-[8px] uppercase">Markets</span>
-                            <span className="text-emerald-300 font-bold">{shopQty}</span>
+                          <div className={`${isDayMode ? "bg-amber-50/90 border-amber-200" : "bg-slate-900/60 border-slate-850"} p-1.5 rounded-lg border`}>
+                            <span className={`${isDayMode ? "text-slate-600 font-bold" : "text-slate-500"} block text-[8px] uppercase`}>Markets</span>
+                            <span className={`${isDayMode ? "text-emerald-700 font-black" : "text-emerald-300 font-bold"}`}>{shopQty}</span>
                           </div>
-                          <div className="bg-slate-900/60 p-1.5 rounded-lg border border-slate-850">
-                            <span className="text-slate-500 block text-[8px] uppercase">Pantries</span>
-                            <span className="text-purple-300 font-bold">{householdQty}</span>
+                          <div className={`${isDayMode ? "bg-amber-50/90 border-amber-200" : "bg-slate-900/60 border-slate-850"} p-1.5 rounded-lg border`}>
+                            <span className={`${isDayMode ? "text-slate-600 font-bold" : "text-slate-500"} block text-[8px] uppercase`}>Pantries</span>
+                            <span className={`${isDayMode ? "text-purple-800 font-black" : "text-purple-300 font-bold"}`}>{householdQty}</span>
                           </div>
                         </div>
                       </div>
@@ -6455,14 +6528,14 @@ export default function CivilizationDashboard() {
             </div>
 
             {/* Footer Close */}
-            <div className="flex justify-between items-center pt-2 border-t border-slate-800 flex-none text-xs">
-              <span className="text-[10px] text-slate-500 font-mono">
-                AI Civilization Simulator • Real-Time Autonomous Agricultural & Supply Chain Engine
+            <div className={`flex justify-between items-center pt-2 border-t ${isDayMode ? "border-amber-200" : "border-slate-800"} flex-none text-xs`}>
+              <span className={`text-[10px] ${isDayMode ? "text-slate-600 font-semibold" : "text-slate-500"} font-mono`}>
+                AI Civilization Simulator &bull; Real-Time Autonomous Agricultural &amp; Supply Chain Engine
               </span>
               <button
                 type="button"
                 onClick={() => setMasterInventoryModalOpen(false)}
-                className="bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold px-5 py-2 rounded-xl transition-all"
+                className={`${isDayMode ? "bg-slate-850 hover:bg-slate-900 text-white font-bold" : "bg-slate-800 hover:bg-slate-700 text-slate-200"} px-5 py-2 rounded-xl transition-all font-bold`}
               >
                 Close Window
               </button>
@@ -6474,22 +6547,22 @@ export default function CivilizationDashboard() {
 
       {/* Admin Registered Citizens Registry & Multi-Tenant Census Modal */}
       {isAdmin && showAdminCensusModal && (
-        <div className="fixed inset-0 z-[9999] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-amber-500/40 rounded-2xl w-full max-w-4xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+        <div className={`fixed inset-0 z-[9999] ${isDayMode ? "bg-slate-900/60" : "bg-slate-950/80"} backdrop-blur-md flex items-center justify-center p-4`}>
+          <div className={`${isDayMode ? "bg-amber-50/95 border-2 border-amber-300 text-slate-800" : "bg-slate-900 border border-amber-500/40 text-slate-200"} rounded-2xl w-full max-w-4xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden`}>
             {/* Modal Header */}
-            <div className="p-4 border-b border-slate-800 bg-slate-950/90 flex justify-between items-center flex-wrap gap-2">
+            <div className={`p-4 border-b ${isDayMode ? "border-amber-200 bg-white/90" : "border-slate-800 bg-slate-950/90"} flex justify-between items-center flex-wrap gap-2`}>
               <div className="flex items-center gap-2.5">
-                <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-xl">
+                <div className={`w-10 h-10 rounded-xl ${isDayMode ? "bg-amber-100 border-amber-300" : "bg-amber-500/20 border-amber-500/40"} border flex items-center justify-center text-xl`}>
                   👥
                 </div>
                 <div>
-                  <h3 className="text-white text-base font-bold flex items-center gap-2">
+                  <h3 className={`${isDayMode ? "text-slate-900 font-black" : "text-white font-bold"} text-base flex items-center gap-2`}>
                     <span>Civilization Master Citizen Census</span>
-                    <span className="text-xs bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-mono border border-amber-500/30">
+                    <span className={`text-xs ${isDayMode ? "bg-amber-100 text-amber-950 border-amber-300 font-bold" : "bg-amber-500/20 text-amber-300 border-amber-500/30"} px-2 py-0.5 rounded-full font-mono border`}>
                       {registeredUsers.length} Registered Accounts
                     </span>
                   </h3>
-                  <p className="text-slate-400 text-xs font-mono">
+                  <p className={`${isDayMode ? "text-slate-600 font-semibold" : "text-slate-400"} text-xs font-mono`}>
                     All registered citizens, private family residences, and GPS coordinates stored in MongoDB database
                   </p>
                 </div>
@@ -6501,12 +6574,12 @@ export default function CivilizationDashboard() {
                   placeholder="🔍 Search email, home, city..."
                   value={censusSearchQuery}
                   onChange={(e) => setCensusSearchQuery(e.target.value)}
-                  className="bg-slate-950 border border-slate-800 text-white rounded-xl px-3 py-1.5 text-xs font-mono w-56 outline-none focus:border-amber-500"
+                  className={`${isDayMode ? "bg-amber-50/70 border-amber-200 text-slate-900 placeholder-slate-500 shadow-sm focus:border-amber-400" : "bg-slate-950 border-slate-800 text-white placeholder-slate-500 focus:border-amber-500"} border rounded-xl px-3 py-1.5 text-xs font-mono w-56 outline-none`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowAdminCensusModal(false)}
-                  className="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center font-bold text-sm"
+                  className={`w-8 h-8 rounded-xl ${isDayMode ? "bg-slate-200 hover:bg-slate-300 text-slate-800" : "bg-slate-800 hover:bg-slate-700 text-slate-300"} flex items-center justify-center font-bold text-sm transition-all`}
                 >
                   ✕
                 </button>
@@ -6530,45 +6603,45 @@ export default function CivilizationDashboard() {
                   return (
                     <div
                       key={u.user_id || idx}
-                      className="bg-slate-950/70 border border-slate-800/90 hover:border-amber-500/40 rounded-xl p-3.5 flex flex-col md:flex-row justify-between items-start md:items-center gap-3 transition-all"
+                      className={`${isDayMode ? "bg-white/95 border-amber-250 hover:border-amber-400 shadow-sm text-slate-800" : "bg-slate-950/70 border-slate-800/90 hover:border-amber-500/40 text-slate-200"} border rounded-xl p-3.5 flex flex-col md:flex-row justify-between items-start md:items-center gap-3 transition-all`}
                     >
                       <div className="flex flex-col gap-1">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <strong className="text-white text-sm font-bold">{u.home_name || "Citizen Residence"}</strong>
-                          <span className="text-[10px] bg-sky-500/10 text-sky-300 px-2 py-0.5 rounded-md border border-sky-500/20 font-mono font-semibold">
+                          <strong className={`${isDayMode ? "text-slate-900 font-black" : "text-white font-bold"} text-sm`}>{u.home_name || "Citizen Residence"}</strong>
+                          <span className={`text-[10px] ${isDayMode ? "bg-sky-100 text-sky-950 border-sky-300 font-bold" : "bg-sky-500/10 text-sky-300 border-sky-500/20"} px-2 py-0.5 rounded-md border font-mono font-semibold`}>
                             ✉️ {u.user_id}
                           </span>
-                          <span className="text-[10px] bg-emerald-500/10 text-emerald-300 px-2 py-0.5 rounded-md border border-emerald-500/20 font-mono font-semibold">
+                          <span className={`text-[10px] ${isDayMode ? "bg-emerald-100 text-emerald-950 border-emerald-300 font-bold" : "bg-emerald-500/10 text-emerald-300 border-emerald-500/20"} px-2 py-0.5 rounded-md border font-mono font-semibold`}>
                             💰 Cash: ${u.money?.toLocaleString() || 500}
                           </span>
                         </div>
 
-                        <div className="text-xs text-slate-300 flex items-center gap-2 flex-wrap">
+                        <div className={`text-xs ${isDayMode ? "text-slate-600 font-medium" : "text-slate-300"} flex items-center gap-2 flex-wrap`}>
                           <span>📍 <strong>Address:</strong> {u.address || "Civilization Citizen Zone"}</span>
-                          <span className="text-slate-500">•</span>
-                          <span className="font-mono text-[11px] text-amber-400">
+                          <span className={`${isDayMode ? "text-slate-400" : "text-slate-500"}`}>•</span>
+                          <span className={`font-mono text-[11px] ${isDayMode ? "text-amber-800 font-bold" : "text-amber-400"}`}>
                             🧭 GPS: [{u.coords?.[0]?.toFixed(4) || "20.9472"}, {u.coords?.[1]?.toFixed(4) || "72.9515"}]
                           </span>
                         </div>
 
                         {/* Family Members Roster */}
                         <div className="mt-1 flex items-center gap-1.5 flex-wrap">
-                          <span className="text-[11px] text-slate-400 font-semibold">
+                          <span className={`text-[11px] ${isDayMode ? "text-slate-700 font-bold" : "text-slate-400 font-semibold"}`}>
                             👨‍👩‍👧‍👦 Family ({u.members?.length || 0}):
                           </span>
                           {u.members && u.members.length > 0 ? (
                             u.members.map((m: any, mIdx: number) => (
                               <span
                                 key={mIdx}
-                                className="bg-slate-900 border border-slate-800 text-slate-200 text-[10px] px-2 py-0.5 rounded-md font-mono flex items-center gap-1"
+                                className={`${isDayMode ? "bg-amber-50/90 border-amber-200 text-slate-800" : "bg-slate-900 border-slate-800 text-slate-200"} border text-[10px] px-2 py-0.5 rounded-md font-mono flex items-center gap-1`}
                               >
                                 <span>{VEHICLE_EMOJIS[m.vehicle] || "🚗"}</span>
                                 <span>{m.name}</span>
-                                <span className="text-slate-400 text-[9px]">({m.role || "Member"})</span>
+                                <span className={`${isDayMode ? "text-slate-600" : "text-slate-400"} text-[9px]`}>({m.role || "Member"})</span>
                               </span>
                             ))
                           ) : (
-                            <span className="text-slate-500 text-[10px] italic">No family members registered</span>
+                            <span className={`${isDayMode ? "text-slate-500" : "text-slate-500"} text-[10px] italic`}>No family members registered</span>
                           )}
                         </div>
                       </div>
@@ -6582,7 +6655,7 @@ export default function CivilizationDashboard() {
                               mapInstanceRef.current.flyTo(u.coords, 17);
                             }
                           }}
-                          className="bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs font-bold px-3 py-1.5 rounded-xl transition-all flex items-center gap-1 shadow-sm"
+                          className={`${isDayMode ? "bg-amber-100 hover:bg-amber-200 text-amber-950 border-amber-300 font-extrabold" : "bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border-amber-500/40"} border text-xs font-bold px-3 py-1.5 rounded-xl transition-all flex items-center gap-1 shadow-sm`}
                         >
                           <span>🎯</span>
                           <span>Fly to on Map</span>
@@ -6633,13 +6706,13 @@ export default function CivilizationDashboard() {
                 })}
 
                 {/* 7 Core Civilization Houses & Hostels Section */}
-                <div className="pt-3 border-t border-slate-800 flex flex-col gap-2.5">
+                <div className={`pt-3 border-t ${isDayMode ? "border-amber-200" : "border-slate-800"} flex flex-col gap-2.5`}>
                   <div className="flex justify-between items-center">
-                    <span className="text-xs font-extrabold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <span className={`text-xs font-extrabold ${isDayMode ? "text-amber-800" : "text-amber-400"} uppercase tracking-wider flex items-center gap-1.5`}>
                       <span>🏠</span>
                       <span>Civilization Core Residences &amp; Rooms ({status.families?.length || 7}):</span>
                     </span>
-                    <span className="text-[10px] text-slate-400 font-mono">
+                    <span className={`text-[10px] ${isDayMode ? "text-slate-600 font-semibold" : "text-slate-400"} font-mono`}>
                       {status.families?.reduce((a: number, f: any) => a + (f.members?.length || 0), 0) || 0} Total Citizens Residing
                     </span>
                   </div>
@@ -6651,20 +6724,20 @@ export default function CivilizationDashboard() {
                       return (
                         <div
                           key={f.id || fIdx}
-                          className="bg-slate-950/80 border border-slate-800/90 rounded-xl p-3 flex flex-col justify-between gap-2 shadow-sm hover:border-amber-500/40 transition-all"
+                          className={`${isDayMode ? "bg-white/95 border-amber-250 shadow-sm text-slate-800" : "bg-slate-950/80 border-slate-800/90 text-slate-200"} border rounded-xl p-3 flex flex-col justify-between gap-2 shadow-sm hover:border-amber-500/40 transition-all`}
                         >
                           <div className="flex justify-between items-start gap-2">
                             <div>
-                              <strong className="text-white text-xs font-bold flex items-center gap-1">
+                              <strong className={`${isDayMode ? "text-slate-900 font-black" : "text-white font-bold"} text-xs flex items-center gap-1`}>
                                 <span>{isHostel ? "🏢" : "🏠"}</span>
                                 <span>{f.name}</span>
                               </strong>
-                              <span className="text-[10px] font-mono text-slate-400 block mt-0.5">
+                              <span className={`text-[10px] font-mono ${isDayMode ? "text-slate-600 font-semibold" : "text-slate-400"} block mt-0.5`}>
                                 ID: {f.id} &bull; Budget: ${f.budget || 50}/day
                               </span>
                             </div>
 
-                            <span className="text-[10px] font-mono font-bold bg-slate-900 border border-slate-800 text-amber-400 px-2 py-0.5 rounded-md">
+                            <span className={`text-[10px] font-mono font-bold ${isDayMode ? "bg-amber-100 border-amber-300 text-amber-950 font-black" : "bg-slate-900 border-slate-800 text-amber-400"} border px-2 py-0.5 rounded-md`}>
                               {f.members?.length || 0} Members
                             </span>
                           </div>
@@ -6674,7 +6747,7 @@ export default function CivilizationDashboard() {
                             {f.members?.map((m: any, mIdx: number) => (
                               <span
                                 key={mIdx}
-                                className="bg-slate-900 border border-slate-850 text-slate-300 text-[9px] px-1.5 py-0.2 rounded font-mono flex items-center gap-0.5"
+                                className={`${isDayMode ? "bg-amber-50/90 border-amber-200 text-slate-800 font-semibold" : "bg-slate-900 border-slate-850 text-slate-300"} border text-[9px] px-1.5 py-0.2 rounded font-mono flex items-center gap-0.5`}
                               >
                                 <span>{VEHICLE_EMOJIS[m.vehicle] || "🚗"}</span>
                                 <span>{m.name}</span>
@@ -6717,21 +6790,21 @@ export default function CivilizationDashboard() {
 
       {/* Edit Individual Person Details Modal */}
       {editingPersonModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-slate-900 border-2 border-amber-500/70 rounded-2xl p-5 max-w-lg w-full shadow-2xl flex flex-col gap-4 text-xs animate-fade-in my-auto">
-            <div className="flex justify-between items-center border-b border-slate-800 pb-2.5">
+        <div className={`fixed inset-0 z-50 ${isDayMode ? "bg-slate-900/60" : "bg-slate-950/85"} backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto`}>
+          <div className={`${isDayMode ? "bg-amber-50/95 border-2 border-amber-300 text-slate-800 shadow-2xl" : "bg-slate-900 border-2 border-amber-500/70 text-slate-200 shadow-2xl"} rounded-2xl p-5 max-w-lg w-full flex flex-col gap-4 text-xs animate-fade-in my-auto`}>
+            <div className={`flex justify-between items-center border-b ${isDayMode ? "border-amber-200" : "border-slate-800"} pb-2.5`}>
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-base">
+                <div className={`w-8 h-8 rounded-xl ${isDayMode ? "bg-amber-100 border-amber-300" : "bg-amber-500/20 border-amber-500/40"} border flex items-center justify-center text-base`}>
                   ✏️
                 </div>
                 <div>
-                  <h3 className="text-white font-bold text-sm">Edit Citizen Profile &amp; Career</h3>
-                  <span className="text-[10px] text-amber-400 font-mono">Modifying: {editPersonOldName}</span>
+                  <h3 className={`${isDayMode ? "text-slate-900 font-black" : "text-white font-bold"} text-sm`}>Edit Citizen Profile &amp; Career</h3>
+                  <span className={`text-[10px] ${isDayMode ? "text-amber-800 font-bold" : "text-amber-400"} font-mono`}>Modifying: {editPersonOldName}</span>
                 </div>
               </div>
               <button
                 onClick={() => setEditingPersonModalOpen(false)}
-                className="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-bold flex items-center justify-center transition-all"
+                className={`w-7 h-7 rounded-lg ${isDayMode ? "bg-slate-200 hover:bg-slate-300 text-slate-800" : "bg-slate-800 hover:bg-slate-700 text-slate-300"} font-bold flex items-center justify-center transition-all`}
               >
                 ✕
               </button>
@@ -6740,23 +6813,23 @@ export default function CivilizationDashboard() {
             <div className="flex flex-col gap-3.5">
               {/* Full Name */}
               <div>
-                <label className="text-slate-300 block mb-1 font-semibold text-[11px]">1. Citizen Full Name:</label>
+                <label className={`${isDayMode ? "text-slate-700 font-bold" : "text-slate-300"} block mb-1 font-semibold text-[11px]`}>1. Citizen Full Name:</label>
                 <input
                   type="text"
                   value={editPersonNewName}
                   onChange={(e) => setEditPersonNewName(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 text-white rounded-xl p-2.5 font-mono text-xs focus:border-amber-500 outline-none"
+                  className={`w-full ${isDayMode ? "bg-white border-amber-200 text-slate-900 font-semibold" : "bg-slate-950 border-slate-800 text-white font-mono"} border rounded-xl p-2.5 text-xs outline-none`}
                   placeholder="e.g. Thakorbhai, Vasantiben, Hetvi, Vandan"
                 />
               </div>
 
               {/* Role & Career Selection */}
               <div>
-                <label className="text-slate-300 block mb-1 font-semibold text-[11px]">2. Assign Career &amp; Role:</label>
+                <label className={`${isDayMode ? "text-slate-700 font-bold" : "text-slate-300"} block mb-1 font-semibold text-[11px]`}>2. Assign Career &amp; Role:</label>
                 <select
                   value={editPersonRole}
                   onChange={(e) => setEditPersonRole(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 text-white rounded-xl p-2.5 font-mono text-xs focus:border-amber-500 outline-none"
+                  className={`w-full ${isDayMode ? "bg-white border-amber-200 text-slate-900 font-semibold" : "bg-slate-950 border-slate-800 text-white font-mono"} border rounded-xl p-2.5 text-xs outline-none`}
                 >
                   <option value="father">Father / Household Head</option>
                   <option value="mother">Mother / Home Manager</option>
@@ -6780,19 +6853,19 @@ export default function CivilizationDashboard() {
 
               {/* Relation Description */}
               <div>
-                <label className="text-slate-300 block mb-1 font-semibold text-[11px]">3. Family Relation / Note:</label>
+                <label className={`${isDayMode ? "text-slate-700 font-bold" : "text-slate-300"} block mb-1 font-semibold text-[11px]`}>3. Family Relation / Note:</label>
                 <input
                   type="text"
                   value={editPersonRelation}
                   onChange={(e) => setEditPersonRelation(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 text-white rounded-xl p-2.5 font-mono text-xs focus:border-amber-500 outline-none"
+                  className={`w-full ${isDayMode ? "bg-white border-amber-200 text-slate-900 font-medium" : "bg-slate-950 border-slate-800 text-white font-mono"} border rounded-xl p-2.5 text-xs outline-none`}
                   placeholder="e.g. Head of Thakorbhai Household / Main Person"
                 />
               </div>
 
               {/* Commute Vehicle */}
               <div>
-                <label className="text-slate-300 block mb-1 font-semibold text-[11px]">4. Commuting Vehicle:</label>
+                <label className={`${isDayMode ? "text-slate-700 font-bold" : "text-slate-300"} block mb-1 font-semibold text-[11px]`}>4. Commuting Vehicle:</label>
                 <div className="grid grid-cols-3 gap-2">
                   {[
                     { id: "car", label: "Electric Car", icon: "🚗" },
@@ -6809,11 +6882,11 @@ export default function CivilizationDashboard() {
                       className={`p-2 rounded-xl text-center flex flex-col items-center justify-center gap-1 border transition-all ${
                         editPersonVehicle === v.id
                           ? "bg-amber-500 text-slate-950 border-amber-400 font-extrabold shadow-md"
-                          : "bg-slate-950 text-slate-300 border-slate-800 hover:border-slate-700"
+                          : isDayMode ? "bg-white text-slate-700 border-amber-250 hover:bg-amber-50" : "bg-slate-950 text-slate-300 border-slate-800 hover:border-slate-700"
                       }`}
                     >
                       <span className="text-base">{v.icon}</span>
-                      <span className="text-[10px]">{v.label}</span>
+                      <span className="text-[10px] font-bold">{v.label}</span>
                     </button>
                   ))}
                 </div>
@@ -6821,11 +6894,11 @@ export default function CivilizationDashboard() {
 
               {/* Residence Reassignment */}
               <div>
-                <label className="text-slate-300 block mb-1 font-semibold text-[11px]">5. Assigned House / Hostel (7 Total):</label>
+                <label className={`${isDayMode ? "text-slate-700 font-bold" : "text-slate-300"} block mb-1 font-semibold text-[11px]`}>5. Assigned House / Hostel (7 Total):</label>
                 <select
                   value={editPersonNewFamilyId}
                   onChange={(e) => setEditPersonNewFamilyId(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 text-white rounded-xl p-2.5 font-mono text-xs focus:border-amber-500 outline-none"
+                  className={`w-full ${isDayMode ? "bg-white border-amber-200 text-slate-900 font-semibold" : "bg-slate-950 border-slate-800 text-white font-mono"} border rounded-xl p-2.5 text-xs outline-none`}
                 >
                   {status.families?.map((f: any) => (
                     <option key={f.id} value={f.id}>
@@ -6836,7 +6909,7 @@ export default function CivilizationDashboard() {
               </div>
             </div>
 
-            <div className="flex justify-between items-center pt-3 border-t border-slate-800">
+            <div className={`flex justify-between items-center pt-3 border-t ${isDayMode ? "border-amber-200" : "border-slate-800"}`}>
               <button
                 type="button"
                 onClick={async () => {
@@ -6872,7 +6945,7 @@ export default function CivilizationDashboard() {
                 <button
                   type="button"
                   onClick={() => setEditingPersonModalOpen(false)}
-                  className="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold px-4 py-2 rounded-xl transition-all"
+                  className={`${isDayMode ? "bg-slate-200 hover:bg-slate-300 text-slate-800" : "bg-slate-800 hover:bg-slate-700 text-slate-300"} text-xs font-bold px-4 py-2 rounded-xl transition-all`}
                 >
                   Cancel
                 </button>
