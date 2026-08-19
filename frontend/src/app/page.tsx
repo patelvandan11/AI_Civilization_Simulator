@@ -289,6 +289,16 @@ export default function CivilizationDashboard() {
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<string>("overview");
 
+  // Private Home Placement & Database Geolocation States
+  const [showHomeBuilder, setShowHomeBuilder] = useState<boolean>(false);
+  const [homeNameInput, setHomeNameInput] = useState<string>("");
+  const [homeAddressInput, setHomeAddressInput] = useState<string>("");
+  const [homeLatInput, setHomeLatInput] = useState<string>("20.9472");
+  const [homeLngInput, setHomeLngInput] = useState<string>("72.9515");
+  const [homeFamilyNameInput, setHomeFamilyNameInput] = useState<string>("");
+  const [homeMemberCountInput, setHomeMemberCountInput] = useState<number>(4);
+  const [homeSaveMsg, setHomeSaveMsg] = useState<string>("");
+
   // Admin Government Cabinet States
   const [taxRateInput, setTaxRateInput] = useState<number>(10);
   const [selectedFamilyId, setSelectedFamilyId] = useState<string>("house_1");
@@ -824,17 +834,29 @@ export default function CivilizationDashboard() {
       staticMarkersRef.current.push(marker);
     };
 
-    // Render all residential family homes dynamically (fixed permanent coordinates decided by admin)
+    // Render user's private residence if placed
+    if (locs.my_home) {
+      addLandmark(
+        locs.my_home,
+        `🏡 My Private Residence (Your Home)`,
+        `Your personal household residence • Protected & Stored in database • GPS: [${locs.my_home[0].toFixed(4)}, ${locs.my_home[1].toFixed(4)}]`,
+        "#10b981",
+        "🏡"
+      );
+    }
+
+    // Render all residential family homes dynamically
     if (status && status.families && status.families.length > 0) {
       const colors = ["#0284c7", "#0d9488", "#4f46e5", "#ea580c", "#8b5cf6", "#059669", "#d97706"];
       status.families.forEach((fam: any, fIdx: number) => {
+        if (fam.id === "my_home") return; // Rendered above as primary private home
         const coord = locs[fam.id] || (fIdx === 0 ? locs.house_1 : fIdx === 1 ? locs.house_2 : fIdx === 2 ? locs.house_3 : [CENTER_LAT, CENTER_LNG]);
         if (!coord) return;
         const color = colors[fIdx % colors.length];
         if (isAdmin) {
           addLandmark(coord, `${fam.name} (${fam.id})`, `Residence • ${fam.members?.length || 0} family members • Fixed GPS: [${coord[0].toFixed(4)}, ${coord[1].toFixed(4)}]`, color, "🏠");
         } else {
-          addLandmark(coord, `Residential Zone #${fIdx + 1}`, "Private Residence (Protected Location)", color, "🏠");
+          addLandmark(coord, `Residential Zone #${fIdx + 1}`, "Town Residence", color, "🏠");
         }
       });
     } else {
@@ -1372,7 +1394,27 @@ export default function CivilizationDashboard() {
       setTimeout(() => setIndustrialActionMsg(""), 5000);
     }
   };
-  
+
+  const savePrivateHome = async () => {
+    const lat = parseFloat(homeLatInput) || 20.9472;
+    const lng = parseFloat(homeLngInput) || 72.9515;
+    const res = await dispatchAction("set_home_location", {
+      lat,
+      lng,
+      home_name: homeNameInput || `${userId.split(/[@_]/)[0]}'s Residence`,
+      address: homeAddressInput || "Navsari Citizen Zone",
+      family_name: homeFamilyNameInput || `${userId.split(/[@_]/)[0]}'s Family`,
+      member_count: homeMemberCountInput
+    });
+    if (res?.ok) {
+      setHomeSaveMsg(`✅ Private home saved to database at [${lat.toFixed(4)}, ${lng.toFixed(4)}]! (Visible only to you)`);
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.flyTo([lat, lng], 16);
+      }
+      setTimeout(() => setHomeSaveMsg(""), 6000);
+    }
+  };
+
   // Admin Action helpers
   const saveTaxRate = () => dispatchAction("set_tax_rate", { tax_rate: taxRateInput });
   const allocateFunds = (projectId: string) => {
@@ -2390,6 +2432,105 @@ export default function CivilizationDashboard() {
                       </div>
                     </div>
                   )}
+
+                  {/* Private Residence Placement for Any User / Friend */}
+                  <div className="bg-gradient-to-r from-emerald-950/40 via-slate-900/60 to-slate-900/40 border border-emerald-500/30 rounded-2xl p-3.5 flex flex-col gap-3 shadow-md">
+                    <div className="flex justify-between items-center flex-wrap gap-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-base">
+                          🏡
+                        </div>
+                        <div>
+                          <strong className="text-white text-xs block font-bold">
+                            Private Residence Placement & Database Geolocation
+                          </strong>
+                          <span className="text-[10px] text-slate-400 font-mono">
+                            Build & customize your private home on the map (Stored in database • Protected & private to your account)
+                          </span>
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => setShowHomeBuilder(!showHomeBuilder)}
+                        className="bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-xs font-bold px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5"
+                      >
+                        <span>{showHomeBuilder ? "✕ Close Form" : "🏡 Build / Relocate My Home"}</span>
+                      </button>
+                    </div>
+
+                    {showHomeBuilder && (
+                      <div className="bg-slate-950/90 border border-emerald-500/40 rounded-xl p-3 flex flex-col gap-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2.5 text-xs">
+                          <div className="flex flex-col gap-1">
+                            <label className="text-[10px] text-slate-400 font-semibold">Residence Name:</label>
+                            <input
+                              type="text"
+                              placeholder="e.g. Patel Villa, Sharma House"
+                              value={homeNameInput}
+                              onChange={(e) => setHomeNameInput(e.target.value)}
+                              className="bg-slate-900 border border-slate-800 text-white rounded-lg px-2.5 py-1.5 text-xs font-mono"
+                            />
+                          </div>
+
+                          <div className="flex flex-col gap-1">
+                            <label className="text-[10px] text-slate-400 font-semibold">Address / Zone:</label>
+                            <input
+                              type="text"
+                              placeholder="e.g. Navsari West Sector"
+                              value={homeAddressInput}
+                              onChange={(e) => setHomeAddressInput(e.target.value)}
+                              className="bg-slate-900 border border-slate-800 text-white rounded-lg px-2.5 py-1.5 text-xs font-mono"
+                            />
+                          </div>
+
+                          <div className="flex flex-col gap-1">
+                            <label className="text-[10px] text-slate-400 font-semibold">GPS Latitude:</label>
+                            <input
+                              type="text"
+                              placeholder="20.9472"
+                              value={homeLatInput}
+                              onChange={(e) => setHomeLatInput(e.target.value)}
+                              className="bg-slate-900 border border-slate-800 text-white rounded-lg px-2.5 py-1.5 text-xs font-mono"
+                            />
+                          </div>
+
+                          <div className="flex flex-col gap-1">
+                            <label className="text-[10px] text-slate-400 font-semibold">GPS Longitude:</label>
+                            <input
+                              type="text"
+                              placeholder="72.9515"
+                              value={homeLngInput}
+                              onChange={(e) => setHomeLngInput(e.target.value)}
+                              className="bg-slate-900 border border-slate-800 text-white rounded-lg px-2.5 py-1.5 text-xs font-mono"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between gap-2 flex-wrap pt-2 border-t border-slate-850">
+                          <div className="text-[11px] text-emerald-400 font-mono flex items-center gap-1.5">
+                            <span>🔒</span>
+                            <span>Isolated Privacy: Other players/friends will <strong>NOT</strong> see your private home location.</span>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={savePrivateHome}
+                            className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-extrabold px-4 py-1.5 rounded-xl text-xs transition-all shadow-md flex items-center gap-1.5"
+                          >
+                            <span>💾</span>
+                            <span>SAVE PRIVATE HOME TO DATABASE</span>
+                          </button>
+                        </div>
+
+                        {homeSaveMsg && (
+                          <div className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 p-2 rounded-lg text-xs font-mono">
+                            {homeSaveMsg}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
 
                   {/* Manual Decimal Coordinates Input Bar for Admin */}
                   {isAdmin && (

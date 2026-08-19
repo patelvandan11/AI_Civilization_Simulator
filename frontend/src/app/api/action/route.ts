@@ -1079,6 +1079,60 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: true, message: summaryMsg, industry: player.industry, money: player.money });
     }
 
+    if (action === "set_home_location" || action === "build_my_home") {
+      const lat = Number(body.lat || 20.9472);
+      const lng = Number(body.lng || 72.9515);
+      const homeName = String(body.home_name || "My Private Residence").trim();
+      const address = String(body.address || "Navsari Citizen Zone").trim();
+      const familyName = String(body.family_name || `${player.user_id.split(/[@_]/)[0]}'s Family`).trim();
+      const memberCount = Math.max(1, Math.min(8, Number(body.member_count || 4)));
+
+      if (!player.zone_locations) player.zone_locations = {};
+      player.zone_locations["my_home"] = [lat, lng];
+
+      // Update or create the user's private family in families array
+      if (!player.families) player.families = [];
+      const myFamIndex = player.families.findIndex(f => f.id === "my_home" || f.id === `house_${player.user_id}`);
+      
+      const memberNames = body.member_names || [
+        `${familyName} (Head)`,
+        "Spouse",
+        "Eldest Child",
+        "Youngest Child"
+      ].slice(0, memberCount);
+
+      const updatedFam = {
+        id: "my_home",
+        name: familyName,
+        address: address,
+        type: "house" as const,
+        budget: 150,
+        inventory: { wheat: 5, apple: 5, milk: 2 },
+        members: memberNames.map((mName: string, idx: number) => ({
+          name: mName,
+          role: idx === 0 ? "father" : idx === 1 ? "mother" : idx === 2 ? "son" : "daughter",
+          relation: idx === 0 ? "Household Head" : "Family Member",
+          vehicle: idx === 0 ? "car" : idx === 1 ? "scooter" : "bicycle",
+          state: "At Home"
+        }))
+      };
+
+      if (myFamIndex >= 0) {
+        player.families[myFamIndex] = updatedFam;
+      } else {
+        player.families.unshift(updatedFam);
+      }
+
+      player.agent_logs.push(`Database: Saved private residence '${homeName}' at [${lat.toFixed(4)}, ${lng.toFixed(4)}] to private user profile.`);
+      await savePlayer(player);
+      return NextResponse.json({
+        ok: true,
+        message: `Private residence '${homeName}' saved to database at [${lat.toFixed(4)}, ${lng.toFixed(4)}]! (Visible only to you).`,
+        zone_locations: player.zone_locations,
+        families: player.families
+      });
+    }
+
     return NextResponse.json({ ok: false, message: "Action not recognized." }, { status: 400 });
   } catch (err: any) {
     return NextResponse.json({ ok: false, message: err.message }, { status: 500 });
