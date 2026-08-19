@@ -116,3 +116,15 @@ function onFormSubmit(e) {
 - 🌍 [Overall Working Master Guide](overall_working.md)
 - 📝 [Playtester Evaluation Form](form.md)
 
+
+
+---
+
+## 🏛️ Citizen Feedback
+
+**📅 Submitted:** `20/08/2026 01:20:53`  
+**👤 Citizen:** Vandan Patel  
+**📧 Email:** vandan120ptl@gmail.com  
+**📋 Feedback Type:** 🐛 Bug Report  
+**⭐ Experience Rating:** ⭐⭐⭐⭐⭐ (5/5)
+
