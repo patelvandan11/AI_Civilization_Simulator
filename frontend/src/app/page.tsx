@@ -839,8 +839,50 @@ export default function CivilizationDashboard() {
       staticMarkersRef.current.push(marker);
     };
 
-    // Render user's private residence if placed
-    if (locs.my_home) {
+    // Render all registered users' residences from database with privacy scoping
+    if (registeredUsers && registeredUsers.length > 0) {
+      registeredUsers.forEach((u: any) => {
+        if (u.coords && Array.isArray(u.coords) && u.coords.length === 2) {
+          const isOwnHome = (u.user_id && (
+            u.user_id.toLowerCase() === userId.toLowerCase() ||
+            u.user_id.replace(/[^a-zA-Z0-9_-]/g, "") === userId.replace(/[^a-zA-Z0-9_-]/g, "")
+          ));
+
+          if (isOwnHome) {
+            // Logged-in user's own home - prominent emerald marker with personal residence name
+            addLandmark(
+              u.coords,
+              `🏡 My Private Residence (${u.home_name || "Your Home"})`,
+              `Your personal household residence • Stored in database • GPS: [${u.coords[0].toFixed(4)}, ${u.coords[1].toFixed(4)}]`,
+              "#10b981",
+              "🏡"
+            );
+          } else if (isAdmin) {
+            // Admin View - full details (name, email, family members roster, cash)
+            const memStr = u.members && u.members.length > 0
+              ? u.members.map((m: any) => `${m.name} (${m.role || "Citizen"})`).join(", ")
+              : "No family members listed";
+            addLandmark(
+              u.coords,
+              `🏡 ${u.home_name || "Citizen Residence"} (${u.user_id})`,
+              `Registered Citizen: ${u.user_id} • Location: ${u.address || "Civilization Zone"} • Family: ${memStr} • Cash: $${u.money || 500}`,
+              "#06b6d4",
+              "🏡"
+            );
+          } else {
+            // Other players / friends view - ANONYMOUS: Only shows that a residence is here, NO personal name/details!
+            addLandmark(
+              u.coords,
+              `🏠 Private Residence`,
+              `Occupied Household • Private Residence • GPS: [${u.coords[0].toFixed(4)}, ${u.coords[1].toFixed(4)}]`,
+              "#0284c7",
+              "🏠"
+            );
+          }
+        }
+      });
+    } else if (locs.my_home) {
+      // Fallback for user's own home if registered list not yet loaded
       addLandmark(
         locs.my_home,
         `🏡 My Private Residence (Your Home)`,
@@ -848,28 +890,6 @@ export default function CivilizationDashboard() {
         "#10b981",
         "🏡"
       );
-    }
-
-    // For Admin: Render all registered users' private homes from the database with distinct cyan pins
-    if (isAdmin && registeredUsers && registeredUsers.length > 0) {
-      registeredUsers.forEach((u: any) => {
-        if (u.coords && Array.isArray(u.coords) && u.coords.length === 2) {
-          // If this is the current admin's own home, skip duplicating
-          if (locs.my_home && Math.abs(locs.my_home[0] - u.coords[0]) < 0.0001 && Math.abs(locs.my_home[1] - u.coords[1]) < 0.0001) {
-            return;
-          }
-          const memStr = u.members && u.members.length > 0
-            ? u.members.map((m: any) => `${m.name} (${m.role || "Citizen"})`).join(", ")
-            : "No family members";
-          addLandmark(
-            u.coords,
-            `🏡 ${u.home_name || "Citizen Residence"} (${u.user_id})`,
-            `Registered Citizen: ${u.user_id} • Location: ${u.address || "Civilization Zone"} • Family: ${memStr} • Cash: $${u.money || 500}`,
-            "#06b6d4",
-            "🏡"
-          );
-        }
-      });
     }
 
     // Render all residential family homes dynamically
@@ -1014,17 +1034,15 @@ export default function CivilizationDashboard() {
             setStatus(data);
             setError(null);
 
-            // If Admin, fetch all registered users across the database
-            if (isAdmin) {
-              fetch(`${apiHost}/api/action?action=list_all_users&user_id=${userId}`)
-                .then(r => r.json())
-                .then(uData => {
-                  if (active && uData.ok && Array.isArray(uData.users)) {
-                    setRegisteredUsers(uData.users);
-                  }
-                })
-                .catch(() => {});
-            }
+            // Fetch all registered residences across the database for map visualization
+            fetch(`${apiHost}/api/action?action=list_all_users&user_id=${userId}`)
+              .then(r => r.json())
+              .then(uData => {
+                if (active && uData.ok && Array.isArray(uData.users)) {
+                  setRegisteredUsers(uData.users);
+                }
+              })
+              .catch(() => {});
             if (!cabinetInitializedRef.current) {
               if (data.tax_rate !== undefined) setTaxRateInput(data.tax_rate);
               if (data.government) {
@@ -2565,8 +2583,8 @@ export default function CivilizationDashboard() {
 
                         <div className="flex items-center justify-between gap-2 flex-wrap pt-2 border-t border-slate-850">
                           <div className="text-[11px] text-emerald-400 font-mono flex items-center gap-1.5">
-                            <span>🔒</span>
-                            <span>Isolated Privacy: Other players/friends will <strong>NOT</strong> see your private home location.</span>
+                            <span>🌐</span>
+                            <span>Public Map Marker: Other players will see an anonymous &apos;Private Residence&apos; pin on the map, but your personal household &amp; family details remain strictly private.</span>
                           </div>
 
                           <button
