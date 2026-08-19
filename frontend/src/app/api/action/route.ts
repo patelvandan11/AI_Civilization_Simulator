@@ -1018,15 +1018,30 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: true, message: `Decommissioned '${fam.name}' successfully.`, families: player.families });
     }
 
+    if (action === "set_speed" || action === "set_simulation_speed") {
+      const speed = Math.max(0, Math.min(10000, Number(body.speed) || 1));
+      const paused = body.paused !== undefined ? Boolean(body.paused) : false;
+      if (!player.clock) {
+        player.clock = { total_seconds: 480, speed: 1, weather: "Clear" };
+      }
+      player.clock.speed = speed;
+      (player.clock as any).paused = paused;
+      (player as any).last_saved_at = new Date().toISOString();
+      await savePlayer(player);
+      return NextResponse.json({ ok: true, speed, paused, clock: player.clock });
+    }
+
     if (action === "step_simulation") {
-      const secondsToAdvance = Math.min(86400, Math.max(1, Number(body.seconds) || 60));
-      const ticks = Math.min(3600, Math.ceil(secondsToAdvance / 5));
+      const speed = Number(body.speed) || Number(player.clock?.speed || 1);
+      const secondsToAdvance = Math.min(86400, Math.max(0.2, Number(body.seconds) || 1));
+      const ticks = Math.min(60, Math.max(1, Math.ceil(secondsToAdvance / 5)));
       const dt = secondsToAdvance / ticks;
 
       for (let i = 0; i < ticks; i++) {
         runSimulationTick(player, dt, catalogs);
       }
 
+      (player as any).last_saved_at = new Date().toISOString();
       await savePlayer(player);
       return NextResponse.json({ ok: true, message: `Advanced simulation by ${secondsToAdvance} seconds.`, clock: player.clock });
     }

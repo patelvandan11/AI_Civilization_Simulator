@@ -791,8 +791,9 @@ export function publishNews(player: PlayerState, headline: string, category: "PO
   if (!player.news_feed) {
     player.news_feed = [];
   }
+  const timestamp = formatClock(player.clock?.total_seconds || 480);
   player.news_feed.unshift({
-    timestamp: player.clock?.formatted || "12:00 PM",
+    timestamp,
     headline,
     category
   });
@@ -860,13 +861,13 @@ export function tickHouseholdAndProjects(player: PlayerState, dt: number, catalo
 
       // Trigger daily weather forecast
       const weatherForecasts = [
-        "Heavy monsoons expected over the region. Farmlands report high mud saturation.",
-        "Sunny skies and mild wind current across the region.",
-        "Heatwave warning: Power grids at maximum load. Citizens stay hydrated.",
-        "Monsoonal breeze sweeps through the town plaza."
+        "Heavy monsoons expected over the region. Farmlands report high soil saturation.",
+        "Clear sunny skies and mild coastal wind current across the region.",
+        "Pleasant morning breeze sweeps through the town plaza and farmlands.",
+        "Temperate weather: High energy output recorded across civic solar & wind grids."
       ];
       const forecast = weatherForecasts[Math.floor(Math.random() * weatherForecasts.length)];
-      publishNews(player, `Weather Alert: ${forecast}`, "WEATHER");
+      publishNews(player, `Weather Forecast: ${forecast}`, "WEATHER");
     }
     rawPlayer.last_tax_collected_day = currentDay;
   }
@@ -1004,7 +1005,7 @@ export function tickHouseholdAndProjects(player: PlayerState, dt: number, catalo
     }
   }
 
-  // 4. Hourly Routine Transitions
+  // 4. Hourly Routine Transitions & Live News Broadcasts
   if (rawPlayer.last_routine_hour === undefined) {
     rawPlayer.last_routine_hour = -1;
   }
@@ -1013,6 +1014,25 @@ export function tickHouseholdAndProjects(player: PlayerState, dt: number, catalo
     const families = player.families || [];
     const hasSchool = player.city_projects.find(p => p.id === "school")?.completed;
     const hasHospital = player.city_projects.find(p => p.id === "hospital")?.completed;
+
+    // Dispatch hourly live news
+    if (currentHour === 8) {
+      publishNews(player, `🌅 Morning Shift: Citizens completed breakfast; school buses & farm tractors departed along Highway 48.`, "LOCAL");
+    } else if (currentHour === 9) {
+      publishNews(player, `🏭 Industrial Whistle: Production lines online at Heavy Foundry, Electronics Hub, and Textile Mills.`, "ECONOMY");
+    } else if (currentHour === 12) {
+      publishNews(player, `☀️ Midday Market: Fresh vegetable trade bustling at Farmers Market & Amina's Dairy Depot.`, "LOCAL");
+    } else if (currentHour === 14) {
+      publishNews(player, `⚓ Port Operations: Coastal Shipyard berths processing maritime cargo freight & trawler catches.`, "LOCAL");
+    } else if (currentHour === 16) {
+      publishNews(player, `⛽ Energy Superstation: Highway 48 Petrol & EV dispensers serving high citizen traffic volume.`, "ECONOMY");
+    } else if (currentHour === 17) {
+      publishNews(player, `🛍️ Evening Grocery Rush: Shift ended. Family heads purchasing fresh produce for dinner.`, "LOCAL");
+    } else if (currentHour === 19) {
+      publishNews(player, `🍲 Community Dinner: Family kitchens active across Navsari residences. Streetlamps turned on.`, "LOCAL");
+    } else if (currentHour === 22) {
+      publishNews(player, `🌙 Night Watch: Municipal night curfew initiated. Town gates secure and peaceful.`, "LOCAL");
+    }
 
     for (const family of families) {
       const members = family.members || [];
@@ -1250,7 +1270,7 @@ export function conductDemocraticElection(player: PlayerState): string {
 }
 
 // Master tick catch-up simulation
-export function runSimulationTick(player: PlayerState, dt: number, catalogs: any): string[] {
+export function runSimulationTick(player: PlayerState, inGameDeltaSeconds: number, catalogs: any): string[] {
   const logs: string[] = [];
   if (!player) return logs;
 
@@ -1259,8 +1279,9 @@ export function runSimulationTick(player: PlayerState, dt: number, catalogs: any
     rawPlayer.logs_this_day = [];
   }
 
-  // 1. Tick game clock
-  player.clock.total_seconds += dt * player.clock.speed;
+  // 1. Tick game clock directly by the in-game seconds delta
+  player.clock.total_seconds += inGameDeltaSeconds;
+  player.clock.formatted = formatClock(player.clock.total_seconds);
 
   // 2. Check day change for price fluctuation and daily summary log
   const currentDay = getDay(player.clock.total_seconds);
@@ -1276,6 +1297,7 @@ export function runSimulationTick(player: PlayerState, dt: number, catalogs: any
     fluctuatePrices(player, catalogs.items);
     player.last_price_update_day = currentDay;
     logs.push(`System: Dynamic market prices fluctuated for Day ${currentDay}!`);
+    publishNews(player, `Market Fluctuation: Commodity exchange updated daily prices for Day ${currentDay}.`, "ECONOMY");
 
     // Automatic Democratic Election every 10 in-game years (or every 10 in-game days cycle)
     const currentYear = Math.floor((currentDay - 1) / 10) + 1;
@@ -1297,15 +1319,15 @@ export function runSimulationTick(player: PlayerState, dt: number, catalogs: any
   logs.push(...buildMsgs);
 
   // 5. Tick agents (ran every game tick)
-  const agentLogs = runAgentsTick(player, dt, catalogs);
+  const agentLogs = runAgentsTick(player, inGameDeltaSeconds, catalogs);
   logs.push(...agentLogs);
 
   // 6. Tick city projects funding and household routines
-  const routineLogs = tickHouseholdAndProjects(player, dt, catalogs);
+  const routineLogs = tickHouseholdAndProjects(player, inGameDeltaSeconds, catalogs);
   logs.push(...routineLogs);
 
   // 7. Tick Industrial Production, Oil Refining, Petrol Pump & Maritime Shipyards
-  const industryLogs = tickIndustriesAndPetroleum(player, dt, catalogs);
+  const industryLogs = tickIndustriesAndPetroleum(player, inGameDeltaSeconds, catalogs);
   logs.push(...industryLogs);
 
   if (agentLogs.length > 0) {

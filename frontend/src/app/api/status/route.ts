@@ -10,22 +10,30 @@ export async function GET(req: NextRequest) {
     const player = await loadPlayer(userId);
     const catalogs = loadAllCatalogs();
 
-    // Catch up simulation based on real-time elapsed
+    // Catch up simulation based on real-time elapsed and clock speed multiplier
     const rawPlayer = player as any;
+    const speed = Number(player.clock?.speed || 1);
+    const isPaused = Boolean(rawPlayer.clock?.paused);
+
     if (rawPlayer.last_saved_at) {
       const lastSavedTime = new Date(rawPlayer.last_saved_at).getTime();
       const elapsedSeconds = (Date.now() - lastSavedTime) / 1000;
       
-      // If significant time has passed (and not massive to prevent locking)
-      if (elapsedSeconds >= 2.0) {
-        // Limit catch-up to max 1 hour of real-time elapsed to prevent freezes
-        const ticksCount = Math.min(3600, Math.floor(elapsedSeconds));
+      // If time has passed and simulation is not paused
+      if (!isPaused && elapsedSeconds >= 0.5) {
+        const inGameSeconds = Math.min(86400, elapsedSeconds * speed);
+        const ticksCount = Math.min(120, Math.max(1, Math.ceil(inGameSeconds / 10)));
+        const dt = inGameSeconds / ticksCount;
         
         for (let i = 0; i < ticksCount; i++) {
-          runSimulationTick(player, 1.0, catalogs);
+          runSimulationTick(player, dt, catalogs);
         }
+        rawPlayer.last_saved_at = new Date().toISOString();
         await savePlayer(player);
       }
+    } else {
+      rawPlayer.last_saved_at = new Date().toISOString();
+      await savePlayer(player);
     }
 
     // Ensure prices are initialized and contain all catalog items
@@ -167,7 +175,9 @@ export async function GET(req: NextRequest) {
         formatted: formattedClock,
         indian_date: indianDate,
         is_night: isNight,
-        weather: player.clock.weather
+        weather: player.clock.weather,
+        speed: Number(player.clock.speed || 1),
+        paused: Boolean((player.clock as any)?.paused)
       },
       inventory: Object.entries(player.inventory),
       plots: plotsMapped,

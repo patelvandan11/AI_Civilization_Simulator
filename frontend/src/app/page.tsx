@@ -1089,22 +1089,26 @@ export default function CivilizationDashboard() {
       });
   }, [userId, apiHost, isLoggedIn]);
 
-  // Polling simulation status
+  // Dynamic Polling simulation status based on active simulation speed
   useEffect(() => {
     if (!isLoggedIn) return;
     fetchStatus();
-    const interval = setInterval(fetchStatus, 1500);
+
+    // Fast polling when simulation speed is high
+    const pollIntervalTime = isPaused ? 2500 : simSpeed >= 60 ? 200 : simSpeed >= 10 ? 350 : 1000;
+    const interval = setInterval(fetchStatus, pollIntervalTime);
     return () => {
       clearInterval(interval);
     };
-  }, [fetchStatus, isLoggedIn]);
+  }, [fetchStatus, isLoggedIn, isPaused, simSpeed]);
 
-  // Fast Simulation Speed Runner Ticker
+  // Fast Simulation Speed Runner Ticker (Steps smoothly 4x/sec at 10x, 60x, 1000x)
   useEffect(() => {
     if (!isLoggedIn || isPaused || simSpeed <= 1) return;
 
-    const intervalTime = simSpeed >= 1000 ? 500 : 1000;
-    const stepSeconds = simSpeed >= 1000 ? 500 : simSpeed;
+    // Step every 250ms (4 times per second) with proportional slice of in-game seconds
+    const intervalTime = 250;
+    const stepSeconds = (simSpeed * (intervalTime / 1000));
 
     const timer = setInterval(() => {
       fetch(`${apiHost}/api/action`, {
@@ -1113,13 +1117,21 @@ export default function CivilizationDashboard() {
         body: JSON.stringify({
           action: "step_simulation",
           user_id: userId,
-          seconds: stepSeconds
+          seconds: stepSeconds,
+          speed: simSpeed
         })
-      }).catch(() => {});
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.ok) {
+            fetchStatus();
+          }
+        })
+        .catch(() => {});
     }, intervalTime);
 
     return () => clearInterval(timer);
-  }, [isLoggedIn, isPaused, simSpeed, userId, apiHost]);
+  }, [isLoggedIn, isPaused, simSpeed, userId, apiHost, fetchStatus]);
 
   const handleMemberCountChange = (count: number) => {
     setSignupMemberCount(count);
@@ -2499,8 +2511,19 @@ export default function CivilizationDashboard() {
                 <button
                   type="button"
                   onClick={() => {
+                    const nextPaused = !isPaused;
                     soundEngine.playClick(600);
-                    setIsPaused(!isPaused);
+                    setIsPaused(nextPaused);
+                    fetch(`${apiHost}/api/action`, {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        action: "set_speed",
+                        user_id: userId,
+                        speed: simSpeed,
+                        paused: nextPaused
+                      })
+                    }).then(() => fetchStatus()).catch(() => {});
                   }}
                   className={`px-3 py-1 rounded-lg text-xs font-extrabold transition-all flex items-center gap-1 border ${isPaused ? "bg-rose-500/20 text-rose-400 border-rose-500/40 animate-pulse" : "bg-emerald-500/20 text-emerald-400 border-emerald-500/40"}`}
                   title={isPaused ? "Resume Simulation" : "Pause Simulation"}
@@ -2511,20 +2534,30 @@ export default function CivilizationDashboard() {
                 {/* Speed Multipliers */}
                 {[
                   { label: "1×", val: 1, hint: "Normal (1 hr = 1 min)" },
-                  { label: "10×", val: 10, hint: "10x Fast" },
+                  { label: "10×", val: 10, hint: "10x Fast Speed" },
                   { label: "60×", val: 60, hint: "60x Speed (1 hr = 1 sec)" },
                   { label: "1000×", val: 1000, hint: "1000x Super Warp" }
                 ].map((s) => (
                   <button
                     key={s.val}
                     type="button"
-                    disabled={isPaused}
                     onClick={() => {
                       soundEngine.playClick(700);
                       setSimSpeed(s.val);
+                      setIsPaused(false);
                       setShowCustomSpeedInput(false);
+                      fetch(`${apiHost}/api/action`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                          action: "set_speed",
+                          user_id: userId,
+                          speed: s.val,
+                          paused: false
+                        })
+                      }).then(() => fetchStatus()).catch(() => {});
                     }}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition-all border ${simSpeed === s.val && !showCustomSpeedInput ? "bg-amber-500 text-slate-950 border-amber-400 shadow-md font-extrabold" : isDayMode ? "bg-white text-slate-700 border-amber-200 hover:bg-amber-100" : "bg-slate-900 text-slate-400 border-slate-800 hover:text-white hover:border-slate-700"} disabled:opacity-40`}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition-all border ${simSpeed === s.val && !showCustomSpeedInput && !isPaused ? "bg-amber-500 text-slate-950 border-amber-400 shadow-md font-extrabold" : isDayMode ? "bg-white text-slate-700 border-amber-200 hover:bg-amber-100" : "bg-slate-900 text-slate-400 border-slate-800 hover:text-white hover:border-slate-700"}`}
                     title={s.hint}
                   >
                     {s.label}
@@ -2534,12 +2567,11 @@ export default function CivilizationDashboard() {
                 {/* Custom Speed Button */}
                 <button
                   type="button"
-                  disabled={isPaused}
                   onClick={() => {
                     soundEngine.playClick(650);
                     setShowCustomSpeedInput(!showCustomSpeedInput);
                   }}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition-all border ${showCustomSpeedInput ? "bg-sky-500 text-slate-950 border-sky-400 shadow-md" : isDayMode ? "bg-white text-slate-700 border-amber-200 hover:bg-amber-100" : "bg-slate-900 text-slate-400 border-slate-800 hover:text-white"} disabled:opacity-40`}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition-all border ${showCustomSpeedInput ? "bg-sky-500 text-slate-950 border-sky-400 shadow-md" : isDayMode ? "bg-white text-slate-700 border-amber-200 hover:bg-amber-100" : "bg-slate-900 text-slate-400 border-slate-800 hover:text-white"}`}
                   title="Custom Simulation Speed Multiplier"
                 >
                   Custom ⚙️
@@ -2562,7 +2594,18 @@ export default function CivilizationDashboard() {
                         if (num > 0) {
                           soundEngine.playClick(750);
                           setSimSpeed(num);
+                          setIsPaused(false);
                           setShowCustomSpeedInput(false);
+                          fetch(`${apiHost}/api/action`, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                              action: "set_speed",
+                              user_id: userId,
+                              speed: num,
+                              paused: false
+                            })
+                          }).then(() => fetchStatus()).catch(() => {});
                         }
                       }}
                       className="bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold px-2 py-0.5 rounded-lg text-xs"
