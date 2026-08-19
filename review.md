@@ -1,58 +1,55 @@
 # ⭐ AI Civilization Simulator — Live User Reviews & Ratings
 
-Welcome to the real-time review registry for the **Navsari AI Civilization Simulator**.
+Welcome to the real-time community review hub for the **Navsari AI Civilization Simulator**.
 
-This document automatically logs playtester evaluations, rating breakdowns, and feedback submitted through our **Google Forms** integration.
+> ### 📢 Submit Your Review / Feedback
+> **Share your experience, ratings, and feature suggestions via our official Google Form:**  
+> 👉 **[Submit Your Review on Google Forms (https://forms.gle/1fZbiLkoaL3jP1fW9)](https://forms.gle/1fZbiLkoaL3jP1fW9)** 👈
 
 ---
 
-## 📊 Real-Time Community Rating Summary
+## 📊 Community Rating Overview
 
-| Metric | Community Average | Total Ratings |
+| Evaluation Metric | Community Average | Total Reviews |
 | :--- | :---: | :---: |
-| **Overall Civilization Experience** | ⭐⭐⭐⭐⭐ **5.0 / 5.0** | 1 Review |
-| **Cozy Day / Night Theme Aesthetics** | ⭐⭐⭐⭐⭐ **5.0 / 5.0** | 1 Review |
-| **Soundscape & Ambient Lofi Music** | ⭐⭐⭐⭐⭐ **5.0 / 5.0** | 1 Review |
-| **Multi-Speed Simulation Engine (1x–1000x)** | ⭐⭐⭐⭐⭐ **5.0 / 5.0** | 1 Review |
-| **Agricultural & Kisan AI Farming** | ⭐⭐⭐⭐⭐ **5.0 / 5.0** | 1 Review |
-| **Industrial Sectors & Petroleum Cracker** | ⭐⭐⭐⭐⭐ **5.0 / 5.0** | 1 Review |
-| **Geospatial Map & Citizen Commutes** | ⭐⭐⭐⭐⭐ **5.0 / 5.0** | 1 Review |
+| **Overall Civilization Experience** | ⭐⭐⭐⭐⭐ **5.0 / 5.0** | 1 Verified Review |
+| **Cozy Day / Night Theme Aesthetics** | ⭐⭐⭐⭐⭐ **5.0 / 5.0** | 1 Verified Review |
+| **Soundscape & Ambient Lofi Music** | ⭐⭐⭐⭐⭐ **5.0 / 5.0** | 1 Verified Review |
+| **Multi-Speed Simulation Engine (1x–1000x)** | ⭐⭐⭐⭐⭐ **5.0 / 5.0** | 1 Verified Review |
+| **Agricultural & Kisan AI Farming** | ⭐⭐⭐⭐⭐ **5.0 / 5.0** | 1 Verified Review |
+| **Industrial Sectors & Petroleum Cracker** | ⭐⭐⭐⭐⭐ **5.0 / 5.0** | 1 Verified Review |
+| **Geospatial Map & Citizen Commutes** | ⭐⭐⭐⭐⭐ **5.0 / 5.0** | 1 Verified Review |
 
 ---
 
-## 📝 Live User Review Feed
+## 📝 Verified Live User Reviews
 
-| # | Timestamp (IST) | Reviewer / Handle | Role | Overall | Visuals | Audio | Sim Engine | Feedback & Feature Requests |
+| # | Timestamp (IST) | Reviewer / Handle | Role | Overall | Visuals | Audio | Sim Engine | Feedback & Suggestions |
 | :-: | :---: | :--- | :---: | :---: | :---: | :---: | :---: | :--- |
 | **01** | `20/08/2026 00:15` | **Supreme Admin (Vandan)** | PMO Admin | ⭐⭐⭐⭐⭐ (5/5) | ⭐⭐⭐⭐⭐ (5/5) | ⭐⭐⭐⭐⭐ (5/5) | ⭐⭐⭐⭐⭐ (5/5) | Multi-speed 10x/60x clock acceleration and live news headlines are synchronized; cozy Day Mode palette looks great across all modals. |
-| **02** | *Live Sync* | *[Awaiting Google Form Submission]* | Citizen | — | — | — | — | *New submissions automatically appear here via Google Forms.* |
+| **02** | *Live Sync* | *[Awaiting Google Form Submission]* | Citizen / Playtester | — | — | — | — | *Submissions from [Google Form](https://forms.gle/1fZbiLkoaL3jP1fW9) automatically appear here.* |
 
 ---
 
-## 🔗 Google Forms Real-Time Sync Setup (How It Works)
+## 🔗 Real-Time Google Forms $\rightarrow$ `review.md` Sync Script
 
-When a user submits your Google Form, a lightweight **Google Apps Script** automatically formats the response into Markdown and commits the new row to this `review.md` file on GitHub in **real time** (within 2 seconds).
+To enable automatic instant updates to this file whenever someone fills out **[https://forms.gle/1fZbiLkoaL3jP1fW9](https://forms.gle/1fZbiLkoaL3jP1fW9)**:
 
-### 🛠️ 3-Step Setup:
+### 🛠️ Quick 2-Minute Setup:
 
-1. **Open your Google Form's connected Google Sheet**:
-   - In Google Forms $\rightarrow$ click **Responses** tab $\rightarrow$ click **Link to Sheets**.
-2. **Open Extensions $\rightarrow$ Apps Script**:
-   - Paste the Google Apps Script below into `Code.gs`.
-   - Replace `GITHUB_TOKEN` with your GitHub Personal Access Token (classic with `repo` scope).
-3. **Add an Installable Trigger**:
-   - In Apps Script $\rightarrow$ click **Triggers (Alarm Clock icon)** on left sidebar.
-   - Click **+ Add Trigger** $\rightarrow$ select function `onFormSubmit` $\rightarrow$ Event Type: **On form submit** $\rightarrow$ **Save**.
+1. Open your **Google Form** $\rightarrow$ go to **Responses** tab $\rightarrow$ click **Link to Sheets** (creates your responses Google Sheet).
+2. In the Google Sheet, click **Extensions** $\rightarrow$ **Apps Script**.
+3. Replace the script code with:
 
 ```javascript
-// Google Apps Script: Auto-updates review.md on GitHub on every form submission
+// Google Apps Script: Commits new form responses directly to review.md on GitHub
 function onFormSubmit(e) {
-  var GITHUB_TOKEN = "ghp_YOUR_GITHUB_PERSONAL_ACCESS_TOKEN";
+  var GITHUB_TOKEN = "ghp_YOUR_GITHUB_PERSONAL_ACCESS_TOKEN"; // Replace with your GitHub Token
   var REPO_OWNER = "patelvandan11";
   var REPO_NAME = "AI_Civilization_Simulator";
   var FILE_PATH = "review.md";
   
-  // 1. Extract submitted form values
+  // 1. Read submitted Google Form fields
   var values = e ? e.values : [];
   var timestamp = values[0] || new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
   var name = values[1] || "Anonymous Citizen";
@@ -63,7 +60,7 @@ function onFormSubmit(e) {
   var speed = values[6] || "5";
   var feedback = (values[7] || "Great civilization simulation!").replace(/\|/g, "/");
 
-  // 2. Fetch current review.md file from GitHub
+  // 2. Fetch current review.md from GitHub
   var url = "https://api.github.com/repos/" + REPO_OWNER + "/" + REPO_NAME + "/contents/" + FILE_PATH;
   var headers = {
     "Authorization": "token " + GITHUB_TOKEN,
@@ -78,7 +75,7 @@ function onFormSubmit(e) {
   var currentSha = fileData.sha;
   var decodedContent = Utilities.newBlob(Utilities.base64Decode(fileData.content)).getDataAsString();
 
-  // 3. Format new Markdown table row
+  // 3. Format into Markdown table row
   var stars = "⭐".repeat(Math.min(5, Math.max(1, parseInt(rating) || 5))) + " (" + rating + "/5)";
   var vStars = "⭐".repeat(Math.min(5, Math.max(1, parseInt(visuals) || 5))) + " (" + visuals + "/5)";
   var aStars = "⭐".repeat(Math.min(5, Math.max(1, parseInt(audio) || 5))) + " (" + audio + "/5)";
@@ -86,15 +83,14 @@ function onFormSubmit(e) {
 
   var newRow = "| **Live** | `" + timestamp + "` | **" + name + "** | " + role + " | " + stars + " | " + vStars + " | " + aStars + " | " + sStars + " | " + feedback + " |";
 
-  // Append row before the placeholder line
   var updatedContent = decodedContent.replace(
     "| **02** | *Live Sync*",
     newRow + "\n| **02** | *Live Sync*"
   );
 
-  // 4. Commit updated review.md to GitHub
+  // 4. Commit updated review.md to GitHub repository
   var payload = {
-    message: "docs(review): real-time user feedback from " + name,
+    message: "docs(review): new live review submitted by " + name,
     content: Utilities.base64Encode(Utilities.newBlob(updatedContent).getBytes()),
     sha: currentSha
   };
@@ -107,3 +103,16 @@ function onFormSubmit(e) {
   });
 }
 ```
+
+4. Click the **Triggers (Alarm Clock ⏰ icon)** on the left $\rightarrow$ **+ Add Trigger** $\rightarrow$ set Event Type to **On form submit** $\rightarrow$ **Save**.
+
+---
+
+### 🧭 Navigation & Documentation Index
+- 📖 [Main Project Readme](Readme.MD)
+- 🔄 [System Workflows](workflow.md)
+- 🏗️ [System Design & Architecture](system_design.md)
+- 🛠️ [Scripts & Tooling Reference](scripts.md)
+- 🌍 [Overall Working Master Guide](overall_working.md)
+- 📝 [Playtester Evaluation Form](form.md)
+
