@@ -887,3 +887,39 @@ export async function listAllPlayers(): Promise<any[]> {
   return Array.from(playersMap.values());
 }
 
+// Permanently delete a citizen from MongoDB Atlas, memory cache, and local disk
+export async function deletePlayer(userId: string): Promise<boolean> {
+  const safeName = userId.replace(/[^a-zA-Z0-9_-]/g, "");
+
+  // 1. Delete from in-memory cache
+  if (inMemoryCache[userId]) {
+    delete inMemoryCache[userId];
+  }
+
+  // 2. Delete from MongoDB Atlas
+  try {
+    const collection = await getCollection("players");
+    if (collection) {
+      await collection.deleteOne({ user_id: userId });
+      console.log(`[MongoDB Deleted] Citizen '${userId}' expunged from collection 'players'.`);
+    }
+  } catch (err) {
+    console.warn("[MongoDB Delete Standby]:", err);
+  }
+
+  // 3. Delete from local disk
+  try {
+    ensureDirs();
+    const filePath = path.join(PLAYERS_DIR, `${safeName}.json`);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+    const summariesPath = path.join(PLAYERS_DIR, `${safeName}_daily_summaries.json`);
+    if (fs.existsSync(summariesPath)) {
+      fs.unlinkSync(summariesPath);
+    }
+  } catch {}
+
+  return true;
+}
+

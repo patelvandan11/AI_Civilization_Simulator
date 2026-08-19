@@ -5217,6 +5217,46 @@ export default function CivilizationDashboard() {
                                   <span>✏️</span>
                                   <span>Manage Members</span>
                                 </button>
+
+                                <button
+                                  type="button"
+                                  onClick={async () => {
+                                    const confirmed = window.confirm(
+                                      `Are you sure you want to permanently DELETE citizen '${u.user_id}' (${u.home_name}) and expunge all their records from the MongoDB database?`
+                                    );
+                                    if (!confirmed) return;
+
+                                    try {
+                                      const res = await fetch(`${apiHost}/api/action?user_id=${userId}`, {
+                                        method: "POST",
+                                        headers: { "Content-Type": "application/json" },
+                                        body: JSON.stringify({
+                                          action: "admin_delete_citizen",
+                                          target_user_id: u.user_id
+                                        })
+                                      });
+                                      const data = await res.json();
+                                      if (data.ok) {
+                                        alert(data.message || `Deleted citizen ${u.user_id} successfully.`);
+                                        if (Array.isArray(data.users)) {
+                                          setRegisteredUsers(data.users);
+                                        } else {
+                                          fetch(`${apiHost}/api/action?action=list_all_users&user_id=${userId}`)
+                                            .then(r => r.json())
+                                            .then(ud => { if (ud.ok) setRegisteredUsers(ud.users); });
+                                        }
+                                      } else {
+                                        alert(data.message || "Failed to delete citizen.");
+                                      }
+                                    } catch (err: any) {
+                                      alert("Error: " + err.message);
+                                    }
+                                  }}
+                                  className="bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 text-xs font-bold px-3 py-1.5 rounded-xl transition-all flex items-center gap-1 shadow-sm active:scale-95"
+                                >
+                                  <span>🗑️</span>
+                                  <span>DELETE CITIZEN</span>
+                                </button>
                               </div>
                             </div>
 
@@ -6297,7 +6337,7 @@ export default function CivilizationDashboard() {
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2 flex-none self-end md:self-center">
+                      <div className="flex items-center gap-2 flex-none self-end md:self-center flex-wrap">
                         <button
                           type="button"
                           onClick={() => {
@@ -6310,6 +6350,46 @@ export default function CivilizationDashboard() {
                         >
                           <span>🎯</span>
                           <span>Fly to on Map</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            const confirmed = window.confirm(
+                              `Are you sure you want to permanently DELETE citizen '${u.user_id}' (${u.home_name}) and expunge all their records from the MongoDB database?`
+                            );
+                            if (!confirmed) return;
+
+                            try {
+                              const res = await fetch(`${apiHost}/api/action?user_id=${userId}`, {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({
+                                  action: "admin_delete_citizen",
+                                  target_user_id: u.user_id
+                                })
+                              });
+                              const data = await res.json();
+                              if (data.ok) {
+                                alert(data.message || `Deleted citizen ${u.user_id} successfully.`);
+                                if (Array.isArray(data.users)) {
+                                  setRegisteredUsers(data.users);
+                                } else {
+                                  fetch(`${apiHost}/api/action?action=list_all_users&user_id=${userId}`)
+                                    .then(r => r.json())
+                                    .then(ud => { if (ud.ok) setRegisteredUsers(ud.users); });
+                                }
+                              } else {
+                                alert(data.message || "Failed to delete citizen.");
+                              }
+                            } catch (err: any) {
+                              alert("Error: " + err.message);
+                            }
+                          }}
+                          className="bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 text-xs font-bold px-2.5 py-1.5 rounded-xl transition-all flex items-center gap-1 shadow-sm active:scale-95"
+                        >
+                          <span>🗑️</span>
+                          <span>Delete</span>
                         </button>
                       </div>
                     </div>

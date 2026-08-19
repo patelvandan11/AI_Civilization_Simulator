@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { loadPlayer, savePlayer, loadAllCatalogs, createNewPlayer, updateWorldLocation, resetWorldLocations, listAllPlayers } from "@/lib/io";
+import { loadPlayer, savePlayer, loadAllCatalogs, createNewPlayer, updateWorldLocation, resetWorldLocations, listAllPlayers, deletePlayer } from "@/lib/io";
 import { plantCrop, harvestCrop, startCraft, getPlotStatus, conductDemocraticElection, runSimulationTick, normalizeCropKey } from "@/lib/simulation";
 import { KisanAgentManager } from "@/lib/kisan_agent";
 
@@ -835,6 +835,36 @@ export async function POST(req: NextRequest) {
         ok: true,
         message: `Granted $${amount} Municipal Subsidy to ${targetUserId}.`,
         city_treasury: player.city_treasury
+      });
+    }
+
+    if (action === "admin_delete_citizen" || action === "delete_citizen") {
+      if (!isUserAdmin) {
+        return NextResponse.json({ ok: false, message: "Access Denied: Only Admin can delete citizen accounts." }, { status: 403 });
+      }
+
+      const targetUserId = String(body.target_user_id || "").trim();
+      if (!targetUserId) {
+        return NextResponse.json({ ok: false, message: "Target citizen account ID is required." }, { status: 400 });
+      }
+
+      if (targetUserId.toLowerCase() === "vandan11patel@gmail.com" || targetUserId.toLowerCase() === "vandan_11") {
+        return NextResponse.json({ ok: false, message: "Cannot delete the Supreme Administrator account." }, { status: 400 });
+      }
+
+      await deletePlayer(targetUserId);
+
+      player.agent_logs.push(`Municipal Administration: Supreme Admin permanently deleted citizen '${targetUserId}' from MongoDB database.`);
+      const { publishNews } = require("../../../lib/simulation");
+      publishNews(player, `Citizen Registry: Account '${targetUserId}' was expunged by Municipal Administration.`, "GOVERNMENT");
+
+      await savePlayer(player);
+      const remainingUsers = await listAllPlayers();
+
+      return NextResponse.json({
+        ok: true,
+        message: `Citizen '${targetUserId}' and their private residence were permanently deleted from the database.`,
+        users: remainingUsers
       });
     }
 
