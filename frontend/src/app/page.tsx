@@ -264,9 +264,11 @@ export default function CivilizationDashboard() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [userId, setUserId] = useState<string>("vandan_11");
   const [authTab, setAuthTab] = useState<"signin" | "signup">("signin");
-  const [authMethod, setAuthMethod] = useState<"otp" | "magiclink" | "password">("otp");
+  const [authMethod, setAuthMethod] = useState<"password" | "otp" | "magiclink">("password");
   const [authInput, setAuthInput] = useState<string>("");
   const [authPassword, setAuthPassword] = useState<string>("");
+  const [confirmPasswordInput, setConfirmPasswordInput] = useState<string>("");
+  const [showPassword, setShowPassword] = useState<boolean>(false);
   const [authError, setAuthError] = useState<string>("");
   const [generatedOtp, setGeneratedOtp] = useState<string>("");
   const [enteredOtp, setEnteredOtp] = useState<string>("");
@@ -1231,50 +1233,97 @@ export default function CivilizationDashboard() {
     e.preventDefault();
     setAuthError("");
 
-    const targetUser = authInput.trim();
+    const targetUser = authInput.trim().toLowerCase();
     if (!targetUser) {
       setAuthError("Please enter your Email address or Phone number.");
       return;
     }
 
-    // SIGN IN TAB (COMMON OTP LOGIN)
+    // SIGN IN TAB
     if (authTab === "signin") {
-      if (!enteredOtp.trim()) {
-        setAuthError("Please enter the 6-digit OTP verification code sent to your email.");
-        return;
-      }
-      try {
-        const res = await fetch(`${apiHost}/api/auth/otp`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            action: "verify_otp",
-            email: targetUser,
-            code: enteredOtp.trim()
-          })
-        });
-        const data = await res.json();
-        if (!data.ok) {
-          setAuthError(data.message || "Invalid or expired OTP code.");
+      // 1. Password Login Method (Instant & Secure)
+      if (authMethod === "password") {
+        if (!authPassword.trim()) {
+          setAuthError("Please enter your password.");
           return;
         }
-      } catch (err: any) {
-        setAuthError("Verification failed: " + err.message);
+        try {
+          const res = await fetch(`${apiHost}/api/auth/password`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              action: "login_password",
+              email: targetUser,
+              password: authPassword.trim()
+            })
+          });
+          const data = await res.json();
+          if (!data.ok) {
+            setAuthError(data.message || "Invalid email or password.");
+            return;
+          }
+        } catch (err: any) {
+          setAuthError("Authentication failed: " + err.message);
+          return;
+        }
+
+        setUserId(targetUser);
+        setIsLoggedIn(true);
+        try {
+          localStorage.setItem("civilization_active_user", targetUser);
+        } catch {}
         return;
       }
 
-      setUserId(targetUser);
-      setIsLoggedIn(true);
-      try {
-        localStorage.setItem("civilization_active_user", targetUser);
-      } catch {}
-      return;
+      // 2. Email OTP Method
+      if (authMethod === "otp") {
+        if (!enteredOtp.trim()) {
+          setAuthError("Please enter the 6-digit OTP verification code sent to your email.");
+          return;
+        }
+        try {
+          const res = await fetch(`${apiHost}/api/auth/otp`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              action: "verify_otp",
+              email: targetUser,
+              code: enteredOtp.trim()
+            })
+          });
+          const data = await res.json();
+          if (!data.ok) {
+            setAuthError(data.message || "Invalid or expired OTP code.");
+            return;
+          }
+        } catch (err: any) {
+          setAuthError("Verification failed: " + err.message);
+          return;
+        }
+
+        setUserId(targetUser);
+        setIsLoggedIn(true);
+        try {
+          localStorage.setItem("civilization_active_user", targetUser);
+        } catch {}
+        return;
+      }
     }
 
     // CREATE CITIZEN ACCOUNT TAB
     if (authTab === "signup") {
       if (!signupName.trim()) {
         setAuthError("Please enter the Citizen Full Name.");
+        return;
+      }
+
+      if (!authPassword.trim() || authPassword.length < 4) {
+        setAuthError("Please create a password (minimum 4 characters).");
+        return;
+      }
+
+      if (confirmPasswordInput && authPassword !== confirmPasswordInput) {
+        setAuthError("Passwords do not match. Please re-enter.");
         return;
       }
 
@@ -1287,15 +1336,16 @@ export default function CivilizationDashboard() {
         }
       }
 
-      // Register new citizen with backend
+      // Register new citizen with password into MongoDB Atlas
       try {
-        const res = await fetch(`${apiHost}/api/action?user_id=${targetUser}`, {
+        const res = await fetch(`${apiHost}/api/auth/password`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            action: "register_citizen",
+            action: "register_password",
             citizen_name: signupName.trim(),
-            email_or_phone: targetUser,
+            email: targetUser,
+            password: authPassword.trim(),
             address: signupAddress.trim() || signupCityName,
             lat: signupCoords[0],
             lng: signupCoords[1],
@@ -1893,56 +1943,115 @@ export default function CivilizationDashboard() {
             {/* SIGN IN VIEW */}
             {authTab === "signin" && (
               <form onSubmit={handleAuthSubmit} className="flex flex-col gap-4">
+                
+                {/* Method Switcher: Password vs OTP */}
+                <div className="flex bg-slate-950 p-1 rounded-xl border border-slate-800/80 gap-1">
+                  <button
+                    type="button"
+                    onClick={() => { setAuthMethod("password"); setAuthError(""); }}
+                    className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
+                      authMethod === "password"
+                        ? "bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm"
+                        : "text-slate-400 hover:text-white"
+                    }`}
+                  >
+                    <span>🔑</span>
+                    <span>PASSWORD LOGIN</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setAuthMethod("otp"); setAuthError(""); }}
+                    className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
+                      authMethod === "otp"
+                        ? "bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm"
+                        : "text-slate-400 hover:text-white"
+                    }`}
+                  >
+                    <span>📩</span>
+                    <span>EMAIL OTP CODE</span>
+                  </button>
+                </div>
+
                 <div>
                   <label className="text-xs font-semibold text-slate-300 mb-1.5 block">
                     Email Address or Phone Number
                   </label>
-                  <div className="flex gap-2">
-                    <div className="relative flex-grow">
-                      <span className="absolute left-3 top-2.5 text-slate-500 text-sm">✉️</span>
-                      <input
-                        type="text"
-                        required
-                        placeholder="e.g. citizen@gmail.com or +91 98765 43210"
-                        value={authInput}
-                        onChange={(e) => setAuthInput(e.target.value)}
-                        className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-amber-500 font-mono transition-all"
-                      />
-                    </div>
-                    <button
-                      type="button"
-                      disabled={isSendingOtp}
-                      onClick={handleSendOtp}
-                      className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs px-4 rounded-xl transition-all whitespace-nowrap shadow-md active:scale-95 disabled:opacity-50"
-                    >
-                      {isSendingOtp ? "SENDING..." : generatedOtp ? "RESEND OTP" : "GET OTP"}
-                    </button>
+                  <div className="relative">
+                    <span className="absolute left-3 top-2.5 text-slate-500 text-sm">✉️</span>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. citizen@gmail.com or +91 98765 43210"
+                      value={authInput}
+                      onChange={(e) => setAuthInput(e.target.value)}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-amber-500 font-mono transition-all"
+                    />
                   </div>
                 </div>
 
-                {/* OTP Code Input Field */}
-                <div className="flex flex-col gap-1.5 bg-slate-950/60 border border-slate-800/80 p-3.5 rounded-xl">
-                  <div className="flex justify-between items-center">
-                    <label className="text-xs font-semibold text-slate-300">
-                      6-Digit OTP Verification Code
-                    </label>
-                    <span className="text-[10px] text-slate-400 font-mono">Sent to your Email</span>
+                {/* Option A: Password Field */}
+                {authMethod === "password" && (
+                  <div className="flex flex-col gap-1.5">
+                    <div className="flex justify-between items-center">
+                      <label className="text-xs font-semibold text-slate-300">
+                        Citizen Password
+                      </label>
+                      <span className="text-[10px] text-slate-400 font-mono">Secure Cloud Storage</span>
+                    </div>
+                    <div className="relative">
+                      <span className="absolute left-3 top-2.5 text-slate-500 text-sm">🔒</span>
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        required
+                        placeholder="Enter your password"
+                        value={authPassword}
+                        onChange={(e) => setAuthPassword(e.target.value)}
+                        className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-16 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-amber-500 font-mono transition-all"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-2.5 text-slate-400 hover:text-white text-xs font-mono"
+                      >
+                        {showPassword ? "🙈 Hide" : "👁️ Show"}
+                      </button>
+                    </div>
                   </div>
-                  <input
-                    type="text"
-                    maxLength={6}
-                    placeholder="Enter 6-digit OTP code (e.g. 748291)"
-                    value={enteredOtp}
-                    onChange={(e) => setEnteredOtp(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2.5 text-base text-amber-400 placeholder-slate-600 focus:outline-none focus:border-amber-500 font-mono text-center tracking-widest font-extrabold"
-                  />
-                </div>
+                )}
+
+                {/* Option B: OTP Verification Code */}
+                {authMethod === "otp" && (
+                  <div className="flex flex-col gap-2">
+                    <div className="flex justify-between items-center">
+                      <label className="text-xs font-semibold text-slate-300">
+                        6-Digit Email OTP
+                      </label>
+                      <button
+                        type="button"
+                        disabled={isSendingOtp}
+                        onClick={handleSendOtp}
+                        className="text-amber-400 hover:text-amber-300 font-bold text-xs font-mono"
+                      >
+                        {isSendingOtp ? "Sending..." : generatedOtp ? "Resend Code" : "Send OTP to Email"}
+                      </button>
+                    </div>
+                    <input
+                      type="text"
+                      maxLength={6}
+                      placeholder="Enter 6-digit code"
+                      value={enteredOtp}
+                      onChange={(e) => setEnteredOtp(e.target.value)}
+                      className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2.5 text-base text-amber-400 placeholder-slate-600 focus:outline-none focus:border-amber-500 font-mono text-center tracking-widest font-extrabold"
+                    />
+                  </div>
+                )}
 
                 <button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-extrabold text-sm py-3 rounded-xl shadow-lg shadow-amber-500/20 transition-all active:scale-[0.99] mt-1"
+                  className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-extrabold text-sm py-3 rounded-xl shadow-lg shadow-amber-500/20 transition-all active:scale-[0.99] mt-1 flex items-center justify-center gap-2"
                 >
-                  VERIFY & ENTER AI CIVILIZATION
+                  <span>{authMethod === "password" ? "🔑" : "🚀"}</span>
+                  <span>{authMethod === "password" ? "LOG IN TO AI CIVILIZATION" : "VERIFY & ENTER"}</span>
                 </button>
               </form>
             )}
@@ -1951,27 +2060,55 @@ export default function CivilizationDashboard() {
             {authTab === "signup" && (
               <form onSubmit={handleAuthSubmit} className="flex flex-col gap-4">
                 
-                {/* 1. Contact Info & OTP */}
-                <div className="flex flex-col gap-2">
+                {/* 1. Contact Info */}
+                <div className="flex flex-col gap-1.5">
                   <label className="text-xs font-semibold text-slate-300 block">
                     Email Address or Phone Number
                   </label>
-                  <div className="flex gap-2">
+                  <div className="relative">
+                    <span className="absolute left-3 top-2.5 text-slate-500 text-sm">✉️</span>
                     <input
                       type="text"
                       required
                       placeholder="e.g. pravin_patel@gmail.com or +91 98765 43210"
                       value={authInput}
                       onChange={(e) => setAuthInput(e.target.value)}
-                      className="flex-grow bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-amber-500 font-mono transition-all"
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-amber-500 font-mono transition-all"
                     />
+                  </div>
+                </div>
+
+                {/* 1.5 Account Password Creation */}
+                <div className="bg-slate-950/60 border border-slate-800/80 p-3 rounded-xl flex flex-col gap-2">
+                  <div className="flex justify-between items-center">
+                    <label className="text-xs font-semibold text-amber-400 flex items-center gap-1">
+                      <span>🔑</span> Create Account Password
+                    </label>
                     <button
                       type="button"
-                      onClick={handleSendOtp}
-                      className="bg-slate-900 hover:bg-slate-800 text-amber-400 border border-slate-800 font-bold text-xs px-3 rounded-xl transition-all whitespace-nowrap"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="text-slate-400 hover:text-white text-[10px] font-mono"
                     >
-                      {generatedOtp ? "OTP Sent ✓" : "Get OTP"}
+                      {showPassword ? "🙈 Hide" : "👁️ Show"}
                     </button>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      required
+                      placeholder="Choose password (min 4 chars)"
+                      value={authPassword}
+                      onChange={(e) => setAuthPassword(e.target.value)}
+                      className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-amber-500 font-mono"
+                    />
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      required
+                      placeholder="Confirm password"
+                      value={confirmPasswordInput}
+                      onChange={(e) => setConfirmPasswordInput(e.target.value)}
+                      className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-amber-500 font-mono"
+                    />
                   </div>
                 </div>
 

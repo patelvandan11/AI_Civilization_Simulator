@@ -36,6 +36,7 @@ export interface FamilyMember {
 
 export interface PlayerState {
   user_id: string;
+  password_hash?: string;
   money: number;
   inventory: Record<string, number>;
   clock: {
