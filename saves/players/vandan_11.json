@@ -1,14 +1,14 @@
 {
   "_id": "6a85ed18250995a8e68dc54f",
   "user_id": "vandan_11",
-  "money": 200,
+  "money": 199,
   "inventory": {
     "wood": 10,
     "stone": 5,
     "fiber": 5,
     "apple_seed": 5,
-    "wheat_seed": 4,
-    "carrot_seed": 5,
+    "wheat_seed": 5,
+    "carrot_seed": 4,
     "corn_seed": 5,
     "strawberry_seed": 5,
     "wooden_axe": 1,
@@ -27,73 +27,73 @@
     "chilly": 1535,
     "corn": 1523,
     "brokeli": 1533,
-    "apple": 1518,
-    "cabbige": 1517,
+    "apple": 1520,
+    "cabbige": 1520,
     "banana": 1523,
-    "watermelon": 1519,
-    "pumpkin": 1515
+    "watermelon": 1527,
+    "pumpkin": 1523
   },
   "clock": {
-    "total_seconds": 26497.5,
+    "total_seconds": 26572.5,
     "speed": 60,
     "weather": "Clear",
-    "formatted": "Day 19 • 09:37 hrs (IST)",
+    "formatted": "Day 19 • 10:52 hrs (IST)",
     "paused": false
   },
   "plots": [
     {
       "index": 0,
-      "crop_id": "watermelon",
-      "planted_at": "2026-08-19T18:30:04.580Z",
-      "planted_game_seconds": 26462.5
+      "crop_id": "carrot",
+      "planted_at": "2026-08-19T18:30:19.980Z",
+      "planted_game_seconds": 26567.5
     },
     {
       "index": 1,
-      "crop_id": "watermelon",
-      "planted_at": "2026-08-19T18:30:04.580Z",
-      "planted_game_seconds": 26467.5
+      "crop_id": "carrot",
+      "planted_at": "2026-08-19T18:30:19.980Z",
+      "planted_game_seconds": 26572.5
     },
     {
       "index": 2,
-      "crop_id": "wheat",
-      "planted_at": "2026-08-19T18:30:09.218Z",
-      "planted_game_seconds": 26497.5
+      "crop_id": "pumpkin",
+      "planted_at": "2026-08-19T18:30:15.663Z",
+      "planted_game_seconds": 26557.5
     },
     {
       "index": 3,
-      "crop_id": "watermelon",
-      "planted_at": "2026-08-19T18:30:05.769Z",
-      "planted_game_seconds": 26472.5
+      "crop_id": "pumpkin",
+      "planted_at": "2026-08-19T18:30:14.850Z",
+      "planted_game_seconds": 26537.5
     },
     {
       "index": 4,
-      "crop_id": "wheat",
-      "planted_at": "2026-08-19T18:30:09.218Z",
-      "planted_game_seconds": 26492.5
+      "crop_id": "pumpkin",
+      "planted_at": "2026-08-19T18:30:15.663Z",
+      "planted_game_seconds": 26552.5
     },
     {
       "index": 5,
-      "crop_id": "apple",
-      "planted_at": "2026-08-19T18:30:05.769Z",
-      "planted_game_seconds": 26482.5
+      "crop_id": "pumpkin",
+      "planted_at": "2026-08-19T18:30:15.663Z",
+      "planted_game_seconds": 26547.5
     },
     {
       "index": 6,
-      "crop_id": "watermelon",
-      "planted_at": "2026-08-19T18:30:04.580Z",
-      "planted_game_seconds": 26457.5
+      "crop_id": "carrot",
+      "planted_at": "2026-08-19T18:30:19.980Z",
+      "planted_game_seconds": 26562.5
     },
     {
       "index": 7,
-      "crop_id": "watermelon",
-      "planted_at": "2026-08-19T18:30:05.769Z",
-      "planted_game_seconds": 26477.5
+      "crop_id": "cabbige",
+      "planted_at": "2026-08-19T18:30:15.663Z",
+      "planted_game_seconds": 26557.5
     },
     {
       "index": 8,
-      "crop_id": "wheat",
-      "planted_at": "2026-08-19T18:30:09.217Z",
-      "planted_game_seconds": 26487.5
+      "crop_id": "cabbige",
+      "planted_at": "2026-08-19T18:30:15.663Z",
+      "planted_game_seconds": 26547.5
     }
   ],
   "buildings": [],
@@ -556,36 +556,6 @@
     }
   },
   "agent_logs": [
-    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Liquidated surplus crops for +$12 to maintain personal cash reserve ($201 in wallet); Auto-procured 1x pumpkin seed to maintain ≥5 seed buffer; Planted 1 empty plot(s) with priority crops: [pumpkin].",
-    "🌾 Kisan LangChain AI: Harvested 2 mature plot(s); Liquidated surplus crops for +$8 to maintain personal cash reserve ($201 in wallet); Auto-procured 1x pumpkin seed to maintain ≥5 seed buffer; Planted 2 empty plot(s) with priority crops: [pumpkin, cucumber].",
-    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Liquidated surplus crops for +$8 to maintain personal cash reserve ($201 in wallet); Auto-procured 1x pumpkin seed to maintain ≥5 seed buffer; Planted 2 empty plot(s) with priority crops: [pumpkin, cucumber].",
-    "🌾 Kisan LangChain AI: Harvested 2 mature plot(s); Liquidated surplus crops for +$8 to maintain personal cash reserve ($201 in wallet); Auto-procured 1x cucumber seed, 1x pumpkin seed to maintain ≥5 seed buffer; Planted 2 empty plot(s) with priority crops: [pumpkin, cucumber].",
-    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Liquidated surplus crops for +$8 to maintain personal cash reserve ($201 in wallet); Auto-procured 1x cucumber seed, 1x pumpkin seed to maintain ≥5 seed buffer; Planted 2 empty plot(s) with priority crops: [pumpkin, cucumber].",
-    "🌾 Kisan LangChain AI: Liquidated surplus crops for +$12 to maintain personal cash reserve ($202 in wallet); Auto-procured 1x cucumber seed, 1x pumpkin seed to maintain ≥5 seed buffer.",
-    "🌾 Kisan AI Agent: Liquidated surplus crops for +$12 to maintain personal cash reserve ($202 in wallet); Auto-procured 1x cucumber seed, 1x pumpkin seed to maintain ≥5 seed buffer.",
-    "Agriculture: Livestock Barn gathered +8x Milk 🥛, +6x Wool 🧶, +20x Eggs 🥚.",
-    "🌾 Kisan LangChain AI: Harvested 1 mature plot(s); Liquidated surplus crops for +$12 to maintain personal cash reserve ($203 in wallet); Planted 1 empty plot(s) with priority crops: [pumpkin].",
-    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Liquidated surplus crops for +$12 to maintain personal cash reserve ($203 in wallet); Planted 1 empty plot(s) with priority crops: [pumpkin].",
-    "🌾 Kisan LangChain AI: Harvested 2 mature plot(s); Auto-procured 1x pumpkin seed to maintain ≥5 seed buffer; Planted 2 empty plot(s) with priority crops: [pumpkin, carrot].",
-    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Auto-procured 1x pumpkin seed to maintain ≥5 seed buffer; Planted 2 empty plot(s) with priority crops: [pumpkin, carrot].",
-    "🌾 Kisan LangChain AI: Harvested 2 mature plot(s); Liquidated surplus crops for +$8 to maintain personal cash reserve ($203 in wallet); Auto-procured 1x carrot seed, 1x pumpkin seed to maintain ≥5 seed buffer; Planted 2 empty plot(s) with priority crops: [carrot, banana].",
-    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Liquidated surplus crops for +$8 to maintain personal cash reserve ($203 in wallet); Auto-procured 1x carrot seed, 1x pumpkin seed to maintain ≥5 seed buffer; Planted 2 empty plot(s) with priority crops: [carrot, banana].",
-    "🌾 Kisan LangChain AI: Harvested 1 mature plot(s); Liquidated surplus crops for +$8 to maintain personal cash reserve ($200 in wallet); Auto-procured 1x carrot seed, 1x banana seed to maintain ≥5 seed buffer; Planted 1 empty plot(s) with priority crops: [carrot].",
-    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Liquidated surplus crops for +$8 to maintain personal cash reserve ($200 in wallet); Auto-procured 1x carrot seed, 1x banana seed to maintain ≥5 seed buffer; Planted 1 empty plot(s) with priority crops: [carrot].",
-    "🌾 Kisan LangChain AI: Harvested 2 mature plot(s); Liquidated surplus crops for +$8 to maintain personal cash reserve ($202 in wallet); Auto-procured 1x carrot seed to maintain ≥5 seed buffer; Planted 2 empty plot(s) with priority crops: [carrot, banana].",
-    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Liquidated surplus crops for +$8 to maintain personal cash reserve ($202 in wallet); Auto-procured 1x carrot seed to maintain ≥5 seed buffer; Planted 2 empty plot(s) with priority crops: [carrot, banana].",
-    "🌾 Kisan LangChain AI: Harvested 2 mature plot(s); Liquidated surplus crops for +$4 to maintain personal cash reserve ($203 in wallet); Auto-procured 1x carrot seed, 1x banana seed to maintain ≥5 seed buffer; Planted 2 empty plot(s) with priority crops: [banana, strawberry].",
-    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Liquidated surplus crops for +$4 to maintain personal cash reserve ($203 in wallet); Auto-procured 1x carrot seed, 1x banana seed to maintain ≥5 seed buffer; Planted 2 empty plot(s) with priority crops: [banana, strawberry].",
-    "🌾 Kisan LangChain AI: Harvested 2 mature plot(s); Liquidated surplus crops for +$4 to maintain personal cash reserve ($201 in wallet); Auto-procured 1x strawberry seed, 1x banana seed to maintain ≥5 seed buffer; Planted 2 empty plot(s) with priority crops: [banana, strawberry].",
-    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Liquidated surplus crops for +$4 to maintain personal cash reserve ($201 in wallet); Auto-procured 1x strawberry seed, 1x banana seed to maintain ≥5 seed buffer; Planted 2 empty plot(s) with priority crops: [banana, strawberry].",
-    "🌾 Kisan LangChain AI: Harvested 2 mature plot(s); Liquidated surplus crops for +$8 to maintain personal cash reserve ($201 in wallet); Auto-procured 1x strawberry seed, 1x banana seed to maintain ≥5 seed buffer; Planted 2 empty plot(s) with priority crops: [banana, strawberry].",
-    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Liquidated surplus crops for +$8 to maintain personal cash reserve ($201 in wallet); Auto-procured 1x strawberry seed, 1x banana seed to maintain ≥5 seed buffer; Planted 2 empty plot(s) with priority crops: [banana, strawberry].",
-    "🌾 Kisan LangChain AI: Harvested 2 mature plot(s); Liquidated surplus crops for +$8 to maintain personal cash reserve ($201 in wallet); Auto-procured 1x strawberry seed, 1x banana seed to maintain ≥5 seed buffer; Planted 2 empty plot(s) with priority crops: [strawberry, cabbige].",
-    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Liquidated surplus crops for +$8 to maintain personal cash reserve ($201 in wallet); Auto-procured 1x strawberry seed, 1x banana seed to maintain ≥5 seed buffer; Planted 2 empty plot(s) with priority crops: [strawberry, cabbige].",
-    "🌾 Kisan LangChain AI: Harvested 3 mature plot(s); Liquidated surplus crops for +$8 to maintain personal cash reserve ($201 in wallet); Auto-procured 1x cabbige seed, 1x strawberry seed to maintain ≥5 seed buffer; Planted 3 empty plot(s) with priority crops: [cabbige, banana, corn].",
-    "🌾 Kisan AI Agent: Harvested 3 mature plot(s); Liquidated surplus crops for +$8 to maintain personal cash reserve ($201 in wallet); Auto-procured 1x cabbige seed, 1x strawberry seed to maintain ≥5 seed buffer; Planted 3 empty plot(s) with priority crops: [cabbige, banana, corn].",
-    "🌾 Kisan LangChain AI: Harvested 2 mature plot(s); Liquidated surplus crops for +$12 to maintain personal cash reserve ($203 in wallet); Auto-procured 1x corn seed, 1x cabbige seed, 1x banana seed to maintain ≥5 seed buffer; Planted 2 empty plot(s) with priority crops: [cabbige, wheat].",
-    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Liquidated surplus crops for +$12 to maintain personal cash reserve ($203 in wallet); Auto-procured 1x corn seed, 1x cabbige seed, 1x banana seed to maintain ≥5 seed buffer; Planted 2 empty plot(s) with priority crops: [cabbige, wheat].",
     "🌾 Kisan LangChain AI: Harvested 2 mature plot(s); Liquidated surplus crops for +$12 to maintain personal cash reserve ($203 in wallet); Auto-procured 1x wheat seed, 1x cabbige seed to maintain ≥5 seed buffer; Planted 2 empty plot(s) with priority crops: [wheat, cabbige].",
     "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Liquidated surplus crops for +$12 to maintain personal cash reserve ($203 in wallet); Auto-procured 1x wheat seed, 1x cabbige seed to maintain ≥5 seed buffer; Planted 2 empty plot(s) with priority crops: [wheat, cabbige].",
     "🌾 Kisan LangChain AI: Harvested 1 mature plot(s); Liquidated surplus crops for +$8 to maintain personal cash reserve ($203 in wallet); Auto-procured 1x wheat seed, 1x cabbige seed to maintain ≥5 seed buffer; Planted 1 empty plot(s) with priority crops: [wheat].",
@@ -655,7 +625,37 @@
     "🌾 Kisan LangChain AI: Harvested 1 mature plot(s); Liquidated surplus crops for +$4 to maintain personal cash reserve ($202 in wallet); Auto-procured 1x wheat seed to maintain ≥5 seed buffer; Planted 1 empty plot(s) with priority crops: [wheat].",
     "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Liquidated surplus crops for +$4 to maintain personal cash reserve ($202 in wallet); Auto-procured 1x wheat seed to maintain ≥5 seed buffer; Planted 1 empty plot(s) with priority crops: [wheat].",
     "🌾 Kisan LangChain AI: Harvested 1 mature plot(s); Liquidated surplus crops for +$4 to maintain personal cash reserve ($203 in wallet); Auto-procured 1x wheat seed to maintain ≥5 seed buffer; Planted 1 empty plot(s) with priority crops: [wheat].",
-    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Liquidated surplus crops for +$4 to maintain personal cash reserve ($203 in wallet); Auto-procured 1x wheat seed to maintain ≥5 seed buffer; Planted 1 empty plot(s) with priority crops: [wheat]."
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Liquidated surplus crops for +$4 to maintain personal cash reserve ($203 in wallet); Auto-procured 1x wheat seed to maintain ≥5 seed buffer; Planted 1 empty plot(s) with priority crops: [wheat].",
+    "🌾 Kisan LangChain AI: Harvested 1 mature plot(s); Auto-procured 1x wheat seed to maintain ≥5 seed buffer; Planted 1 empty plot(s) with priority crops: [wheat].",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Auto-procured 1x wheat seed to maintain ≥5 seed buffer; Planted 1 empty plot(s) with priority crops: [wheat].",
+    "🌾 Kisan LangChain AI: Harvested 2 mature plot(s); Liquidated surplus crops for +$4 to maintain personal cash reserve ($201 in wallet); Auto-procured 1x wheat seed to maintain ≥5 seed buffer; Planted 2 empty plot(s) with priority crops: [wheat, pumpkin].",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Liquidated surplus crops for +$4 to maintain personal cash reserve ($201 in wallet); Auto-procured 1x wheat seed to maintain ≥5 seed buffer; Planted 2 empty plot(s) with priority crops: [wheat, pumpkin].",
+    "🌾 Kisan LangChain AI: Harvested 3 mature plot(s); Liquidated surplus crops for +$4 to maintain personal cash reserve ($202 in wallet); Auto-procured 1x wheat seed, 1x pumpkin seed to maintain ≥5 seed buffer; Planted 3 empty plot(s) with priority crops: [wheat, pumpkin, cabbige].",
+    "🌾 Kisan AI Agent: Harvested 3 mature plot(s); Liquidated surplus crops for +$4 to maintain personal cash reserve ($202 in wallet); Auto-procured 1x wheat seed, 1x pumpkin seed to maintain ≥5 seed buffer; Planted 3 empty plot(s) with priority crops: [wheat, pumpkin, cabbige].",
+    "🌾 Kisan LangChain AI: Harvested 2 mature plot(s); Liquidated surplus crops for +$12 to maintain personal cash reserve ($203 in wallet); Auto-procured 1x wheat seed, 1x cabbige seed, 1x pumpkin seed to maintain ≥5 seed buffer; Planted 2 empty plot(s) with priority crops: [pumpkin, wheat].",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Liquidated surplus crops for +$12 to maintain personal cash reserve ($203 in wallet); Auto-procured 1x wheat seed, 1x cabbige seed, 1x pumpkin seed to maintain ≥5 seed buffer; Planted 2 empty plot(s) with priority crops: [pumpkin, wheat].",
+    "🌾 Kisan LangChain AI: Harvested 2 mature plot(s); Liquidated surplus crops for +$16 to maintain personal cash reserve ($203 in wallet); Auto-procured 1x wheat seed, 1x pumpkin seed to maintain ≥5 seed buffer; Planted 2 empty plot(s) with priority crops: [pumpkin, cabbige].",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Liquidated surplus crops for +$16 to maintain personal cash reserve ($203 in wallet); Auto-procured 1x wheat seed, 1x pumpkin seed to maintain ≥5 seed buffer; Planted 2 empty plot(s) with priority crops: [pumpkin, cabbige].",
+    "🌾 Kisan LangChain AI: Harvested 1 mature plot(s); Liquidated surplus crops for +$8 to maintain personal cash reserve ($200 in wallet); Auto-procured 1x cabbige seed, 1x pumpkin seed to maintain ≥5 seed buffer; Planted 1 empty plot(s) with priority crops: [pumpkin].",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Liquidated surplus crops for +$8 to maintain personal cash reserve ($200 in wallet); Auto-procured 1x cabbige seed, 1x pumpkin seed to maintain ≥5 seed buffer; Planted 1 empty plot(s) with priority crops: [pumpkin].",
+    "🌾 Kisan LangChain AI: Harvested 1 mature plot(s); Liquidated surplus crops for +$16 to maintain personal cash reserve ($203 in wallet); Auto-procured 1x pumpkin seed to maintain ≥5 seed buffer; Planted 1 empty plot(s) with priority crops: [pumpkin].",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Liquidated surplus crops for +$16 to maintain personal cash reserve ($203 in wallet); Auto-procured 1x pumpkin seed to maintain ≥5 seed buffer; Planted 1 empty plot(s) with priority crops: [pumpkin].",
+    "🌾 Kisan LangChain AI: Harvested 1 mature plot(s); Liquidated surplus crops for +$8 to maintain personal cash reserve ($203 in wallet); Auto-procured 1x pumpkin seed to maintain ≥5 seed buffer; Planted 1 empty plot(s) with priority crops: [pumpkin].",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Liquidated surplus crops for +$8 to maintain personal cash reserve ($203 in wallet); Auto-procured 1x pumpkin seed to maintain ≥5 seed buffer; Planted 1 empty plot(s) with priority crops: [pumpkin].",
+    "🌾 Kisan LangChain AI: Liquidated surplus crops for +$8 to maintain personal cash reserve ($203 in wallet); Auto-procured 1x pumpkin seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Liquidated surplus crops for +$8 to maintain personal cash reserve ($203 in wallet); Auto-procured 1x pumpkin seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan LangChain AI: Harvested 2 mature plot(s); Liquidated surplus crops for +$8 to maintain personal cash reserve ($203 in wallet); Planted 2 empty plot(s) with priority crops: [pumpkin, cabbige].",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Liquidated surplus crops for +$8 to maintain personal cash reserve ($203 in wallet); Planted 2 empty plot(s) with priority crops: [pumpkin, cabbige].",
+    "🌾 Kisan LangChain AI: Harvested 1 mature plot(s); Auto-procured 1x cabbige seed, 1x pumpkin seed to maintain ≥5 seed buffer; Planted 1 empty plot(s) with priority crops: [pumpkin].",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Auto-procured 1x cabbige seed, 1x pumpkin seed to maintain ≥5 seed buffer; Planted 1 empty plot(s) with priority crops: [pumpkin].",
+    "🌾 Kisan LangChain AI: Harvested 2 mature plot(s); Liquidated surplus crops for +$12 to maintain personal cash reserve ($202 in wallet); Auto-procured 1x pumpkin seed to maintain ≥5 seed buffer; Planted 2 empty plot(s) with priority crops: [pumpkin, cabbige].",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Liquidated surplus crops for +$12 to maintain personal cash reserve ($202 in wallet); Auto-procured 1x pumpkin seed to maintain ≥5 seed buffer; Planted 2 empty plot(s) with priority crops: [pumpkin, cabbige].",
+    "🌾 Kisan LangChain AI: Harvested 1 mature plot(s); Liquidated surplus crops for +$8 to maintain personal cash reserve ($202 in wallet); Auto-procured 1x cabbige seed, 1x pumpkin seed to maintain ≥5 seed buffer; Planted 1 empty plot(s) with priority crops: [carrot].",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Liquidated surplus crops for +$8 to maintain personal cash reserve ($202 in wallet); Auto-procured 1x cabbige seed, 1x pumpkin seed to maintain ≥5 seed buffer; Planted 1 empty plot(s) with priority crops: [carrot].",
+    "🌾 Kisan LangChain AI: Harvested 1 mature plot(s); Liquidated surplus crops for +$12 to maintain personal cash reserve ($201 in wallet); Auto-procured 1x carrot seed to maintain ≥5 seed buffer; Planted 1 empty plot(s) with priority crops: [carrot].",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Liquidated surplus crops for +$12 to maintain personal cash reserve ($201 in wallet); Auto-procured 1x carrot seed to maintain ≥5 seed buffer; Planted 1 empty plot(s) with priority crops: [carrot].",
+    "🌾 Kisan LangChain AI: Harvested 1 mature plot(s); Liquidated surplus crops for +$4 to maintain personal cash reserve ($202 in wallet); Auto-procured 1x carrot seed to maintain ≥5 seed buffer; Planted 1 empty plot(s) with priority crops: [carrot].",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Liquidated surplus crops for +$4 to maintain personal cash reserve ($202 in wallet); Auto-procured 1x carrot seed to maintain ≥5 seed buffer; Planted 1 empty plot(s) with priority crops: [carrot]."
   ],
   "item_prices": {
     "wood": 2,
@@ -745,7 +745,7 @@
   },
   "last_price_update_day": 19,
   "city_name": "AI Civilization",
-  "city_treasury": 3261,
+  "city_treasury": 3297,
   "tax_rate": 10,
   "city_projects": [
     {
@@ -1844,21 +1844,21 @@
   ],
   "industry": {
     "oil_refinery": {
-      "crude_oil": 4,
-      "refined_petrol": 0,
-      "diesel": 1199,
-      "marine_fuel": 95,
+      "crude_oil": 5,
+      "refined_petrol": 3,
+      "diesel": 1201,
+      "marine_fuel": 96,
       "is_active": true,
       "efficiency": 95,
       "daily_crude_input": 40,
       "daily_fuel_output": 35
     },
     "petrol_pump": {
-      "fuel_stock": 22,
-      "diesel_stock": 1055.5999999999976,
+      "fuel_stock": 1,
+      "diesel_stock": 1057.5999999999976,
       "price_per_liter": 15,
-      "daily_sales_liters": 3780.4000000000096,
-      "revenue": 57006.500000000015,
+      "daily_sales_liters": 3804.4000000000096,
+      "revenue": 57366.500000000015,
       "ev_charging_active": true,
       "recent_refuelings": [
         {
@@ -1951,7 +1951,7 @@
           "id": "ship_1",
           "name": "INS Navsari Express",
           "type": "cargo_ship",
-          "fuel": 76,
+          "fuel": 74,
           "status": "Active Maritime Freight",
           "cargo": {
             "wheat": 20,
@@ -1962,14 +1962,14 @@
           "id": "ship_2",
           "name": "Surat Gulf Ferry",
           "type": "passenger_ferry",
-          "fuel": 60,
+          "fuel": 58,
           "status": "Passenger Transit to Gulf"
         },
         {
           "id": "ship_3",
           "name": "Arabian Sea Trawler 09",
           "type": "fishing_trawler",
-          "fuel": 86,
+          "fuel": 84,
           "status": "Commercial Deep Sea Harvest"
         }
       ]
@@ -2203,27 +2203,42 @@
     "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Liquidated surplus crops for +$8 to maintain personal cash reserve ($201 in wallet); Auto-procured 1x watermelon seed to maintain ≥5 seed buffer; Planted 1 empty plot(s) with priority crops: [apple].",
     "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Liquidated surplus crops for +$8 to maintain personal cash reserve ($202 in wallet); Auto-procured 1x apple seed to maintain ≥5 seed buffer; Planted 1 empty plot(s) with priority crops: [wheat].",
     "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Liquidated surplus crops for +$4 to maintain personal cash reserve ($202 in wallet); Auto-procured 1x wheat seed to maintain ≥5 seed buffer; Planted 1 empty plot(s) with priority crops: [wheat].",
-    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Liquidated surplus crops for +$4 to maintain personal cash reserve ($203 in wallet); Auto-procured 1x wheat seed to maintain ≥5 seed buffer; Planted 1 empty plot(s) with priority crops: [wheat]."
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Liquidated surplus crops for +$4 to maintain personal cash reserve ($203 in wallet); Auto-procured 1x wheat seed to maintain ≥5 seed buffer; Planted 1 empty plot(s) with priority crops: [wheat].",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Auto-procured 1x wheat seed to maintain ≥5 seed buffer; Planted 1 empty plot(s) with priority crops: [wheat].",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Liquidated surplus crops for +$4 to maintain personal cash reserve ($201 in wallet); Auto-procured 1x wheat seed to maintain ≥5 seed buffer; Planted 2 empty plot(s) with priority crops: [wheat, pumpkin].",
+    "🌾 Kisan AI Agent: Harvested 3 mature plot(s); Liquidated surplus crops for +$4 to maintain personal cash reserve ($202 in wallet); Auto-procured 1x wheat seed, 1x pumpkin seed to maintain ≥5 seed buffer; Planted 3 empty plot(s) with priority crops: [wheat, pumpkin, cabbige].",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Liquidated surplus crops for +$12 to maintain personal cash reserve ($203 in wallet); Auto-procured 1x wheat seed, 1x cabbige seed, 1x pumpkin seed to maintain ≥5 seed buffer; Planted 2 empty plot(s) with priority crops: [pumpkin, wheat].",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Liquidated surplus crops for +$16 to maintain personal cash reserve ($203 in wallet); Auto-procured 1x wheat seed, 1x pumpkin seed to maintain ≥5 seed buffer; Planted 2 empty plot(s) with priority crops: [pumpkin, cabbige].",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Liquidated surplus crops for +$8 to maintain personal cash reserve ($200 in wallet); Auto-procured 1x cabbige seed, 1x pumpkin seed to maintain ≥5 seed buffer; Planted 1 empty plot(s) with priority crops: [pumpkin].",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Liquidated surplus crops for +$16 to maintain personal cash reserve ($203 in wallet); Auto-procured 1x pumpkin seed to maintain ≥5 seed buffer; Planted 1 empty plot(s) with priority crops: [pumpkin].",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Liquidated surplus crops for +$8 to maintain personal cash reserve ($203 in wallet); Auto-procured 1x pumpkin seed to maintain ≥5 seed buffer; Planted 1 empty plot(s) with priority crops: [pumpkin].",
+    "🌾 Kisan AI Agent: Liquidated surplus crops for +$8 to maintain personal cash reserve ($203 in wallet); Auto-procured 1x pumpkin seed to maintain ≥5 seed buffer.",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Liquidated surplus crops for +$8 to maintain personal cash reserve ($203 in wallet); Planted 2 empty plot(s) with priority crops: [pumpkin, cabbige].",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Auto-procured 1x cabbige seed, 1x pumpkin seed to maintain ≥5 seed buffer; Planted 1 empty plot(s) with priority crops: [pumpkin].",
+    "🌾 Kisan AI Agent: Harvested 2 mature plot(s); Liquidated surplus crops for +$12 to maintain personal cash reserve ($202 in wallet); Auto-procured 1x pumpkin seed to maintain ≥5 seed buffer; Planted 2 empty plot(s) with priority crops: [pumpkin, cabbige].",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Liquidated surplus crops for +$8 to maintain personal cash reserve ($202 in wallet); Auto-procured 1x cabbige seed, 1x pumpkin seed to maintain ≥5 seed buffer; Planted 1 empty plot(s) with priority crops: [carrot].",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Liquidated surplus crops for +$12 to maintain personal cash reserve ($201 in wallet); Auto-procured 1x carrot seed to maintain ≥5 seed buffer; Planted 1 empty plot(s) with priority crops: [carrot].",
+    "🌾 Kisan AI Agent: Harvested 1 mature plot(s); Liquidated surplus crops for +$4 to maintain personal cash reserve ($202 in wallet); Auto-procured 1x carrot seed to maintain ≥5 seed buffer; Planted 1 empty plot(s) with priority crops: [carrot]."
   ],
   "last_election_cycle": 2,
   "last_tax_collected_day": 19,
   "last_cabinet_meeting_day": 18,
-  "last_routine_hour": 9,
-  "last_industry_hour": 9,
+  "last_routine_hour": 10,
+  "last_industry_hour": 10,
   "farm_barn": {
     "carrot": 1519,
     "strawberry": 1524,
-    "wheat": 1510,
+    "wheat": 1534,
     "cucumber": 1533,
     "chilly": 1535,
     "corn": 1526,
     "brokeli": 1533,
-    "apple": 1518,
-    "cabbige": 1517,
+    "apple": 1520,
+    "cabbige": 1520,
     "fish": 577,
     "banana": 1523,
-    "watermelon": 1519,
-    "pumpkin": 1515,
+    "watermelon": 1527,
+    "pumpkin": 1523,
     "milk": 144,
     "wool": 108,
     "egg": 360
@@ -2241,7 +2256,7 @@
     "hetvi",
     "vandan"
   ],
-  "last_saved_at": "2026-08-19T18:30:09.219Z",
+  "last_saved_at": "2026-08-19T18:30:19.980Z",
   "last_restock_day": 19,
   "livestock": {
     "cows": 4,
