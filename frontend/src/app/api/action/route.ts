@@ -687,47 +687,69 @@ export async function POST(req: NextRequest) {
     }
 
     if (action === "edit_residence") {
-      if (!isUserAdmin) {
-        return NextResponse.json({ ok: false, message: "Access Denied: Only admin can edit residences." }, { status: 403 });
-      }
-
       const familyId = String(body.family_id || "").trim();
       const name = String(body.name || "").trim();
+      const address = body.address ? String(body.address).trim() : undefined;
       const budget = body.budget !== undefined ? Number(body.budget) : undefined;
       const capacity = body.capacity !== undefined ? Number(body.capacity) : undefined;
       const type = body.type ? (body.type === "hostel" ? "hostel" : "house") : undefined;
 
-      const family = player.families?.find(f => f.id === familyId);
+      const targetUserId = body.target_user_id ? String(body.target_user_id).trim() : userId;
+      let targetPlayer = player;
+      if (targetUserId !== userId) {
+        if (!isUserAdmin) {
+          return NextResponse.json({ ok: false, message: "Access Denied: Only Admin or the resident owner can edit this profile." }, { status: 403 });
+        }
+        targetPlayer = await loadPlayer(targetUserId);
+      }
+
+      const isOwner = (familyId === "my_home" || familyId === `house_${targetPlayer.user_id}`);
+      if (!isUserAdmin && !isOwner) {
+        return NextResponse.json({ ok: false, message: "Access Denied: You can only edit your own residence." }, { status: 403 });
+      }
+
+      const family = targetPlayer.families?.find(f => f.id === familyId) || targetPlayer.families?.[0];
       if (!family) {
         return NextResponse.json({ ok: false, message: `Residence with ID '${familyId}' not found.` }, { status: 404 });
       }
 
       if (name) family.name = name;
+      if (address) family.address = address;
       if (budget !== undefined && !isNaN(budget)) family.budget = budget;
       if (capacity !== undefined && !isNaN(capacity)) family.capacity = capacity;
       if (type) family.type = type;
 
-      player.agent_logs.push(`Government: Admin updated residence details for '${family.name}' (${familyId}).`);
-      await savePlayer(player);
-      return NextResponse.json({ ok: true, message: `Updated residence '${family.name}' successfully.`, families: player.families });
+      targetPlayer.agent_logs.push(`Citizen Profile: Updated residence details for '${family.name}' by ${isUserAdmin ? "Admin" : "Owner"}.`);
+      await savePlayer(targetPlayer);
+      return NextResponse.json({ ok: true, message: `Updated residence '${family.name}' successfully.`, families: targetPlayer.families });
     }
 
     if (action === "add_member_to_residence") {
-      if (!isUserAdmin) {
-        return NextResponse.json({ ok: false, message: "Access Denied: Only admin can add persons to residences." }, { status: 403 });
-      }
-
-      const familyId = String(body.family_id || "").trim();
+      const familyId = String(body.family_id || "my_home").trim();
       const name = String(body.name || "").trim();
       const role = String(body.role || "worker").trim();
       const relation = String(body.relation || (role === "worker" ? "Civilization Worker" : "Resident")).trim();
       const vehicle = String(body.vehicle || "bicycle").trim().toLowerCase();
 
-      if (!familyId || !name) {
-        return NextResponse.json({ ok: false, message: "Residence ID and person name are required." }, { status: 400 });
+      if (!name) {
+        return NextResponse.json({ ok: false, message: "Person name is required." }, { status: 400 });
       }
 
-      const family = player.families?.find(f => f.id === familyId);
+      const targetUserId = body.target_user_id ? String(body.target_user_id).trim() : userId;
+      let targetPlayer = player;
+      if (targetUserId !== userId) {
+        if (!isUserAdmin) {
+          return NextResponse.json({ ok: false, message: "Access Denied: Only Admin can add members to other citizens' residences." }, { status: 403 });
+        }
+        targetPlayer = await loadPlayer(targetUserId);
+      }
+
+      const isOwner = (familyId === "my_home" || familyId === `house_${targetPlayer.user_id}`);
+      if (!isUserAdmin && !isOwner) {
+        return NextResponse.json({ ok: false, message: "Access Denied: You can only add members to your own household." }, { status: 403 });
+      }
+
+      const family = targetPlayer.families?.find(f => f.id === familyId) || targetPlayer.families?.[0];
       if (!family) {
         return NextResponse.json({ ok: false, message: `Residence with ID '${familyId}' not found.` }, { status: 404 });
       }
@@ -748,23 +770,30 @@ export async function POST(req: NextRequest) {
 
       family.members.push(newMember);
 
-      player.agent_logs.push(`Government: Admin registered citizen '${name}' (${role}, ${vehicle}) into ${family.name}.`);
-      const { publishNews } = require("../../../lib/simulation");
-      publishNews(player, `Citizen Registry: ${name} registered into ${family.name} as ${role}.`, "CENSUS");
-
-      await savePlayer(player);
-      return NextResponse.json({ ok: true, message: `Added ${name} to ${family.name} successfully.`, families: player.families });
+      targetPlayer.agent_logs.push(`Citizen Registry: Registered member '${name}' (${role}, ${vehicle}) into ${family.name}.`);
+      await savePlayer(targetPlayer);
+      return NextResponse.json({ ok: true, message: `Added ${name} to ${family.name} successfully.`, families: targetPlayer.families });
     }
 
     if (action === "remove_member_from_residence") {
-      if (!isUserAdmin) {
-        return NextResponse.json({ ok: false, message: "Access Denied: Only admin can remove persons." }, { status: 403 });
-      }
-
-      const familyId = String(body.family_id || "").trim();
+      const familyId = String(body.family_id || "my_home").trim();
       const memberName = String(body.member_name || "").trim();
 
-      const family = player.families?.find(f => f.id === familyId);
+      const targetUserId = body.target_user_id ? String(body.target_user_id).trim() : userId;
+      let targetPlayer = player;
+      if (targetUserId !== userId) {
+        if (!isUserAdmin) {
+          return NextResponse.json({ ok: false, message: "Access Denied: Only Admin can remove members from other residences." }, { status: 403 });
+        }
+        targetPlayer = await loadPlayer(targetUserId);
+      }
+
+      const isOwner = (familyId === "my_home" || familyId === `house_${targetPlayer.user_id}`);
+      if (!isUserAdmin && !isOwner) {
+        return NextResponse.json({ ok: false, message: "Access Denied: You can only manage your own household members." }, { status: 403 });
+      }
+
+      const family = targetPlayer.families?.find(f => f.id === familyId) || targetPlayer.families?.[0];
       if (!family) {
         return NextResponse.json({ ok: false, message: `Residence with ID '${familyId}' not found.` }, { status: 404 });
       }
@@ -775,10 +804,38 @@ export async function POST(req: NextRequest) {
       }
 
       family.members.splice(idx, 1);
-      player.agent_logs.push(`Government: Admin removed ${memberName} from ${family.name}.`);
+      targetPlayer.agent_logs.push(`Citizen Registry: Removed member ${memberName} from ${family.name}.`);
 
+      await savePlayer(targetPlayer);
+      return NextResponse.json({ ok: true, message: `Removed ${memberName} successfully.`, families: targetPlayer.families });
+    }
+
+    if (action === "admin_grant_subsidy") {
+      if (!isUserAdmin) {
+        return NextResponse.json({ ok: false, message: "Access Denied: Only Admin can grant municipal subsidies." }, { status: 403 });
+      }
+      const targetUserId = String(body.target_user_id || "").trim();
+      const amount = Math.max(10, Math.min(1000, Number(body.amount || 100)));
+
+      if (!targetUserId) {
+        return NextResponse.json({ ok: false, message: "Target citizen is required." }, { status: 400 });
+      }
+
+      const targetPlayer = await loadPlayer(targetUserId);
+      targetPlayer.money = (targetPlayer.money || 0) + amount;
+      player.city_treasury = Math.max(0, (player.city_treasury || 1000) - amount);
+
+      targetPlayer.agent_logs.push(`Government Relief: Received $${amount} Municipal Welcome Subsidy from Admin (${userId}).`);
+      player.agent_logs.push(`Government Cabinet: Granted $${amount} Municipal Welcome Subsidy to citizen '${targetUserId}'.`);
+
+      await savePlayer(targetPlayer);
       await savePlayer(player);
-      return NextResponse.json({ ok: true, message: `Removed ${memberName} from ${family.name}.`, families: player.families });
+
+      return NextResponse.json({
+        ok: true,
+        message: `Granted $${amount} Municipal Subsidy to ${targetUserId}.`,
+        city_treasury: player.city_treasury
+      });
     }
 
     if (action === "transfer_worker") {
