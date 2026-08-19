@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import { soundEngine } from "@/lib/sound";
 
 // Helper to generate crisp SVG Data URI icons with stylish linear gradients
 const createSvgIcon = (emoji: string, bg1: string, bg2: string): string => {
@@ -319,6 +320,11 @@ export default function CivilizationDashboard() {
   const [editPersonRole, setEditPersonRole] = useState<string>("worker");
   const [editPersonRelation, setEditPersonRelation] = useState<string>("");
   const [editPersonVehicle, setEditPersonVehicle] = useState<string>("bicycle");
+
+  // Cozy Aesthetics: Day Mode, Night Mode, Sound SFX & Ambient Tunes
+  const [themeMode, setThemeMode] = useState<"night" | "day" | "auto">("night");
+  const [isSoundMuted, setIsSoundMuted] = useState<boolean>(false);
+  const [isMusicActive, setIsMusicActive] = useState<boolean>(false);
 
   // Admin Government Cabinet States
   const [taxRateInput, setTaxRateInput] = useState<number>(10);
@@ -2271,43 +2277,153 @@ export default function CivilizationDashboard() {
   // =========================================================================
   // VIEW 2: ACTIVE GAME SIMULATOR & DASHBOARD
   // =========================================================================
+  const currentHour = status?.clock ? Math.floor((status.clock.total_seconds || 480) / 60) : 12;
+  const isAutoDay = currentHour >= 6 && currentHour < 19;
+  const isDayMode = themeMode === "day" || (themeMode === "auto" && isAutoDay);
+
+  const switchTab = (tab: string) => {
+    soundEngine.playClick(600);
+    setActiveTab(tab);
+  };
+
   return (
-    <div className="h-screen w-screen overflow-hidden flex flex-col bg-slate-950 text-slate-200 p-3 md:p-4 font-sans">
+    <div className={`h-screen w-screen overflow-hidden flex flex-col transition-colors duration-700 font-sans ${
+      isDayMode
+        ? "bg-gradient-to-br from-amber-50/95 via-orange-50/80 to-amber-100/90 text-slate-900"
+        : "bg-slate-950 text-slate-200"
+    } p-3 md:p-4`}>
       
       {/* Header bar */}
-      <header className="flex-none border-b border-slate-800 pb-2 flex flex-col md:flex-row justify-between items-start md:items-center gap-2 mb-2">
+      <header className={`flex-none border-b ${isDayMode ? "border-amber-200/90 bg-white/70 shadow-sm" : "border-slate-800 bg-slate-950/60"} p-2.5 rounded-2xl pb-2 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-2.5 mb-2 backdrop-blur-md transition-all`}>
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 to-sky-500 flex items-center justify-center shadow">
             <span className="text-base">🏛️</span>
           </div>
           <div>
-            <h1 className="text-lg md:text-xl font-extrabold tracking-tight text-white bg-gradient-to-r from-white via-slate-100 to-amber-500 bg-clip-text text-transparent">
+            <h1 className={`text-lg md:text-xl font-extrabold tracking-tight ${isDayMode ? "text-slate-900" : "text-white bg-gradient-to-r from-white via-slate-100 to-amber-500 bg-clip-text text-transparent"}`}>
               AI CIVILIZATION PANEL
             </h1>
-            <p className="text-[10px] text-slate-400 font-mono">
-              Geolocated Satellite GIS Map • PMO Cabinet & Autonomous City Simulation
+            <p className={`text-[10px] font-mono ${isDayMode ? "text-slate-600" : "text-slate-400"}`}>
+              Geolocated Satellite GIS Map &bull; PMO Cabinet &amp; Autonomous City Simulation
             </p>
           </div>
         </div>
         
-        {/* Active User Badge & Sign Out Button */}
-        <div className="flex items-center gap-2 bg-slate-900/80 p-1.5 rounded-xl border border-slate-800">
-          <div className="flex items-center gap-2 px-2">
-            <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${isAdmin ? "bg-amber-500/10 text-amber-400 border border-amber-500/20" : "bg-sky-500/10 text-sky-400 border border-sky-500/20"}`}>
-              {isAdmin ? "👑 PMO SUPREME ADMIN" : "👤 CITIZEN RESIDENT"}
-            </span>
-            <span className="text-xs font-mono text-slate-300 truncate max-w-[150px]">
-              {userId}
-            </span>
+        {/* Aesthetic Controls: Day/Night Theme, Sound FX & Ambient Tunes */}
+        <div className="flex items-center gap-2 flex-wrap">
+          {/* Day / Night Theme Switcher */}
+          <div className={`flex items-center ${isDayMode ? "bg-amber-100/80 border-amber-300/80" : "bg-slate-900/90 border-slate-800"} p-1 rounded-xl border text-xs shadow-inner`}>
+            <button
+              type="button"
+              onClick={() => {
+                soundEngine.playClick(720);
+                setThemeMode("day");
+              }}
+              className={`px-2 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ${
+                themeMode === "day"
+                  ? "bg-amber-500 text-slate-950 shadow-md font-extrabold"
+                  : isDayMode ? "text-slate-700 hover:text-slate-950" : "text-slate-400 hover:text-white"
+              }`}
+              title="Cozy Warm Daylight Mode"
+            >
+              <span>☀️</span>
+              <span>Day</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                soundEngine.playClick(580);
+                setThemeMode("night");
+              }}
+              className={`px-2 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ${
+                themeMode === "night"
+                  ? "bg-indigo-600 text-white shadow-md font-extrabold"
+                  : isDayMode ? "text-slate-700 hover:text-slate-950" : "text-slate-400 hover:text-white"
+              }`}
+              title="Cozy Starry Night Mode"
+            >
+              <span>🌙</span>
+              <span>Night</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                soundEngine.playClick(650);
+                setThemeMode("auto");
+              }}
+              className={`px-2 py-1 rounded-lg text-[10px] font-mono transition-all ${
+                themeMode === "auto"
+                  ? "bg-slate-800 text-amber-300 font-bold border border-slate-700"
+                  : isDayMode ? "text-slate-500 hover:text-slate-800" : "text-slate-500 hover:text-slate-300"
+              }`}
+              title="Auto Synchronize with Simulation Clock"
+            >
+              <span>⏰ Auto</span>
+            </button>
           </div>
-          
+
+          {/* Sound Click SFX Toggle */}
           <button
             type="button"
-            onClick={handleLogout}
-            className="bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-bold text-[10px] px-3 py-1 rounded-lg border border-slate-700 transition-all"
+            onClick={() => {
+              const muted = soundEngine.toggleMute();
+              setIsSoundMuted(muted);
+              if (!muted) soundEngine.playClick(800);
+            }}
+            className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all border flex items-center gap-1 shadow-sm ${
+              isSoundMuted
+                ? isDayMode ? "bg-amber-100 text-slate-500 border-amber-300" : "bg-slate-900 text-slate-500 border-slate-800"
+                : isDayMode ? "bg-emerald-100 text-emerald-800 border-emerald-300" : "bg-emerald-500/20 text-emerald-300 border-emerald-500/40 hover:bg-emerald-500/30"
+            }`}
+            title="Toggle UI Click Sound Effects"
           >
-            SWITCH / SIGN OUT
+            <span>{isSoundMuted ? "🔇" : "🔊"}</span>
+            <span className="hidden sm:inline">{isSoundMuted ? "Muted" : "Clicks: ON"}</span>
           </button>
+
+          {/* Soft Ambient Tunes Toggle */}
+          <button
+            type="button"
+            onClick={() => {
+              soundEngine.playClick(900);
+              const active = soundEngine.toggleMusic();
+              setIsMusicActive(active);
+            }}
+            className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all border flex items-center gap-1.5 shadow-sm ${
+              isMusicActive
+                ? "bg-gradient-to-r from-purple-500/40 to-pink-500/40 text-purple-100 border-purple-400 shadow-purple-500/30 animate-pulse font-extrabold"
+                : isDayMode ? "bg-amber-100 text-slate-700 border-amber-300 hover:bg-amber-200" : "bg-slate-900 text-slate-400 border-slate-800 hover:text-white"
+            }`}
+            title="Toggle Soft Generative Ambient Background Music"
+          >
+            <span>🎵</span>
+            <span>{isMusicActive ? "Tunes: Playing ✨" : "Cozy Tunes"}</span>
+          </button>
+
+          {/* Active User Badge & Sign Out Button */}
+          <div className={`flex items-center gap-2 ${isDayMode ? "bg-white/90 border-amber-300/80" : "bg-slate-900/80 border-slate-800"} p-1.5 rounded-xl border`}>
+            <div className="flex items-center gap-1.5 px-1.5">
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${isAdmin ? "bg-amber-500/10 text-amber-500 border border-amber-500/30 font-extrabold" : "bg-sky-500/10 text-sky-500 border border-sky-500/30"}`}>
+                {isAdmin ? "👑 PMO ADMIN" : "👤 CITIZEN"}
+              </span>
+              <span className={`text-xs font-mono truncate max-w-[120px] ${isDayMode ? "text-slate-800 font-bold" : "text-slate-300"}`}>
+                {userId}
+              </span>
+            </div>
+            
+            <button
+              type="button"
+              onClick={() => {
+                soundEngine.playClick(500);
+                handleLogout();
+              }}
+              className={`${isDayMode ? "bg-slate-200 hover:bg-slate-300 text-slate-800" : "bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white"} font-bold text-[10px] px-2.5 py-1 rounded-lg border border-slate-700 transition-all`}
+            >
+              SIGN OUT
+            </button>
+          </div>
         </div>
       </header>
 
@@ -2501,21 +2617,21 @@ export default function CivilizationDashboard() {
           </section>
 
           {/* Navigation tabs */}
-          <nav className="flex-none flex gap-1.5 overflow-x-auto border-b border-slate-800/60 pb-2 mb-2.5 text-xs">
-            <button className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-all ${activeTab === "overview" ? "bg-amber-500 text-slate-950 font-bold border border-amber-400 shadow-md" : "text-slate-300 hover:text-white border border-slate-800 bg-slate-900/60"}`} onClick={() => setActiveTab("overview")}>
+          <nav className={`flex-none flex gap-1.5 overflow-x-auto border-b ${isDayMode ? "border-amber-200/90" : "border-slate-800/60"} pb-2 mb-2.5 text-xs`}>
+            <button className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-all ${activeTab === "overview" ? "bg-amber-500 text-slate-950 font-bold border border-amber-400 shadow-md" : isDayMode ? "text-slate-700 hover:text-slate-950 border border-amber-200 bg-white/70 shadow-sm" : "text-slate-300 hover:text-white border border-slate-800 bg-slate-900/60"}`} onClick={() => switchTab("overview")}>
               <span>🏠</span> FAMILY &amp; ROOMS ({status.families?.length || 7})
             </button>
-            <button className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-all flex items-center gap-1.5 ${activeTab === "people" ? "bg-amber-500 text-slate-950 font-bold border border-amber-400 shadow-md" : "text-slate-300 hover:text-white border border-slate-800 bg-slate-900/60"}`} onClick={() => setActiveTab("people")}>
+            <button className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-all flex items-center gap-1.5 ${activeTab === "people" ? "bg-amber-500 text-slate-950 font-bold border border-amber-400 shadow-md" : isDayMode ? "text-slate-700 hover:text-slate-950 border border-amber-200 bg-white/70 shadow-sm" : "text-slate-300 hover:text-white border border-slate-800 bg-slate-900/60"}`} onClick={() => switchTab("people")}>
               <span>🔍</span>
               <span>SEARCH PEOPLE ({status.families?.reduce((a: number, f: any) => a + (f.members?.length || 0), 0) || 22}+ CITIZENS)</span>
             </button>
-            <button className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-all ${activeTab === "projects" ? "bg-amber-500/10 text-amber-500 border border-amber-500/30" : "text-slate-400 hover:text-white"}`} onClick={() => setActiveTab("projects")}>CITY PROJECTS</button>
-            <button className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-all ${activeTab === "government" ? "bg-amber-500/10 text-amber-500 border border-amber-500/30" : "text-slate-400 hover:text-white"}`} onClick={() => setActiveTab("government")}>GOVERNMENT CABINET</button>
-            <button className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-all ${activeTab === "farming" ? "bg-amber-500/10 text-amber-500 border border-amber-500/30" : "text-slate-400 hover:text-white"}`} onClick={() => setActiveTab("farming")}>FARMS & CROPS</button>
-            <button className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-all ${activeTab === "inventory" ? "bg-amber-500/10 text-amber-500 border border-amber-500/30" : "text-slate-400 hover:text-white"}`} onClick={() => setActiveTab("inventory")}>PERSONAL INVENTORY</button>
-            <button className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-all ${activeTab === "market" ? "bg-amber-500/10 text-amber-500 border border-amber-500/30" : "text-slate-400 hover:text-white"}`} onClick={() => setActiveTab("market")}>TOWN MARKETS</button>
-            <button className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-all ${activeTab === "industries" ? "bg-amber-500/10 text-amber-500 border border-amber-500/30" : "text-slate-400 hover:text-white"}`} onClick={() => setActiveTab("industries")}>INDUSTRIES & REFINERIES</button>
-            <button className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-all ${activeTab === "agents" ? "bg-amber-500/10 text-amber-500 border border-amber-500/30" : "text-slate-400 hover:text-white"}`} onClick={() => setActiveTab("agents")}>AGENT SETTINGS</button>
+            <button className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-all ${activeTab === "projects" ? "bg-amber-500/10 text-amber-500 border border-amber-500/30 font-bold" : isDayMode ? "text-slate-600 hover:text-slate-900" : "text-slate-400 hover:text-white"}`} onClick={() => switchTab("projects")}>CITY PROJECTS</button>
+            <button className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-all ${activeTab === "government" ? "bg-amber-500/10 text-amber-500 border border-amber-500/30 font-bold" : isDayMode ? "text-slate-600 hover:text-slate-900" : "text-slate-400 hover:text-white"}`} onClick={() => switchTab("government")}>GOVERNMENT CABINET</button>
+            <button className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-all ${activeTab === "farming" ? "bg-amber-500/10 text-amber-500 border border-amber-500/30 font-bold" : isDayMode ? "text-slate-600 hover:text-slate-900" : "text-slate-400 hover:text-white"}`} onClick={() => switchTab("farming")}>FARMS &amp; CROPS</button>
+            <button className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-all ${activeTab === "inventory" ? "bg-amber-500/10 text-amber-500 border border-amber-500/30 font-bold" : isDayMode ? "text-slate-600 hover:text-slate-900" : "text-slate-400 hover:text-white"}`} onClick={() => switchTab("inventory")}>PERSONAL INVENTORY</button>
+            <button className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-all ${activeTab === "market" ? "bg-amber-500/10 text-amber-500 border border-amber-500/30 font-bold" : isDayMode ? "text-slate-600 hover:text-slate-900" : "text-slate-400 hover:text-white"}`} onClick={() => switchTab("market")}>TOWN MARKETS</button>
+            <button className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-all ${activeTab === "industries" ? "bg-amber-500/10 text-amber-500 border border-amber-500/30 font-bold" : isDayMode ? "text-slate-600 hover:text-slate-900" : "text-slate-400 hover:text-white"}`} onClick={() => switchTab("industries")}>INDUSTRIES &amp; REFINERIES</button>
+            <button className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-all ${activeTab === "agents" ? "bg-amber-500/10 text-amber-500 border border-amber-500/30 font-bold" : isDayMode ? "text-slate-600 hover:text-slate-900" : "text-slate-400 hover:text-white"}`} onClick={() => switchTab("agents")}>AGENT SETTINGS</button>
             
             {isAdmin && (
               <button
@@ -2524,7 +2640,7 @@ export default function CivilizationDashboard() {
                     ? "bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 border border-amber-400 shadow-md"
                     : "text-amber-400 hover:text-white border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20"
                 }`}
-                onClick={() => setActiveTab("arrivals")}
+                onClick={() => switchTab("arrivals")}
               >
                 <span>🔔</span>
                 <span>NEW CITIZEN ARRIVALS</span>
