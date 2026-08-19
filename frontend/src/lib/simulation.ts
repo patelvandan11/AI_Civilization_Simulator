@@ -80,6 +80,7 @@ export interface PlayerState {
   families: {
     id: string;
     name: string;
+    address?: string;
     type?: "house" | "hostel";
     capacity?: number;
     budget: number;

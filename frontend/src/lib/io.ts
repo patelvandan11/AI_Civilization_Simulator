@@ -353,14 +353,15 @@ export function createNewPlayer(userId: string, citizenOptions?: CitizenRegistra
     }
   ];
 
-  if (customMembers && customFamilyId !== "house_1" && customFamilyId !== "house_2" && customFamilyId !== "house_3" && customFamilyId !== "hostel_central") {
-    defaultFamilies.push({
-      id: customFamilyId,
-      name: `${citizenOptions?.name || userId}'s Residence`,
-      type: customFamilyId.startsWith("hostel_") ? "hostel" : "house",
-      capacity: customFamilyId.startsWith("hostel_") ? 10 : undefined,
-      budget: 60,
-      inventory: { milk: 5, wheat: 5, apple: 5, carrot: 5 },
+  if (customMembers && customMembers.length > 0) {
+    const customHomeName = citizenOptions?.name || `${userId.split(/[@_]/)[0]}'s Residence`;
+    defaultFamilies.unshift({
+      id: "my_home",
+      name: customHomeName,
+      address: citizenOptions?.address || "Civilization Citizen Zone",
+      type: "house",
+      budget: 150,
+      inventory: { milk: 8, wheat: 10, apple: 8, carrot: 6, bread: 5 },
       members: customMembers.map((m, idx) => ({
         ...m,
         vehicle: idx === 0 ? "car" : idx === 1 ? "scooter" : "bicycle"
@@ -374,12 +375,14 @@ export function createNewPlayer(userId: string, citizenOptions?: CitizenRegistra
   };
 
   if (citizenOptions?.lat && citizenOptions?.lng) {
+    initialLocations.my_home = [citizenOptions.lat, citizenOptions.lng];
     initialLocations[customFamilyId] = [citizenOptions.lat, citizenOptions.lng];
     if (inMemoryWorldLocations) {
+      inMemoryWorldLocations.my_home = [citizenOptions.lat, citizenOptions.lng];
       inMemoryWorldLocations[customFamilyId] = [citizenOptions.lat, citizenOptions.lng];
     }
-  } else if (customFamilyId !== "house_1" && customFamilyId !== "house_2" && customFamilyId !== "house_3" && !initialLocations[customFamilyId]) {
-    initialLocations[customFamilyId] = [20.9468, 72.9520];
+  } else if (!initialLocations.my_home) {
+    initialLocations.my_home = [20.9468, 72.9520];
   }
 
   return {
@@ -804,3 +807,72 @@ export async function savePlayer(player: PlayerState): Promise<void> {
     fs.writeFileSync(filePath, JSON.stringify(extended, null, 2), "utf-8");
   } catch {}
 }
+
+// Fetch all registered players & their home residences for Admin Census
+export async function listAllPlayers(): Promise<any[]> {
+  const playersMap = new Map<string, any>();
+
+  // 1. Try MongoDB Atlas
+  try {
+    const collection = await getCollection("players");
+    if (collection) {
+      const docs = await collection.find({}).toArray();
+      for (const doc of docs) {
+        if (!doc.user_id) continue;
+        const myHomeFam = doc.families?.find((f: any) => f.id === "my_home" || f.id === `house_${doc.user_id.replace(/[^a-zA-Z0-9_-]/g, "")}`) || doc.families?.[0];
+        const myHomeCoords = doc.zone_locations?.my_home || doc.zone_locations?.[myHomeFam?.id] || [20.9472, 72.9515];
+        playersMap.set(doc.user_id, {
+          user_id: doc.user_id,
+          city_name: doc.city_name || "AI Civilization",
+          money: doc.money || 500,
+          home_name: myHomeFam?.name || `${doc.user_id.split(/[@_]/)[0]}'s Residence`,
+          address: myHomeFam?.address || "Civilization Citizen Zone",
+          coords: myHomeCoords,
+          budget: myHomeFam?.budget || 150,
+          members: myHomeFam?.members || [],
+          member_count: myHomeFam?.members?.length || 0,
+          all_families_count: doc.families?.length || 1,
+          last_saved_at: doc.last_saved_at || doc.clock?.formatted || "Active"
+        });
+      }
+    }
+  } catch (err) {
+    console.warn("[MongoDB List Players Standby]:", err);
+  }
+
+  // 2. Fall back / Merge with local disk saves
+  try {
+    ensureDirs();
+    if (fs.existsSync(PLAYERS_DIR)) {
+      const files = fs.readdirSync(PLAYERS_DIR);
+      for (const file of files) {
+        if (!file.endsWith(".json")) continue;
+        try {
+          const filePath = path.join(PLAYERS_DIR, file);
+          const content = fs.readFileSync(filePath, "utf-8");
+          const doc = JSON.parse(content);
+          if (doc.user_id && !playersMap.has(doc.user_id)) {
+            const myHomeFam = doc.families?.find((f: any) => f.id === "my_home" || f.id === `house_${doc.user_id.replace(/[^a-zA-Z0-9_-]/g, "")}`) || doc.families?.[0];
+            const myHomeCoords = doc.zone_locations?.my_home || doc.zone_locations?.[myHomeFam?.id] || [20.9472, 72.9515];
+            playersMap.set(doc.user_id, {
+              user_id: doc.user_id,
+              city_name: doc.city_name || "AI Civilization",
+              money: doc.money || 500,
+              home_name: myHomeFam?.name || `${doc.user_id.split(/[@_]/)[0]}'s Residence`,
+              address: myHomeFam?.address || "Civilization Citizen Zone",
+              coords: myHomeCoords,
+              budget: myHomeFam?.budget || 150,
+              members: myHomeFam?.members || [],
+              member_count: myHomeFam?.members?.length || 0,
+              all_families_count: doc.families?.length || 1,
+              last_saved_at: doc.last_saved_at || doc.clock?.formatted || "Active"
+            });
+          }
+        } catch {}
+      }
+    }
+  } catch {}
+
+  return Array.from(playersMap.values());
+}
+

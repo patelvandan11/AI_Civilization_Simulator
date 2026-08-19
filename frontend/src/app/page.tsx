@@ -299,6 +299,11 @@ export default function CivilizationDashboard() {
   const [homeMemberCountInput, setHomeMemberCountInput] = useState<number>(4);
   const [homeSaveMsg, setHomeSaveMsg] = useState<string>("");
 
+  // Admin Registered Users Census States
+  const [registeredUsers, setRegisteredUsers] = useState<any[]>([]);
+  const [showAdminCensusModal, setShowAdminCensusModal] = useState<boolean>(false);
+  const [censusSearchQuery, setCensusSearchQuery] = useState<string>("");
+
   // Admin Government Cabinet States
   const [taxRateInput, setTaxRateInput] = useState<number>(10);
   const [selectedFamilyId, setSelectedFamilyId] = useState<string>("house_1");
@@ -845,6 +850,28 @@ export default function CivilizationDashboard() {
       );
     }
 
+    // For Admin: Render all registered users' private homes from the database with distinct cyan pins
+    if (isAdmin && registeredUsers && registeredUsers.length > 0) {
+      registeredUsers.forEach((u: any) => {
+        if (u.coords && Array.isArray(u.coords) && u.coords.length === 2) {
+          // If this is the current admin's own home, skip duplicating
+          if (locs.my_home && Math.abs(locs.my_home[0] - u.coords[0]) < 0.0001 && Math.abs(locs.my_home[1] - u.coords[1]) < 0.0001) {
+            return;
+          }
+          const memStr = u.members && u.members.length > 0
+            ? u.members.map((m: any) => `${m.name} (${m.role || "Citizen"})`).join(", ")
+            : "No family members";
+          addLandmark(
+            u.coords,
+            `🏡 ${u.home_name || "Citizen Residence"} (${u.user_id})`,
+            `Registered Citizen: ${u.user_id} • Location: ${u.address || "Civilization Zone"} • Family: ${memStr} • Cash: $${u.money || 500}`,
+            "#06b6d4",
+            "🏡"
+          );
+        }
+      });
+    }
+
     // Render all residential family homes dynamically
     if (status && status.families && status.families.length > 0) {
       const colors = ["#0284c7", "#0d9488", "#4f46e5", "#ea580c", "#8b5cf6", "#059669", "#d97706"];
@@ -986,6 +1013,18 @@ export default function CivilizationDashboard() {
           if (data.ok) {
             setStatus(data);
             setError(null);
+
+            // If Admin, fetch all registered users across the database
+            if (isAdmin) {
+              fetch(`${apiHost}/api/action?action=list_all_users&user_id=${userId}`)
+                .then(r => r.json())
+                .then(uData => {
+                  if (active && uData.ok && Array.isArray(uData.users)) {
+                    setRegisteredUsers(uData.users);
+                  }
+                })
+                .catch(() => {});
+            }
             if (!cabinetInitializedRef.current) {
               if (data.tax_rate !== undefined) setTaxRateInput(data.tax_rate);
               if (data.government) {
@@ -2255,6 +2294,20 @@ export default function CivilizationDashboard() {
                     {((Object.values(status.farm_barn || {}) as any[]).reduce((a: number, b: any) => a + Number(b || 0), 0)) + (Array.isArray(status.inventory) ? status.inventory.length : 0)}
                   </span>
                 </button>
+
+                {isAdmin && (
+                  <button
+                    type="button"
+                    onClick={() => setShowAdminCensusModal(true)}
+                    className="bg-gradient-to-r from-amber-500/20 to-orange-500/20 hover:from-amber-500/30 hover:to-orange-500/30 text-amber-300 border border-amber-500/40 px-3 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 shadow-md transition-all active:scale-95"
+                  >
+                    <span>👥</span>
+                    <span>ALL REGISTERED CITIZENS</span>
+                    <span className="bg-amber-500/30 text-amber-200 text-[10px] px-1.5 py-0.5 rounded-md font-mono font-bold">
+                      {registeredUsers.length}
+                    </span>
+                  </button>
+                )}
 
                 <div className="flex items-center gap-2 bg-slate-950/80 px-2.5 py-1.5 rounded-xl border border-slate-800 text-xs font-mono">
                   <span className="text-slate-400 text-[10px]">Treasury:</span>
@@ -5748,6 +5801,130 @@ export default function CivilizationDashboard() {
               </button>
             </div>
 
+          </div>
+        </div>
+      )}
+
+      {/* Admin Registered Citizens Registry & Multi-Tenant Census Modal */}
+      {isAdmin && showAdminCensusModal && (
+        <div className="fixed inset-0 z-[9999] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-amber-500/40 rounded-2xl w-full max-w-4xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+            {/* Modal Header */}
+            <div className="p-4 border-b border-slate-800 bg-slate-950/90 flex justify-between items-center flex-wrap gap-2">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-xl">
+                  👥
+                </div>
+                <div>
+                  <h3 className="text-white text-base font-bold flex items-center gap-2">
+                    <span>Civilization Master Citizen Census</span>
+                    <span className="text-xs bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-mono border border-amber-500/30">
+                      {registeredUsers.length} Registered Accounts
+                    </span>
+                  </h3>
+                  <p className="text-slate-400 text-xs font-mono">
+                    All registered citizens, private family residences, and GPS coordinates stored in MongoDB database
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  placeholder="🔍 Search email, home, city..."
+                  value={censusSearchQuery}
+                  onChange={(e) => setCensusSearchQuery(e.target.value)}
+                  className="bg-slate-950 border border-slate-800 text-white rounded-xl px-3 py-1.5 text-xs font-mono w-56 outline-none focus:border-amber-500"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowAdminCensusModal(false)}
+                  className="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center font-bold text-sm"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            {/* Users List Body */}
+            <div className="p-4 overflow-y-auto flex flex-col gap-3">
+              {registeredUsers
+                .filter((u: any) => {
+                  if (!censusSearchQuery.trim()) return true;
+                  const q = censusSearchQuery.toLowerCase();
+                  return (
+                    u.user_id?.toLowerCase().includes(q) ||
+                    u.home_name?.toLowerCase().includes(q) ||
+                    u.address?.toLowerCase().includes(q) ||
+                    u.city_name?.toLowerCase().includes(q)
+                  );
+                })
+                .map((u: any, idx: number) => {
+                  return (
+                    <div
+                      key={u.user_id || idx}
+                      className="bg-slate-950/70 border border-slate-800/90 hover:border-amber-500/40 rounded-xl p-3.5 flex flex-col md:flex-row justify-between items-start md:items-center gap-3 transition-all"
+                    >
+                      <div className="flex flex-col gap-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <strong className="text-white text-sm font-bold">{u.home_name || "Citizen Residence"}</strong>
+                          <span className="text-[10px] bg-sky-500/10 text-sky-300 px-2 py-0.5 rounded-md border border-sky-500/20 font-mono font-semibold">
+                            ✉️ {u.user_id}
+                          </span>
+                          <span className="text-[10px] bg-emerald-500/10 text-emerald-300 px-2 py-0.5 rounded-md border border-emerald-500/20 font-mono font-semibold">
+                            💰 Cash: ${u.money?.toLocaleString() || 500}
+                          </span>
+                        </div>
+
+                        <div className="text-xs text-slate-300 flex items-center gap-2 flex-wrap">
+                          <span>📍 <strong>Address:</strong> {u.address || "Civilization Citizen Zone"}</span>
+                          <span className="text-slate-500">•</span>
+                          <span className="font-mono text-[11px] text-amber-400">
+                            🧭 GPS: [{u.coords?.[0]?.toFixed(4) || "20.9472"}, {u.coords?.[1]?.toFixed(4) || "72.9515"}]
+                          </span>
+                        </div>
+
+                        {/* Family Members Roster */}
+                        <div className="mt-1 flex items-center gap-1.5 flex-wrap">
+                          <span className="text-[11px] text-slate-400 font-semibold">
+                            👨‍👩‍👧‍👦 Family ({u.members?.length || 0}):
+                          </span>
+                          {u.members && u.members.length > 0 ? (
+                            u.members.map((m: any, mIdx: number) => (
+                              <span
+                                key={mIdx}
+                                className="bg-slate-900 border border-slate-800 text-slate-200 text-[10px] px-2 py-0.5 rounded-md font-mono flex items-center gap-1"
+                              >
+                                <span>{VEHICLE_EMOJIS[m.vehicle] || "🚗"}</span>
+                                <span>{m.name}</span>
+                                <span className="text-slate-400 text-[9px]">({m.role || "Member"})</span>
+                              </span>
+                            ))
+                          ) : (
+                            <span className="text-slate-500 text-[10px] italic">No family members registered</span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 flex-none self-end md:self-center">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setShowAdminCensusModal(false);
+                            if (u.coords && mapInstanceRef.current) {
+                              mapInstanceRef.current.flyTo(u.coords, 17);
+                            }
+                          }}
+                          className="bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs font-bold px-3 py-1.5 rounded-xl transition-all flex items-center gap-1 shadow-sm"
+                        >
+                          <span>🎯</span>
+                          <span>Fly to on Map</span>
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
           </div>
         </div>
       )}

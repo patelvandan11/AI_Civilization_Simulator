@@ -1,7 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
-import { loadPlayer, savePlayer, loadAllCatalogs, createNewPlayer, updateWorldLocation, resetWorldLocations } from "@/lib/io";
+import { loadPlayer, savePlayer, loadAllCatalogs, createNewPlayer, updateWorldLocation, resetWorldLocations, listAllPlayers } from "@/lib/io";
 import { plantCrop, harvestCrop, startCraft, getPlotStatus, conductDemocraticElection, runSimulationTick, normalizeCropKey } from "@/lib/simulation";
 import { KisanAgentManager } from "@/lib/kisan_agent";
+
+export async function GET(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const action = searchParams.get("action");
+    if (action === "list_all_users") {
+      const users = await listAllPlayers();
+      return NextResponse.json({ ok: true, users });
+    }
+    return NextResponse.json({ ok: false, message: "Invalid action" }, { status: 400 });
+  } catch (err: any) {
+    return NextResponse.json({ ok: false, message: err.message }, { status: 500 });
+  }
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -10,6 +24,11 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json();
     const action = body.action;
+
+    if (action === "list_all_users") {
+      const users = await listAllPlayers();
+      return NextResponse.json({ ok: true, users });
+    }
 
     if (action === "register_citizen") {
       const citizenName = String(body.citizen_name || "").trim();
