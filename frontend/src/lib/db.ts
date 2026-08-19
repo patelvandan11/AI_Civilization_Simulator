@@ -1,4 +1,9 @@
 import { MongoClient, Db } from "mongodb";
+import dns from "dns";
+
+try {
+  dns.setServers(["8.8.8.8", "8.8.4.4", "1.1.1.1"]);
+} catch {}
 
 // MongoDB connection settings
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/civilization";
@@ -23,8 +28,8 @@ export async function connectToDatabase(): Promise<{ client: MongoClient; db: Db
 
   try {
     const client = new MongoClient(MONGODB_URI, {
-      connectTimeoutMS: 1500,
-      serverSelectionTimeoutMS: 1500,
+      connectTimeoutMS: 10000,
+      serverSelectionTimeoutMS: 10000,
     });
 
     await client.connect();
@@ -33,10 +38,11 @@ export async function connectToDatabase(): Promise<{ client: MongoClient; db: Db
     cachedClient = client;
     cachedDb = db;
     isMongoDisabled = false;
+    console.log(`[MongoDB Connected] Successfully connected to database '${MONGODB_DB}'.`);
     return { client, db };
-  } catch (err) {
+  } catch (err: any) {
     isMongoDisabled = true;
-    // Quiet fallback to disk storage
+    console.warn("[MongoDB Connection Standby] Falling back to file storage:", err?.message || err);
     return null;
   }
 }

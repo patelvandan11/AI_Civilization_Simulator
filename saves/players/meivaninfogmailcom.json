@@ -1,0 +1,313 @@
+{
+  "user_id": "meivaninfo@gmail.com",
+  "money": 500,
+  "health": 100,
+  "hunger": 100,
+  "plots": [
+    {
+      "index": 0,
+      "crop_id": null,
+      "planted_at": null
+    },
+    {
+      "index": 1,
+      "crop_id": null,
+      "planted_at": null
+    },
+    {
+      "index": 2,
+      "crop_id": null,
+      "planted_at": null
+    },
+    {
+      "index": 3,
+      "crop_id": null,
+      "planted_at": null
+    },
+    {
+      "index": 4,
+      "crop_id": null,
+      "planted_at": null
+    },
+    {
+      "index": 5,
+      "crop_id": null,
+      "planted_at": null
+    },
+    {
+      "index": 6,
+      "crop_id": null,
+      "planted_at": null
+    },
+    {
+      "index": 7,
+      "crop_id": null,
+      "planted_at": null
+    },
+    {
+      "index": 8,
+      "crop_id": null,
+      "planted_at": null
+    }
+  ],
+  "inventory": {
+    "wood": 25,
+    "stone": 15,
+    "fiber": 15,
+    "apple_seed": 10,
+    "wheat_seed": 10,
+    "carrot_seed": 10,
+    "corn_seed": 10,
+    "strawberry_seed": 10,
+    "bread": 5,
+    "apple": 5,
+    "wooden_axe": 1,
+    "stone_pick": 1
+  },
+  "farm_barn": {
+    "milk": 15,
+    "wool": 10,
+    "egg": 20,
+    "wheat": 30,
+    "carrot": 20,
+    "apple": 15
+  },
+  "livestock": {
+    "cows": 4,
+    "sheep": 6,
+    "chickens": 10,
+    "last_produce_day": 0
+  },
+  "city_name": "Navsari-Chikhli Civilization",
+  "city_treasury": 1500,
+  "tax_rate": 10,
+  "city_manager_enabled": true,
+  "automated_farming_enabled": true,
+  "clock": {
+    "total_seconds": 480,
+    "formatted": "08:00 AM"
+  },
+  "agent_logs": [
+    "System: Account registered for meivaninfo@gmail.com.",
+    "Database: Private residence 'vandanhome' established at Chikhli, Gujarat [20.7587, 73.0612]."
+  ],
+  "zone_locations": {
+    "farmers_market": [
+      20.9458,
+      72.9518
+    ],
+    "dairy": [
+      20.9468,
+      72.952
+    ],
+    "general": [
+      20.9465,
+      72.9525
+    ],
+    "clothing": [
+      20.9462,
+      72.9523
+    ],
+    "electronics": [
+      20.947,
+      72.9527
+    ],
+    "farms": [
+      20.9445,
+      72.9495
+    ],
+    "factory": [
+      20.948,
+      72.9535
+    ],
+    "school": [
+      20.9475,
+      72.9505
+    ],
+    "hospital": [
+      20.945,
+      72.954
+    ],
+    "park": [
+      20.9465,
+      72.9545
+    ],
+    "roads": [
+      20.9465,
+      72.952
+    ],
+    "shipyard": [
+      20.935,
+      72.925
+    ],
+    "refinery": [
+      20.965,
+      72.97
+    ],
+    "petrol_pump": [
+      20.952,
+      72.948
+    ],
+    "steel_mill": [
+      20.958,
+      72.96
+    ],
+    "my_home": [
+      20.7587,
+      73.0612
+    ]
+  },
+  "families": [
+    {
+      "id": "my_home",
+      "name": "vandanhome",
+      "address": "Chikhli, Navsari District, Gujarat",
+      "type": "house",
+      "budget": 250,
+      "inventory": {
+        "wheat": 10,
+        "apple": 10,
+        "carrot": 5,
+        "milk": 4,
+        "bread": 5
+      },
+      "members": [
+        {
+          "name": "v1",
+          "role": "father",
+          "relation": "Household Head",
+          "vehicle": "car",
+          "state": "At Home"
+        },
+        {
+          "name": "v2",
+          "role": "mother",
+          "relation": "Spouse",
+          "vehicle": "scooter",
+          "state": "At Home"
+        },
+        {
+          "name": "v3",
+          "role": "son",
+          "relation": "Eldest Child",
+          "vehicle": "bicycle",
+          "state": "At Home"
+        },
+        {
+          "name": "v4",
+          "role": "daughter",
+          "relation": "Youngest Child",
+          "vehicle": "bicycle",
+          "state": "At Home"
+        }
+      ]
+    }
+  ],
+  "shops": [
+    {
+      "id": "farmers_market",
+      "name": "Navsari Fresh Farmers & Vegetable Market",
+      "owner": "Kisan Mandi",
+      "inventory": {
+        "wheat": 25,
+        "carrot": 20,
+        "apple": 20,
+        "corn": 15,
+        "brokeli": 15,
+        "cabbige": 15,
+        "chilly": 15,
+        "cucumber": 15,
+        "banana": 15,
+        "strawberry": 15,
+        "milk": 20,
+        "egg": 25
+      },
+      "revenue": 500,
+      "sales_history": []
+    },
+    {
+      "id": "dairy",
+      "name": "City Dairy & Groceries",
+      "owner": "Amina",
+      "inventory": {
+        "milk": 20,
+        "egg": 30,
+        "cheese": 15
+      },
+      "revenue": 300,
+      "sales_history": []
+    },
+    {
+      "id": "general",
+      "name": "Ramesh Supplies",
+      "owner": "Ramesh",
+      "inventory": {
+        "wood": 30,
+        "stone": 20,
+        "fiber": 20,
+        "rope": 10,
+        "torch": 10
+      },
+      "revenue": 400,
+      "sales_history": []
+    }
+  ],
+  "industry": {
+    "oil_refinery": {
+      "crude_oil": 120,
+      "refined_petrol": 85,
+      "diesel": 60,
+      "marine_fuel": 40,
+      "is_active": true,
+      "efficiency": 95,
+      "daily_crude_input": 40,
+      "daily_fuel_output": 35
+    },
+    "petrol_pump": {
+      "fuel_stock": 450,
+      "diesel_stock": 350,
+      "price_per_liter": 15,
+      "daily_sales_liters": 120,
+      "revenue": 1800,
+      "ev_charging_active": true,
+      "recent_refuelings": []
+    },
+    "shipyard": {
+      "ships_docked": 3,
+      "ships_under_construction": 1,
+      "fleet": [
+        {
+          "id": "ship_1",
+          "name": "INS Navsari Express",
+          "type": "cargo_ship",
+          "fuel": 80,
+          "status": "Active Maritime Freight",
+          "cargo": {
+            "wheat": 20,
+            "steel_beam": 10
+          }
+        },
+        {
+          "id": "ship_2",
+          "name": "Surat Gulf Ferry",
+          "type": "passenger_ferry",
+          "fuel": 65,
+          "status": "Passenger Transit to Gulf"
+        },
+        {
+          "id": "ship_3",
+          "name": "Arabian Sea Trawler 09",
+          "type": "fishing_trawler",
+          "fuel": 90,
+          "status": "Commercial Deep Sea Harvest"
+        }
+      ]
+    },
+    "heavy_manufacturing": {
+      "iron_ore_stock": 75,
+      "steel_beams": 45,
+      "concrete_stock": 90,
+      "active_smelters": 2
+    }
+  }
+}
