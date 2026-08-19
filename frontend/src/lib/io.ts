@@ -787,8 +787,16 @@ export async function loadPlayer(userId: string): Promise<PlayerState> {
 export async function savePlayer(player: PlayerState): Promise<void> {
   const safeName = player.user_id.replace(/[^a-zA-Z0-9_-]/g, "");
   
+  const myHomeFam = player.families?.find(f => f.id === "my_home" || f.id === `house_${player.user_id.replace(/[^a-zA-Z0-9_-]/g, "")}`) || player.families?.[0];
+  const myHomeCoords = player.zone_locations?.my_home || [20.9472, 72.9515];
+
   const extended = {
     ...player,
+    home_name: myHomeFam?.name || `${player.user_id.split(/[@_]/)[0]}'s Residence`,
+    address: myHomeFam?.address || player.city_name || "Civilization Citizen Zone",
+    coords: myHomeCoords,
+    members_count: myHomeFam?.members?.length || 0,
+    members_list: myHomeFam?.members?.map(m => m.name) || [],
     last_saved_at: new Date().toISOString()
   };
 
@@ -799,7 +807,6 @@ export async function savePlayer(player: PlayerState): Promise<void> {
     if (collection) {
       const { _id, ...cleanData } = extended as any;
       await collection.replaceOne({ user_id: player.user_id }, cleanData, { upsert: true });
-      return;
     }
   } catch (err) {
     console.warn("[MongoDB Connection Standby] Failed to save in Mongo, falling back to storage:", err);
