@@ -6,7 +6,7 @@ try {
 } catch {}
 
 // MongoDB connection settings
-const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/civilization";
+const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://vandan11patel_db_user:x1PeKhlVEIhI0I6z@cluster0.zkzrq3s.mongodb.net/?appName=Cluster0";
 const MONGODB_DB = process.env.MONGODB_DB || "civilization";
 
 let cachedClient: MongoClient | null = null;

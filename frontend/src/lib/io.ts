@@ -653,11 +653,13 @@ export async function loadPlayer(userId: string): Promise<PlayerState> {
           modified = true;
         }
 
-        // Always enforce fixed canonical world locations for all users
+        const userPrivateHome = playerState.zone_locations?.my_home;
+        // Always enforce fixed canonical world locations for all users while preserving personal home
         playerState.zone_locations = {
           ...DEFAULT_WORLD_LOCATIONS,
+          ...worldLocations,
           ...(playerState.zone_locations || {}),
-          ...worldLocations
+          ...(userPrivateHome ? { my_home: userPrivateHome } : {})
         };
 
         if (modified) {
@@ -705,10 +707,12 @@ export async function loadPlayer(userId: string): Promise<PlayerState> {
   try {
     const content = fs.readFileSync(filePath, "utf-8");
     const data = JSON.parse(content) as PlayerState;
+    const userPrivateHome = data.zone_locations?.my_home;
     data.zone_locations = {
       ...DEFAULT_WORLD_LOCATIONS,
+      ...worldLocations,
       ...(data.zone_locations || {}),
-      ...worldLocations
+      ...(userPrivateHome ? { my_home: userPrivateHome } : {})
     };
 
     if (!data.shops) {
