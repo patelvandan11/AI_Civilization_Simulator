@@ -128,3 +128,15 @@ function onFormSubmit(e) {
 **📋 Feedback Type:** 🐛 Bug Report  
 **⭐ Experience Rating:** ⭐⭐⭐⭐⭐ (5/5)
 
+
+
+---
+
+## 🏛️ Citizen Feedback
+
+**📅 Submitted:** `20/08/2026 01:21:58`  
+**👤 Citizen:**   
+**📧 Email:** anfoangoew@gmail.com  
+**📋 Feedback Type:**   
+**⭐ Experience Rating:** ⭐⭐⭐⭐⭐ (5/5)
+
