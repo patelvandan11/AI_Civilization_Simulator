@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { soundEngine } from "@/lib/sound";
 
 // Helper to generate crisp SVG Data URI icons with stylish linear gradients
@@ -271,6 +271,7 @@ export default function CivilizationDashboard() {
   const [confirmPasswordInput, setConfirmPasswordInput] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [authError, setAuthError] = useState<string>("");
+  const [dbHealth, setDbHealth] = useState<any>(null);
   const [generatedOtp, setGeneratedOtp] = useState<string>("");
   const [enteredOtp, setEnteredOtp] = useState<string>("");
   const [otpNotice, setOtpNotice] = useState<string>("");
@@ -300,12 +301,30 @@ export default function CivilizationDashboard() {
   const [homeLngInput, setHomeLngInput] = useState<string>("72.9515");
   const [homeFamilyNameInput, setHomeFamilyNameInput] = useState<string>("");
   const [homeMemberCountInput, setHomeMemberCountInput] = useState<number>(4);
+  const [homeMemberNamesInput, setHomeMemberNamesInput] = useState<string[]>(["", "", "", ""]);
+  const [homeMemberRolesInput, setHomeMemberRolesInput] = useState<string[]>(["Head", "Spouse", "Child", "Child"]);
+  const [homeMemberAgesInput, setHomeMemberAgesInput] = useState<number[]>([35, 32, 12, 8]);
   const [homeSaveMsg, setHomeSaveMsg] = useState<string>("");
 
-  // Admin Registered Users Census States
+  // Admin Registered Users Census & Edit States
   const [registeredUsers, setRegisteredUsers] = useState<any[]>([]);
   const [showAdminCensusModal, setShowAdminCensusModal] = useState<boolean>(false);
   const [censusSearchQuery, setCensusSearchQuery] = useState<string>("");
+
+  // Admin Edit Citizen Modal States
+  const [adminEditModalOpen, setAdminEditModalOpen] = useState<boolean>(false);
+  const [adminEditTargetUserId, setAdminEditTargetUserId] = useState<string>("");
+  const [adminEditName, setAdminEditName] = useState<string>("");
+  const [adminEditHomeName, setAdminEditHomeName] = useState<string>("");
+  const [adminEditAddress, setAdminEditAddress] = useState<string>("");
+  const [adminEditLat, setAdminEditLat] = useState<string>("20.9472");
+  const [adminEditLng, setAdminEditLng] = useState<string>("72.9515");
+  const [adminEditMoney, setAdminEditMoney] = useState<number>(500);
+  const [adminEditMemberCount, setAdminEditMemberCount] = useState<number>(4);
+  const [adminEditMemberNames, setAdminEditMemberNames] = useState<string[]>(["", "", "", ""]);
+  const [adminEditMemberRoles, setAdminEditMemberRoles] = useState<string[]>(["Head", "Spouse", "Child", "Child"]);
+  const [adminEditMemberAges, setAdminEditMemberAges] = useState<number[]>([35, 32, 12, 8]);
+  const [adminEditMsg, setAdminEditMsg] = useState<string>("");
 
   // People & Citizens Master Directory Search & Edit States
   const [personSearchQuery, setPersonSearchQuery] = useState<string>("");
@@ -334,12 +353,12 @@ export default function CivilizationDashboard() {
   const [welfareThresholdInput, setWelfareThresholdInput] = useState<number>(15);
   const [welfarePayoutInput, setWelfarePayoutInput] = useState<number>(15);
   
-  // Cabinet reassignment dropdown form states
+  // Cabinet reassignment dropdown form states (Defaulted to real registered citizens)
   const [pmInput, setPmInput] = useState<string>("Thakorbhai");
-  const [dmInput, setDmInput] = useState<string>("Bharatbhai");
-  const [finInput, setFinInput] = useState<string>("Rameshbhai");
-  const [eduInput, setEduInput] = useState<string>("Vasantiben");
-  const [infraInput, setInfraInput] = useState<string>("Mayuriben");
+  const [dmInput, setDmInput] = useState<string>("Vasantiben");
+  const [finInput, setFinInput] = useState<string>("Vandan");
+  const [eduInput, setEduInput] = useState<string>("Hetvi");
+  const [infraInput, setInfraInput] = useState<string>("v");
   
   // News Filter state
   const [newsFilter, setNewsFilter] = useState<string>("ALL");
@@ -712,9 +731,20 @@ export default function CivilizationDashboard() {
     return locs.house_1 || [CENTER_LAT, CENTER_LNG];
   };
 
-  // Restore saved session or magic link from URL
+  // Restore saved session or magic link from URL and check Database Health
   useEffect(() => {
+    // Check MongoDB multi-database connectivity
+    fetch(`${apiHost}/api/auth/db-status`)
+      .then((r) => r.json())
+      .then((d) => setDbHealth(d))
+      .catch(() => {});
+
     try {
+      const savedTheme = localStorage.getItem("civilization_theme_mode") as "night" | "day" | "auto" | null;
+      if (savedTheme) {
+        setThemeMode(savedTheme);
+      }
+
       if (typeof window !== "undefined") {
         const urlParams = new URLSearchParams(window.location.search);
         const magicUser = urlParams.get("magic_user");
@@ -800,12 +830,29 @@ export default function CivilizationDashboard() {
     }
   }, [leafletLoaded, isLoggedIn, authTab, signupCoords]);
 
-  // Handle map click callbacks for admin relocation
+  // Handle map click callbacks for tap-to-relocate and admin relocation
   const handleMapClick = (e: any) => {
-    if (!isAdmin) return;
+    if (!e || !e.latlng) return;
     const { lat, lng } = e.latlng;
-    setClickedCoords({ lat, lng });
-    setEditLocationsMode(true);
+    const latStr = lat.toFixed(4);
+    const lngStr = lng.toFixed(4);
+
+    // Auto-fill coordinates for citizen Home Builder
+    setHomeLatInput(latStr);
+    setHomeLngInput(lngStr);
+
+    // Auto-fill coordinates for Admin Citizen Editor Modal
+    setAdminEditLat(latStr);
+    setAdminEditLng(lngStr);
+
+    // If Admin landmark relocation is enabled
+    if (isAdmin) {
+      setClickedCoords({ lat, lng });
+      setEditLocationsMode(true);
+    }
+
+    setLocationActionMsg(`📍 Selected GPS: [${latStr}, ${lngStr}]. Click "SAVE" to confirm relocation.`);
+    setTimeout(() => setLocationActionMsg(""), 6000);
   };
 
   // Initialize map and handle dynamic updates
@@ -838,7 +885,14 @@ export default function CivilizationDashboard() {
     staticMarkersRef.current.forEach(m => map.removeLayer(m));
     staticMarkersRef.current = [];
 
-    const addLandmark = (coord: [number, number], title: string, desc: string, color: string, icon: string) => {
+    const addLandmark = (
+      coord: [number, number],
+      title: string,
+      desc: string,
+      color: string,
+      icon: string,
+      htmlContent?: string
+    ) => {
       const customIcon = L.divIcon({
         className: "",
         html: `
@@ -847,58 +901,145 @@ export default function CivilizationDashboard() {
           </div>
         `,
         iconSize: [32, 32],
-        iconAnchor: [16, 16]
+        iconAnchor: [16, 16],
       });
 
-      const marker = L.marker(coord, { icon: customIcon }).addTo(map);
-      marker.bindPopup(`
-        <div style="font-family: sans-serif; padding: 4px;">
+      const popupHtml =
+        htmlContent ||
+        `
+        <div style="font-family: sans-serif; padding: 4px; min-width: 180px;">
           <div style="font-weight: 800; font-size: 13px; color: #0f172a; margin-bottom: 2px;">${title}</div>
           <div style="font-size: 11px; color: #475569; line-height: 1.3;">${desc}</div>
           <div style="font-size: 9px; color: #94a3b8; margin-top: 4px; font-family: monospace;">GPS: [${coord[0].toFixed(4)}, ${coord[1].toFixed(4)}]</div>
         </div>
-      `);
+      `;
+
+      const marker = L.marker(coord, { icon: customIcon }).addTo(map);
+      marker.bindPopup(popupHtml);
+      marker.bindTooltip(popupHtml, { direction: "top", offset: [0, -12], opacity: 0.98 });
+      marker.on("mouseover", () => {
+        marker.openTooltip();
+      });
+      marker.on("mouseout", () => {
+        marker.closeTooltip();
+      });
+
       staticMarkersRef.current.push(marker);
     };
 
-    // Render all registered users' residences from database with privacy scoping
+    // Render all registered users' residences from database with hover tooltips and privacy scoping
     if (registeredUsers && registeredUsers.length > 0) {
       registeredUsers.forEach((u: any) => {
         if (u.coords && Array.isArray(u.coords) && u.coords.length === 2) {
-          const isOwnHome = (u.user_id && (
-            u.user_id.toLowerCase() === userId.toLowerCase() ||
-            u.user_id.replace(/[^a-zA-Z0-9_-]/g, "") === userId.replace(/[^a-zA-Z0-9_-]/g, "")
-          ));
+          const isOwnHome = Boolean(
+            u.user_id &&
+              (u.user_id.toLowerCase() === userId.toLowerCase() ||
+                u.user_id.replace(/[^a-zA-Z0-9_-]/g, "") ===
+                  userId.replace(/[^a-zA-Z0-9_-]/g, ""))
+          );
 
           if (isOwnHome) {
-            // Logged-in user's own home - prominent emerald marker with personal residence name
+            // Logged-in user's own home - prominent emerald marker with personal residence name & own family details
+            const ownMemListHtml =
+              u.members && u.members.length > 0
+                ? u.members
+                    .map((m: any, idx: number) => {
+                      const mName = typeof m === "string" ? m : m.name || `Member #${idx + 1}`;
+                      const mRole = typeof m === "string" ? "Family Member" : m.role || "Citizen";
+                      const mAge = typeof m === "object" && m.age ? ` • 🎂 ${m.age} yrs` : "";
+                      return `<div style="padding: 2px 0; font-size: 10.5px; border-bottom: 1px dashed #bbf7d0; color: #1e293b;">
+                          <span style="font-weight: bold; color: #047857;">${mName}</span>
+                          <span style="color: #64748b; font-size: 10px;"> (${mRole}${mAge})</span>
+                        </div>`;
+                    })
+                    .join("")
+                : `<div style="font-size: 10px; color: #94a3b8;">No members listed</div>`;
+
+            const ownPopupHtml = `
+              <div style="font-family: sans-serif; padding: 6px; min-width: 210px; max-width: 300px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; margin-bottom: 4px;">
+                  <div style="font-weight: 900; font-size: 13px; color: #047857;">🏡 ${u.home_name || "My Private Residence"}</div>
+                  <span style="background: #10b981; color: white; font-size: 9px; font-weight: bold; padding: 1px 5px; border-radius: 4px;">MY HOME</span>
+                </div>
+                <div style="font-size: 11px; color: #334155; margin-bottom: 2px;"><strong>Location:</strong> ${u.address || u.city_name || "Civilization Zone"}</div>
+                <div style="font-weight: bold; font-size: 10.5px; color: #0f172a; margin-top: 4px; margin-bottom: 2px;">👨‍👩‍👧‍👦 Your Family (${u.members?.length || 0}):</div>
+                <div style="background: #f0fdf4; border-radius: 6px; padding: 4px 6px; border: 1px solid #bbf7d0; max-height: 110px; overflow-y: auto;">
+                  ${ownMemListHtml}
+                </div>
+                <div style="font-size: 9px; color: #94a3b8; margin-top: 4px; font-family: monospace;">GPS: [${u.coords[0].toFixed(4)}, ${u.coords[1].toFixed(4)}]</div>
+              </div>
+            `;
+
             addLandmark(
               u.coords,
-              `🏡 My Private Residence (${u.home_name || "Your Home"})`,
-              `Your personal household residence • Stored in database • GPS: [${u.coords[0].toFixed(4)}, ${u.coords[1].toFixed(4)}]`,
+              `🏡 ${u.home_name || "My Private Residence"}`,
+              `Your personal household • Location: ${u.address || u.city_name || "Civilization Zone"}`,
               "#10b981",
-              "🏡"
+              "🏡",
+              ownPopupHtml
             );
           } else if (isAdmin) {
-            // Admin View - full details (name, email, family members roster, cash)
-            const memStr = u.members && u.members.length > 0
-              ? u.members.map((m: any) => `${m.name} (${m.role || "Citizen"})`).join(", ")
-              : "No family members listed";
+            // Admin View - hover & click show full details: citizen email, address, GPS, cash, and ALL family members
+            const memListHtml =
+              u.members && u.members.length > 0
+                ? u.members
+                    .map((m: any, idx: number) => {
+                      const mName = typeof m === "string" ? m : m.name || `Member #${idx + 1}`;
+                      const mRole = typeof m === "string" ? "Family Member" : m.role || "Citizen";
+                      const mAge = typeof m === "object" && m.age ? ` • 🎂 ${m.age} yrs` : "";
+                      const veh =
+                        typeof m === "object" && m.vehicle ? ` • 🚗 ${m.vehicle}` : "";
+                      return `<div style="padding: 2.5px 0; font-size: 10.5px; border-bottom: 1px dashed #e2e8f0; color: #1e293b;">
+                          <span style="font-weight: bold; color: #0284c7;">${mName}</span>
+                          <span style="color: #64748b; font-size: 10px;"> (${mRole}${mAge}${veh})</span>
+                        </div>`;
+                    })
+                    .join("")
+                : `<div style="font-size: 10px; color: #94a3b8;">No members listed</div>`;
+
+            const adminPopupHtml = `
+              <div style="font-family: sans-serif; padding: 6px; min-width: 230px; max-width: 320px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; margin-bottom: 4px;">
+                  <div style="font-weight: 900; font-size: 13px; color: #0f172a;">🏡 ${u.home_name || "Citizen Residence"}</div>
+                  <span style="background: #0284c7; color: white; font-size: 9px; font-weight: bold; padding: 1px 5px; border-radius: 4px;">ADMIN VIEW</span>
+                </div>
+                <div style="font-size: 11px; color: #334155; margin-bottom: 2px;"><strong>Citizen:</strong> ${u.user_id}</div>
+                <div style="font-size: 10.5px; color: #475569; margin-bottom: 2px;"><strong>Address:</strong> ${u.address || u.city_name || "Civilization Zone"}</div>
+                <div style="font-size: 10.5px; color: #16a34a; font-weight: bold; margin-bottom: 5px;"><strong>Cash Balance:</strong> $${u.money || 500}</div>
+                <div style="font-weight: bold; font-size: 11px; color: #0f172a; margin-top: 3px; margin-bottom: 2px;">👨‍👩‍👧‍👦 Family Members (${u.members?.length || 0}):</div>
+                <div style="background: #f8fafc; border-radius: 6px; padding: 4px 6px; border: 1px solid #e2e8f0; max-height: 120px; overflow-y: auto;">
+                  ${memListHtml}
+                </div>
+                <div style="font-size: 9px; color: #94a3b8; margin-top: 4px; font-family: monospace;">GPS: [${u.coords[0].toFixed(4)}, ${u.coords[1].toFixed(4)}]</div>
+              </div>
+            `;
+
             addLandmark(
               u.coords,
-              `🏡 ${u.home_name || "Citizen Residence"} (${u.user_id})`,
-              `Registered Citizen: ${u.user_id} • Location: ${u.address || "Civilization Zone"} • Family: ${memStr} • Cash: $${u.money || 500}`,
+              `🏡 ${u.home_name || "Citizen Residence"}`,
+              `Citizen Account: ${u.user_id} • Location: ${u.address || u.city_name || "Civilization Zone"}`,
               "#06b6d4",
-              "🏡"
+              "🏡",
+              adminPopupHtml
             );
           } else {
-            // Other players / friends view - ANONYMOUS: Only shows that a residence is here, NO personal name/details!
+            // Other citizens view on hover - shows ONLY the custom name of the home and its location, ZERO family members
+            const otherCitizenPopupHtml = `
+              <div style="font-family: sans-serif; padding: 6px; min-width: 180px;">
+                <div style="font-weight: 900; font-size: 13px; color: #0f172a; margin-bottom: 3px;">🏠 ${u.home_name || "Citizen Residence"}</div>
+                <div style="font-size: 11px; color: #475569; margin-bottom: 3px;">📍 Location: ${u.address || u.city_name || "Civilization Zone"}</div>
+                <div style="font-size: 9.5px; color: #0284c7; background: #e0f2fe; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-top: 2px; font-weight: 600;">🔒 Private Household (Protected)</div>
+                <div style="font-size: 9px; color: #94a3b8; margin-top: 4px; font-family: monospace;">GPS: [${u.coords[0].toFixed(4)}, ${u.coords[1].toFixed(4)}]</div>
+              </div>
+            `;
+
             addLandmark(
               u.coords,
-              `🏠 Private Residence`,
-              `Occupied Household • Private Residence • GPS: [${u.coords[0].toFixed(4)}, ${u.coords[1].toFixed(4)}]`,
+              `🏠 ${u.home_name || "Citizen Residence"}`,
+              `Location: ${u.address || u.city_name || "Civilization Zone"}`,
               "#0284c7",
-              "🏠"
+              "🏠",
+              otherCitizenPopupHtml
             );
           }
         }
@@ -912,26 +1053,6 @@ export default function CivilizationDashboard() {
         "#10b981",
         "🏡"
       );
-    }
-
-    // Render all residential family homes dynamically
-    if (status && status.families && status.families.length > 0) {
-      const colors = ["#0284c7", "#0d9488", "#4f46e5", "#ea580c", "#8b5cf6", "#059669", "#d97706"];
-      status.families.forEach((fam: any, fIdx: number) => {
-        if (fam.id === "my_home") return; // Rendered above as primary private home
-        const coord = locs[fam.id] || (fIdx === 0 ? locs.house_1 : fIdx === 1 ? locs.house_2 : fIdx === 2 ? locs.house_3 : [CENTER_LAT, CENTER_LNG]);
-        if (!coord) return;
-        const color = colors[fIdx % colors.length];
-        if (isAdmin) {
-          addLandmark(coord, `${fam.name} (${fam.id})`, `Residence • ${fam.members?.length || 0} family members • Fixed GPS: [${coord[0].toFixed(4)}, ${coord[1].toFixed(4)}]`, color, "🏠");
-        } else {
-          addLandmark(coord, `Residential Zone #${fIdx + 1}`, "Town Residence", color, "🏠");
-        }
-      });
-    } else {
-      if (locs.house_1) addLandmark(locs.house_1, isAdmin ? "Thakorbhai Home (Zone 1)" : "Residential Zone 1", "Patel Residence - Agriculture", "#0284c7", "🏠");
-      if (locs.house_2) addLandmark(locs.house_2, isAdmin ? "Bharatbhai Home (Zone 2)" : "Residential Zone 2", "Patel Residence - Carpentry", "#0d9488", "🏠");
-      if (locs.house_3) addLandmark(locs.house_3, isAdmin ? "Rameshbhai Home (Zone 3)" : "Residential Zone 3", "Patel Residence - Masonry", "#4f46e5", "🏠");
     }
 
     if (locs.farmers_market) addLandmark(locs.farmers_market, "Navsari Fresh Farmers & Vegetable Market", "Central marketplace for fresh vegetables, fruits, and agricultural crops", "#16a34a", "🥕");
@@ -1035,9 +1156,8 @@ export default function CivilizationDashboard() {
   const cabinetInitializedRef = useRef(false);
 
   const matchAdultName = (name: string, fallback: string): string => {
-    const adults = ["Thakorbhai", "Bharatbhai", "Rameshbhai", "Vasantiben", "Mayuriben", "Hemuben"];
-    const found = adults.find(a => a.toLowerCase() === String(name || "").toLowerCase());
-    return found || fallback;
+    if (!name || name.includes("Private Resident") || name.includes("Protected") || name.startsWith("Member #")) return fallback;
+    return name;
   };
 
   // Fetch simulation status
@@ -1053,15 +1173,19 @@ export default function CivilizationDashboard() {
           setStatus(data);
           setError(null);
 
-          // Fetch all registered residences across the database for map visualization
-          fetch(`${apiHost}/api/action?action=list_all_users&user_id=${userId}`)
-            .then(r => r.json())
-            .then(uData => {
-              if (uData.ok && Array.isArray(uData.users)) {
-                setRegisteredUsers(uData.users);
-              }
-            })
-            .catch(() => {});
+          if (data.registered_users && Array.isArray(data.registered_users)) {
+            setRegisteredUsers(data.registered_users);
+          } else {
+            // Fetch all registered residences across the database for map visualization
+            fetch(`${apiHost}/api/action?action=list_all_users&user_id=${userId}`)
+              .then(r => r.json())
+              .then(uData => {
+                if (uData.ok && Array.isArray(uData.users)) {
+                  setRegisteredUsers(uData.users);
+                }
+              })
+              .catch(() => {});
+          }
 
           if (!cabinetInitializedRef.current) {
             if (data.tax_rate !== undefined) setTaxRateInput(data.tax_rate);
@@ -1074,10 +1198,10 @@ export default function CivilizationDashboard() {
             if (data.cabinet) {
               cabinetInitializedRef.current = true;
               setPmInput(matchAdultName(data.cabinet.prime_minister, "Thakorbhai"));
-              setDmInput(matchAdultName(data.cabinet.district_magistrate, "Bharatbhai"));
-              setFinInput(matchAdultName(data.cabinet.ministers?.finance, "Rameshbhai"));
-              setEduInput(matchAdultName(data.cabinet.ministers?.education, "Vasantiben"));
-              setInfraInput(matchAdultName(data.cabinet.ministers?.infrastructure, "Mayuriben"));
+              setDmInput(matchAdultName(data.cabinet.district_magistrate, "Vasantiben"));
+              setFinInput(matchAdultName(data.cabinet.ministers?.finance, "Vandan"));
+              setEduInput(matchAdultName(data.cabinet.ministers?.education, "Hetvi"));
+              setInfraInput(matchAdultName(data.cabinet.ministers?.infrastructure, "v"));
             }
           }
         } else {
@@ -1536,20 +1660,107 @@ export default function CivilizationDashboard() {
   const savePrivateHome = async () => {
     const lat = parseFloat(homeLatInput) || 20.9472;
     const lng = parseFloat(homeLngInput) || 72.9515;
+
+    // Prepare family members structured list with age
+    const validMembers = homeMemberNamesInput.slice(0, homeMemberCountInput).map((mName, idx) => ({
+      name: mName.trim() || (idx === 0 ? (userId.split(/[@_]/)[0]) : `Member #${idx + 1}`),
+      role: homeMemberRolesInput[idx] || (idx === 0 ? "Head of Family" : "Resident Member"),
+      relation: idx === 0 ? "Household Head" : "Family Member",
+      age: Number(homeMemberAgesInput[idx]) || (idx === 0 ? 35 : idx === 1 ? 32 : 12),
+      vehicle: idx === 0 ? "car" : idx === 1 ? "scooter" : "bicycle"
+    }));
+
     const res = await dispatchAction("set_home_location", {
       lat,
       lng,
-      home_name: homeNameInput || `${userId.split(/[@_]/)[0]}'s Residence`,
-      address: homeAddressInput || "Navsari Citizen Zone",
-      family_name: homeFamilyNameInput || `${userId.split(/[@_]/)[0]}'s Family`,
-      member_count: homeMemberCountInput
+      home_name: homeNameInput.trim() || `${userId.split(/[@_]/)[0]}'s Residence`,
+      address: homeAddressInput.trim() || "Civilization Citizen Zone",
+      family_name: homeFamilyNameInput.trim() || homeNameInput.trim() || `${userId.split(/[@_]/)[0]}'s Family`,
+      member_count: homeMemberCountInput,
+      members: validMembers
     });
     if (res?.ok) {
-      setHomeSaveMsg(`✅ Private home saved to database at [${lat.toFixed(4)}, ${lng.toFixed(4)}]! (Visible only to you)`);
+      setHomeSaveMsg(`✅ Private residence & ${validMembers.length} family members saved to MongoDB database!`);
       if (mapInstanceRef.current) {
         mapInstanceRef.current.flyTo([lat, lng], 16);
       }
       setTimeout(() => setHomeSaveMsg(""), 6000);
+    }
+  };
+
+  const openAdminEditCitizenModal = (u: any) => {
+    setAdminEditTargetUserId(u.user_id || "");
+    setAdminEditName(u.name || u.home_name?.replace(/'s Residence$/, "") || "");
+    setAdminEditHomeName(u.home_name || "");
+    setAdminEditAddress(u.address || u.city_name || "");
+    setAdminEditLat(String(u.coords?.[0] ?? 20.9472));
+    setAdminEditLng(String(u.coords?.[1] ?? 72.9515));
+    setAdminEditMoney(u.money ?? 500);
+
+    const mCount = Math.max(1, u.members?.length || 4);
+    setAdminEditMemberCount(mCount);
+    const mNames = Array.from({ length: mCount }).map((_, idx) => {
+      const m = u.members?.[idx];
+      return typeof m === "string" ? m : m?.name || "";
+    });
+    const mRoles = Array.from({ length: mCount }).map((_, idx) => {
+      const m = u.members?.[idx];
+      return typeof m === "object" && m?.role ? m.role : (idx === 0 ? "Head of Family" : idx === 1 ? "Spouse" : "Resident");
+    });
+    const mAges = Array.from({ length: mCount }).map((_, idx) => {
+      const m = u.members?.[idx];
+      return typeof m === "object" && m?.age ? Number(m.age) : (idx === 0 ? 35 : idx === 1 ? 32 : 12);
+    });
+    setAdminEditMemberNames(mNames);
+    setAdminEditMemberRoles(mRoles);
+    setAdminEditMemberAges(mAges);
+    setAdminEditMsg("");
+    setAdminEditModalOpen(true);
+  };
+
+  const handleSaveAdminEditCitizen = async () => {
+    if (!adminEditTargetUserId) return;
+    setAdminEditMsg("Saving changes to MongoDB...");
+
+    const structuredMembers = adminEditMemberNames.slice(0, adminEditMemberCount).map((mName, idx) => ({
+      name: mName.trim() || `Member #${idx + 1}`,
+      role: adminEditMemberRoles[idx] || (idx === 0 ? "Head of Family" : "Resident Member"),
+      relation: idx === 0 ? "Household Head" : "Family Member",
+      age: Number(adminEditMemberAges[idx]) || (idx === 0 ? 35 : idx === 1 ? 32 : 12),
+      vehicle: idx === 0 ? "car" : idx === 1 ? "scooter" : "bicycle"
+    }));
+
+    try {
+      const res = await fetch(`${apiHost}/api/action?user_id=${userId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "admin_edit_citizen",
+          target_user_id: adminEditTargetUserId,
+          name: adminEditName.trim(),
+          home_name: adminEditHomeName.trim(),
+          address: adminEditAddress.trim(),
+          lat: parseFloat(adminEditLat) || 20.9472,
+          lng: parseFloat(adminEditLng) || 72.9515,
+          money: adminEditMoney,
+          members: structuredMembers
+        })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        setAdminEditMsg("✅ Citizen information and family roster updated successfully!");
+        if (Array.isArray(data.users)) {
+          setRegisteredUsers(data.users);
+        }
+        setTimeout(() => {
+          setAdminEditModalOpen(false);
+          setAdminEditMsg("");
+        }, 1500);
+      } else {
+        setAdminEditMsg("❌ Error: " + (data.message || "Failed to update citizen."));
+      }
+    } catch (err: any) {
+      setAdminEditMsg("❌ Error: " + err.message);
     }
   };
 
@@ -1828,12 +2039,15 @@ export default function CivilizationDashboard() {
 
   const submitDeleteResidence = async (familyId: string) => {
     const fam = status?.families?.find((f: any) => f.id === familyId);
-    if (!confirm(`Are you sure you want to decommission '${fam?.name || familyId}'?`)) return;
+    if (!confirm(`Are you sure you want to permanently delete and decommission residence '${fam?.name || familyId}'?`)) return;
     const res = await dispatchAction("delete_residence", { family_id: familyId });
     if (res?.ok) {
-      setLocationActionMsg(`✓ Decommissioned residence.`);
+      setLocationActionMsg(`✓ Decommissioned and deleted residence '${fam?.name || familyId}'.`);
       setTimeout(() => setLocationActionMsg(""), 5000);
-      if (selectedFamilyId === familyId) setSelectedFamilyId("house_1");
+      const remaining = status?.families?.filter((f: any) => f.id !== familyId) || [];
+      if (remaining.length > 0) {
+        setSelectedFamilyId(remaining[0].id);
+      }
     }
   };
 
@@ -1880,54 +2094,246 @@ export default function CivilizationDashboard() {
   const selectedFamily = isAdmin
     ? (status?.families?.find((f: any) => f.id === selectedFamilyId) || status?.families?.[0])
     : myPersonalFamily;
-  const listAllAdults = ["Thakorbhai", "Bharatbhai", "Rameshbhai", "Vasantiben", "Mayuriben", "Hemuben"];
+  // Dynamically compute list of all actual registered citizens in civilization (out of total registered citizens)
+  const listAllAdults = useMemo(() => {
+    const namesSet = new Set<string>();
+
+    if (status?.families && Array.isArray(status.families)) {
+      status.families.forEach((fam: any) => {
+        if (fam.members && Array.isArray(fam.members)) {
+          fam.members.forEach((m: any) => {
+            const mName = typeof m === "string" ? m : m.name;
+            if (
+              mName &&
+              mName.trim() &&
+              !mName.includes("Private Resident") &&
+              !mName.includes("Protected") &&
+              !mName.startsWith("Member #")
+            ) {
+              namesSet.add(mName.trim());
+            }
+          });
+        }
+      });
+    }
+
+    if (registeredUsers && Array.isArray(registeredUsers)) {
+      registeredUsers.forEach((u: any) => {
+        if (u.members && Array.isArray(u.members)) {
+          u.members.forEach((m: any) => {
+            const mName = typeof m === "string" ? m : m.name;
+            if (
+              mName &&
+              mName.trim() &&
+              !mName.includes("Private Resident") &&
+              !mName.includes("Protected") &&
+              !mName.startsWith("Member #")
+            ) {
+              namesSet.add(mName.trim());
+            }
+          });
+        }
+      });
+    }
+
+    const arr = Array.from(namesSet);
+    return arr.length > 0
+      ? arr
+      : ["Thakorbhai", "Vasantiben", "Vandan", "Hetvi", "v", "5", "6", "58"];
+  }, [status?.families, registeredUsers]);
 
   // =========================================================================
   // VIEW 1: AUTHENTICATION & LOGIN / SIGN-UP GATEWAY SCREEN
   // =========================================================================
+  // =========================================================================
+  // VIEW 1: AUTHENTICATION & LOGIN / SIGN-UP GATEWAY SCREEN
+  // =========================================================================
+  const isAutoDayAuth = new Date().getHours() >= 6 && new Date().getHours() < 19;
+  const isAuthDay = themeMode === "day" || (themeMode === "auto" && isAutoDayAuth);
+
+  const handleThemeToggle = (mode: "night" | "day" | "auto") => {
+    setThemeMode(mode);
+    try {
+      localStorage.setItem("civilization_theme_mode", mode);
+    } catch {}
+  };
+
   if (!isLoggedIn) {
     return (
-      <div className="min-h-screen w-screen bg-slate-950 text-slate-100 flex flex-col justify-between font-sans relative overflow-x-hidden selection:bg-amber-500 selection:text-slate-950">
-        
+      <div
+        className={`min-h-screen w-screen flex flex-col justify-between font-sans relative overflow-x-hidden transition-colors duration-500 selection:bg-amber-500 selection:text-slate-950 ${
+          isAuthDay
+            ? "bg-gradient-to-br from-amber-50/95 via-sky-50/70 to-slate-100/90 text-slate-900"
+            : "bg-slate-950 text-slate-100"
+        }`}
+      >
         {/* Background Ambient Glow */}
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-sky-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div
+          className={`absolute top-0 left-1/4 w-96 h-96 rounded-full blur-3xl pointer-events-none transition-all duration-700 ${
+            isAuthDay ? "bg-amber-400/20" : "bg-sky-500/10"
+          }`}
+        />
+        <div
+          className={`absolute bottom-0 right-1/4 w-96 h-96 rounded-full blur-3xl pointer-events-none transition-all duration-700 ${
+            isAuthDay ? "bg-sky-400/20" : "bg-amber-500/10"
+          }`}
+        />
 
-        {/* Top Live Ticker */}
-        <div className="w-full bg-slate-900/80 border-b border-slate-800/80 px-4 py-2 flex items-center gap-3 backdrop-blur-md">
-          <span className="bg-rose-600 text-white text-[9px] font-bold px-2 py-0.5 rounded shadow animate-pulse">
-            LIVE SYSTEM
-          </span>
-          <span className="text-xs text-slate-400 font-mono">
-            Autonomous AI Civilization Simulation • High-Resolution Satellite GIS & PMO
-          </span>
+        {/* Top Live Ticker & Theme Mode Switcher */}
+        <div
+          className={`w-full border-b px-4 py-2 flex flex-col sm:flex-row items-center justify-between gap-2.5 backdrop-blur-md transition-all ${
+            isAuthDay
+              ? "bg-white/80 border-slate-200/90 text-slate-700 shadow-sm"
+              : "bg-slate-900/80 border-slate-800/80 text-slate-400"
+          }`}
+        >
+          <div className="flex items-center gap-3">
+            <span className="bg-rose-600 text-white text-[9px] font-bold px-2 py-0.5 rounded shadow animate-pulse">
+              LIVE SYSTEM
+            </span>
+            <span
+              className={`text-xs font-mono ${
+                isAuthDay ? "text-slate-600 font-semibold" : "text-slate-400"
+              }`}
+            >
+              Autonomous AI Civilization Simulation • High-Resolution Satellite GIS & PMO
+            </span>
+          </div>
+
+          {/* Theme Mode Switcher (Day / Night / Auto) */}
+          <div
+            className={`flex items-center p-0.5 rounded-xl border text-xs shadow-inner transition-all ${
+              isAuthDay
+                ? "bg-slate-100 border-slate-300/80 text-slate-700"
+                : "bg-slate-900/90 border-slate-800 text-slate-300"
+            }`}
+          >
+            <button
+              type="button"
+              onClick={() => handleThemeToggle("day")}
+              className={`px-2.5 py-1 rounded-lg text-[11px] font-bold flex items-center gap-1.5 transition-all ${
+                themeMode === "day"
+                  ? "bg-amber-500 text-slate-950 shadow-sm"
+                  : isAuthDay
+                  ? "text-slate-600 hover:text-slate-950"
+                  : "text-slate-400 hover:text-white"
+              }`}
+            >
+              <span>☀️</span>
+              <span>DAY</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleThemeToggle("night")}
+              className={`px-2.5 py-1 rounded-lg text-[11px] font-bold flex items-center gap-1.5 transition-all ${
+                themeMode === "night"
+                  ? "bg-amber-500 text-slate-950 shadow-sm"
+                  : isAuthDay
+                  ? "text-slate-600 hover:text-slate-950"
+                  : "text-slate-400 hover:text-white"
+              }`}
+            >
+              <span>🌙</span>
+              <span>NIGHT</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleThemeToggle("auto")}
+              className={`px-2.5 py-1 rounded-lg text-[11px] font-bold flex items-center gap-1.5 transition-all ${
+                themeMode === "auto"
+                  ? "bg-amber-500 text-slate-950 shadow-sm"
+                  : isAuthDay
+                  ? "text-slate-600 hover:text-slate-950"
+                  : "text-slate-400 hover:text-white"
+              }`}
+            >
+              <span>🕒</span>
+              <span>AUTO</span>
+            </button>
+          </div>
         </div>
 
         {/* Center Glassmorphism Authentication Card */}
         <div className="flex-grow flex items-center justify-center p-4 z-10">
-          <div className="w-full max-w-lg bg-slate-900/70 border border-slate-800/90 rounded-2xl shadow-2xl backdrop-blur-xl p-6 md:p-8 flex flex-col gap-6">
-            
+          <div
+            className={`w-full max-w-lg rounded-2xl shadow-2xl backdrop-blur-xl p-6 md:p-8 flex flex-col gap-6 transition-all duration-500 ${
+              isAuthDay
+                ? "bg-white/90 border border-slate-200/90 shadow-sky-950/10 text-slate-900"
+                : "bg-slate-900/70 border border-slate-800/90 shadow-black/50 text-slate-100"
+            }`}
+          >
             {/* Header / Logo */}
             <div className="text-center flex flex-col items-center">
               <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-500 via-sky-500 to-indigo-500 flex items-center justify-center shadow-lg shadow-sky-500/20 mb-3">
                 <span className="text-2xl">🏛️</span>
               </div>
-              <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-200 to-amber-400 bg-clip-text text-transparent">
+              <h1
+                className={`text-2xl md:text-3xl font-extrabold tracking-tight ${
+                  isAuthDay
+                    ? "text-slate-900"
+                    : "bg-gradient-to-r from-white via-slate-200 to-amber-400 bg-clip-text text-transparent"
+                }`}
+              >
                 AI CIVILIZATION
               </h1>
-              <p className="text-xs text-slate-400 mt-1">
+              <p
+                className={`text-xs mt-1 ${
+                  isAuthDay ? "text-slate-600" : "text-slate-400"
+                }`}
+              >
                 Enter your Email or Phone number to join the living geolocated simulation.
               </p>
+
+              {/* Multi-Database Connection Status Badge */}
+              <div className="flex items-center justify-center gap-2 mt-2.5">
+                <span
+                  className={`inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-full font-medium shadow-sm border ${
+                    isAuthDay
+                      ? "bg-emerald-50 border-emerald-300 text-emerald-800"
+                      : "bg-emerald-950/80 border-emerald-500/40 text-emerald-300"
+                  }`}
+                >
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                  <span>MongoDB Atlas Connected</span>
+                  <span
+                    className={`text-[10px] ${
+                      isAuthDay ? "text-emerald-700" : "text-emerald-400/60"
+                    }`}
+                  >
+                    (auth • world • catalog)
+                  </span>
+                  {dbHealth?.latencyMs !== undefined && (
+                    <span
+                      className={`font-mono text-[10px] ${
+                        isAuthDay ? "text-emerald-700 font-bold" : "text-emerald-400/80"
+                      }`}
+                    >
+                      {dbHealth.latencyMs}ms
+                    </span>
+                  )}
+                </span>
+              </div>
             </div>
 
             {/* Tab Switcher: Sign In vs Sign Up */}
-            <div className="flex bg-slate-950 p-1 rounded-xl border border-slate-800/80">
+            <div
+              className={`flex p-1 rounded-xl border transition-all ${
+                isAuthDay
+                  ? "bg-slate-100 border-slate-200"
+                  : "bg-slate-950 border-slate-800/80"
+              }`}
+            >
               <button
                 type="button"
-                onClick={() => { setAuthTab("signin"); setAuthError(""); }}
+                onClick={() => {
+                  setAuthTab("signin");
+                  setAuthError("");
+                }}
                 className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${
                   authTab === "signin"
                     ? "bg-amber-500 text-slate-950 shadow-md"
+                    : isAuthDay
+                    ? "text-slate-600 hover:text-slate-900"
                     : "text-slate-400 hover:text-white"
                 }`}
               >
@@ -1935,10 +2341,15 @@ export default function CivilizationDashboard() {
               </button>
               <button
                 type="button"
-                onClick={() => { setAuthTab("signup"); setAuthError(""); }}
+                onClick={() => {
+                  setAuthTab("signup");
+                  setAuthError("");
+                }}
                 className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${
                   authTab === "signup"
                     ? "bg-amber-500 text-slate-950 shadow-md"
+                    : isAuthDay
+                    ? "text-slate-600 hover:text-slate-900"
                     : "text-slate-400 hover:text-white"
                 }`}
               >
@@ -1948,7 +2359,13 @@ export default function CivilizationDashboard() {
 
             {/* Notification / OTP Toast */}
             {otpNotice && (
-              <div className="bg-sky-950/60 border border-sky-500/50 text-sky-200 text-xs p-3 rounded-xl flex items-center justify-between gap-2 shadow-lg animate-fade-in">
+              <div
+                className={`text-xs p-3 rounded-xl flex items-center justify-between gap-2 shadow-lg animate-fade-in border ${
+                  isAuthDay
+                    ? "bg-sky-50 border-sky-300 text-sky-900"
+                    : "bg-sky-950/60 border-sky-500/50 text-sky-200"
+                }`}
+              >
                 <div className="flex items-center gap-2">
                   <span className="text-base">📱</span>
                   <span>{otpNotice}</span>
@@ -1965,7 +2382,13 @@ export default function CivilizationDashboard() {
 
             {/* Error Display */}
             {authError && (
-              <div className="bg-rose-950/40 border border-rose-500/40 text-rose-300 text-xs p-3 rounded-xl flex items-center gap-2">
+              <div
+                className={`text-xs p-3 rounded-xl flex items-center gap-2 border ${
+                  isAuthDay
+                    ? "bg-rose-50 border-rose-300 text-rose-800"
+                    : "bg-rose-950/40 border-rose-500/40 text-rose-300"
+                }`}
+              >
                 <span>⚠️</span>
                 <span>{authError}</span>
               </div>
@@ -1974,15 +2397,27 @@ export default function CivilizationDashboard() {
             {/* SIGN IN VIEW */}
             {authTab === "signin" && (
               <form onSubmit={handleAuthSubmit} className="flex flex-col gap-4">
-                
                 {/* Method Switcher: Password vs OTP */}
-                <div className="flex bg-slate-950 p-1 rounded-xl border border-slate-800/80 gap-1">
+                <div
+                  className={`flex p-1 rounded-xl border gap-1 transition-all ${
+                    isAuthDay
+                      ? "bg-slate-100 border-slate-200"
+                      : "bg-slate-950 border-slate-800/80"
+                  }`}
+                >
                   <button
                     type="button"
-                    onClick={() => { setAuthMethod("password"); setAuthError(""); }}
+                    onClick={() => {
+                      setAuthMethod("password");
+                      setAuthError("");
+                    }}
                     className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
                       authMethod === "password"
-                        ? "bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm"
+                        ? isAuthDay
+                          ? "bg-white text-amber-800 border border-amber-400/70 shadow-sm"
+                          : "bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm"
+                        : isAuthDay
+                        ? "text-slate-600 hover:text-slate-900"
                         : "text-slate-400 hover:text-white"
                     }`}
                   >
@@ -1991,10 +2426,17 @@ export default function CivilizationDashboard() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => { setAuthMethod("otp"); setAuthError(""); }}
+                    onClick={() => {
+                      setAuthMethod("otp");
+                      setAuthError("");
+                    }}
                     className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
                       authMethod === "otp"
-                        ? "bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm"
+                        ? isAuthDay
+                          ? "bg-white text-amber-800 border border-amber-400/70 shadow-sm"
+                          : "bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm"
+                        : isAuthDay
+                        ? "text-slate-600 hover:text-slate-900"
                         : "text-slate-400 hover:text-white"
                     }`}
                   >
@@ -2004,18 +2446,28 @@ export default function CivilizationDashboard() {
                 </div>
 
                 <div>
-                  <label className="text-xs font-semibold text-slate-300 mb-1.5 block">
+                  <label
+                    className={`text-xs font-semibold mb-1.5 block ${
+                      isAuthDay ? "text-slate-700" : "text-slate-300"
+                    }`}
+                  >
                     Email Address or Phone Number
                   </label>
                   <div className="relative">
-                    <span className="absolute left-3 top-2.5 text-slate-500 text-sm">✉️</span>
+                    <span className="absolute left-3 top-2.5 text-slate-400 text-sm">
+                      ✉️
+                    </span>
                     <input
                       type="text"
                       required
                       placeholder="e.g. citizen@gmail.com or +91 98765 43210"
                       value={authInput}
                       onChange={(e) => setAuthInput(e.target.value)}
-                      className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-amber-500 font-mono transition-all"
+                      className={`w-full border rounded-xl pl-9 pr-3 py-2.5 text-sm font-mono transition-all focus:outline-none focus:border-amber-500 ${
+                        isAuthDay
+                          ? "bg-slate-50 border-slate-300 text-slate-900 placeholder-slate-400 focus:bg-white focus:ring-2 focus:ring-amber-500/20"
+                          : "bg-slate-950 border-slate-800 text-white placeholder-slate-600"
+                      }`}
                     />
                   </div>
                 </div>
@@ -2024,25 +2476,45 @@ export default function CivilizationDashboard() {
                 {authMethod === "password" && (
                   <div className="flex flex-col gap-1.5">
                     <div className="flex justify-between items-center">
-                      <label className="text-xs font-semibold text-slate-300">
+                      <label
+                        className={`text-xs font-semibold ${
+                          isAuthDay ? "text-slate-700" : "text-slate-300"
+                        }`}
+                      >
                         Citizen Password
                       </label>
-                      <span className="text-[10px] text-slate-400 font-mono">Secure Cloud Storage</span>
+                      <span
+                        className={`text-[10px] font-mono ${
+                          isAuthDay ? "text-slate-500" : "text-slate-400"
+                        }`}
+                      >
+                        Secure MongoDB Auth
+                      </span>
                     </div>
                     <div className="relative">
-                      <span className="absolute left-3 top-2.5 text-slate-500 text-sm">🔒</span>
+                      <span className="absolute left-3 top-2.5 text-slate-400 text-sm">
+                        🔒
+                      </span>
                       <input
                         type={showPassword ? "text" : "password"}
                         required
                         placeholder="Enter your password"
                         value={authPassword}
                         onChange={(e) => setAuthPassword(e.target.value)}
-                        className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-16 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-amber-500 font-mono transition-all"
+                        className={`w-full border rounded-xl pl-9 pr-16 py-2.5 text-sm font-mono transition-all focus:outline-none focus:border-amber-500 ${
+                          isAuthDay
+                            ? "bg-slate-50 border-slate-300 text-slate-900 placeholder-slate-400 focus:bg-white focus:ring-2 focus:ring-amber-500/20"
+                            : "bg-slate-950 border-slate-800 text-white placeholder-slate-600"
+                        }`}
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-2.5 text-slate-400 hover:text-white text-xs font-mono"
+                        className={`absolute right-3 top-2.5 text-xs font-mono ${
+                          isAuthDay
+                            ? "text-slate-500 hover:text-slate-900"
+                            : "text-slate-400 hover:text-white"
+                        }`}
                       >
                         {showPassword ? "🙈 Hide" : "👁️ Show"}
                       </button>
@@ -2054,16 +2526,28 @@ export default function CivilizationDashboard() {
                 {authMethod === "otp" && (
                   <div className="flex flex-col gap-2">
                     <div className="flex justify-between items-center">
-                      <label className="text-xs font-semibold text-slate-300">
+                      <label
+                        className={`text-xs font-semibold ${
+                          isAuthDay ? "text-slate-700" : "text-slate-300"
+                        }`}
+                      >
                         6-Digit Email OTP
                       </label>
                       <button
                         type="button"
                         disabled={isSendingOtp}
                         onClick={handleSendOtp}
-                        className="text-amber-400 hover:text-amber-300 font-bold text-xs font-mono"
+                        className={`font-bold text-xs font-mono ${
+                          isAuthDay
+                            ? "text-amber-700 hover:text-amber-800"
+                            : "text-amber-400 hover:text-amber-300"
+                        }`}
                       >
-                        {isSendingOtp ? "Sending..." : generatedOtp ? "Resend Code" : "Send OTP to Email"}
+                        {isSendingOtp
+                          ? "Sending..."
+                          : generatedOtp
+                          ? "Resend Code"
+                          : "Send OTP to Email"}
                       </button>
                     </div>
                     <input
@@ -2072,17 +2556,25 @@ export default function CivilizationDashboard() {
                       placeholder="Enter 6-digit code"
                       value={enteredOtp}
                       onChange={(e) => setEnteredOtp(e.target.value)}
-                      className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2.5 text-base text-amber-400 placeholder-slate-600 focus:outline-none focus:border-amber-500 font-mono text-center tracking-widest font-extrabold"
+                      className={`w-full border rounded-xl px-3 py-2.5 text-base placeholder-slate-500 focus:outline-none focus:border-amber-500 font-mono text-center tracking-widest font-extrabold ${
+                        isAuthDay
+                          ? "bg-slate-50 border-slate-300 text-amber-700"
+                          : "bg-slate-900 border-slate-800 text-amber-400"
+                      }`}
                     />
                   </div>
                 )}
 
                 <button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-extrabold text-sm py-3 rounded-xl shadow-lg shadow-amber-500/20 transition-all active:scale-[0.99] mt-1 flex items-center justify-center gap-2"
+                  className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-extrabold text-sm py-3 rounded-xl shadow-lg shadow-amber-500/20 transition-all active:scale-[0.99] mt-1 flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <span>{authMethod === "password" ? "🔑" : "🚀"}</span>
-                  <span>{authMethod === "password" ? "LOG IN TO AI CIVILIZATION" : "VERIFY & ENTER"}</span>
+                  <span>
+                    {authMethod === "password"
+                      ? "LOG IN TO AI CIVILIZATION"
+                      : "VERIFY & ENTER"}
+                  </span>
                 </button>
               </form>
             )}
@@ -2090,35 +2582,58 @@ export default function CivilizationDashboard() {
             {/* CREATE CITIZEN ACCOUNT VIEW */}
             {authTab === "signup" && (
               <form onSubmit={handleAuthSubmit} className="flex flex-col gap-4">
-                
                 {/* 1. Contact Info */}
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold text-slate-300 block">
+                  <label
+                    className={`text-xs font-semibold block ${
+                      isAuthDay ? "text-slate-700" : "text-slate-300"
+                    }`}
+                  >
                     Email Address or Phone Number
                   </label>
                   <div className="relative">
-                    <span className="absolute left-3 top-2.5 text-slate-500 text-sm">✉️</span>
+                    <span className="absolute left-3 top-2.5 text-slate-400 text-sm">
+                      ✉️
+                    </span>
                     <input
                       type="text"
                       required
                       placeholder="e.g. pravin_patel@gmail.com or +91 98765 43210"
                       value={authInput}
                       onChange={(e) => setAuthInput(e.target.value)}
-                      className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-amber-500 font-mono transition-all"
+                      className={`w-full border rounded-xl pl-9 pr-3 py-2 text-sm font-mono transition-all focus:outline-none focus:border-amber-500 ${
+                        isAuthDay
+                          ? "bg-slate-50 border-slate-300 text-slate-900 placeholder-slate-400 focus:bg-white focus:ring-2 focus:ring-amber-500/20"
+                          : "bg-slate-950 border-slate-800 text-white placeholder-slate-600"
+                      }`}
                     />
                   </div>
                 </div>
 
                 {/* 1.5 Account Password Creation */}
-                <div className="bg-slate-950/60 border border-slate-800/80 p-3 rounded-xl flex flex-col gap-2">
+                <div
+                  className={`p-3 rounded-xl flex flex-col gap-2 border ${
+                    isAuthDay
+                      ? "bg-slate-50 border-slate-200 text-slate-800"
+                      : "bg-slate-950/60 border-slate-800/80 text-slate-200"
+                  }`}
+                >
                   <div className="flex justify-between items-center">
-                    <label className="text-xs font-semibold text-amber-400 flex items-center gap-1">
+                    <label
+                      className={`text-xs font-semibold flex items-center gap-1 ${
+                        isAuthDay ? "text-amber-700" : "text-amber-400"
+                      }`}
+                    >
                       <span>🔑</span> Create Account Password
                     </label>
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="text-slate-400 hover:text-white text-[10px] font-mono"
+                      className={`text-[10px] font-mono ${
+                        isAuthDay
+                          ? "text-slate-500 hover:text-slate-900"
+                          : "text-slate-400 hover:text-white"
+                      }`}
                     >
                       {showPassword ? "🙈 Hide" : "👁️ Show"}
                     </button>
@@ -2130,7 +2645,11 @@ export default function CivilizationDashboard() {
                       placeholder="Choose password (min 4 chars)"
                       value={authPassword}
                       onChange={(e) => setAuthPassword(e.target.value)}
-                      className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-amber-500 font-mono"
+                      className={`w-full border rounded-lg px-3 py-2 text-xs font-mono focus:outline-none focus:border-amber-500 ${
+                        isAuthDay
+                          ? "bg-white border-slate-300 text-slate-900 placeholder-slate-400"
+                          : "bg-slate-900 border-slate-800 text-white placeholder-slate-600"
+                      }`}
                     />
                     <input
                       type={showPassword ? "text" : "password"}
@@ -2138,7 +2657,11 @@ export default function CivilizationDashboard() {
                       placeholder="Confirm password"
                       value={confirmPasswordInput}
                       onChange={(e) => setConfirmPasswordInput(e.target.value)}
-                      className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-amber-500 font-mono"
+                      className={`w-full border rounded-lg px-3 py-2 text-xs font-mono focus:outline-none focus:border-amber-500 ${
+                        isAuthDay
+                          ? "bg-white border-slate-300 text-slate-900 placeholder-slate-400"
+                          : "bg-slate-900 border-slate-800 text-white placeholder-slate-600"
+                      }`}
                     />
                   </div>
                 </div>
@@ -2146,7 +2669,11 @@ export default function CivilizationDashboard() {
                 {/* 2. Citizen Name & Number of Members */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
-                    <label className="text-xs font-semibold text-slate-300 mb-1.5 block">
+                    <label
+                      className={`text-xs font-semibold mb-1.5 block ${
+                        isAuthDay ? "text-slate-700" : "text-slate-300"
+                      }`}
+                    >
                       Citizen Head Name
                     </label>
                     <input
@@ -2155,51 +2682,99 @@ export default function CivilizationDashboard() {
                       placeholder="e.g. Pravin Patel"
                       value={signupName}
                       onChange={(e) => setSignupName(e.target.value)}
-                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-amber-500 transition-all"
+                      className={`w-full border rounded-xl px-3 py-2 text-sm transition-all focus:outline-none focus:border-amber-500 ${
+                        isAuthDay
+                          ? "bg-slate-50 border-slate-300 text-slate-900 placeholder-slate-400 focus:bg-white"
+                          : "bg-slate-950 border-slate-800 text-white placeholder-slate-600"
+                      }`}
                     />
                   </div>
                   <div>
-                    <label className="text-xs font-semibold text-slate-300 mb-1.5 block">
+                    <label
+                      className={`text-xs font-semibold mb-1.5 block ${
+                        isAuthDay ? "text-slate-700" : "text-slate-300"
+                      }`}
+                    >
                       No. of Family Members in House
                     </label>
                     <select
                       value={signupMemberCount}
                       onChange={(e) => handleMemberCountChange(Number(e.target.value))}
-                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500 transition-all font-mono"
+                      className={`w-full border rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-amber-500 transition-all font-mono ${
+                        isAuthDay
+                          ? "bg-slate-50 border-slate-300 text-slate-900"
+                          : "bg-slate-950 border-slate-800 text-white"
+                      }`}
                     >
-                      {[1, 2, 3, 4, 5, 6, 7, 8].map(n => (
-                        <option key={n} value={n}>{n} {n === 1 ? "Person (Solo)" : "Members"}</option>
+                      {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
+                        <option key={n} value={n}>
+                          {n} {n === 1 ? "Person (Solo)" : "Members"}
+                        </option>
                       ))}
                     </select>
                   </div>
                 </div>
 
                 {/* 3. Dynamic Required Family Member Name Fields */}
-                <div className="bg-slate-950/60 border border-slate-800/80 p-3 rounded-xl flex flex-col gap-2">
+                <div
+                  className={`p-3 rounded-xl flex flex-col gap-2 border ${
+                    isAuthDay
+                      ? "bg-slate-50 border-slate-200"
+                      : "bg-slate-950/60 border-slate-800/80"
+                  }`}
+                >
                   <div className="flex justify-between items-center">
-                    <label className="text-xs font-semibold text-amber-400">
+                    <label
+                      className={`text-xs font-semibold ${
+                        isAuthDay ? "text-amber-700" : "text-amber-400"
+                      }`}
+                    >
                       Family Members List ({signupMemberCount} Required)
                     </label>
-                    <span className="text-[10px] text-slate-400 font-mono">All names required</span>
+                    <span
+                      className={`text-[10px] font-mono ${
+                        isAuthDay ? "text-slate-500" : "text-slate-400"
+                      }`}
+                    >
+                      All names required
+                    </span>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-1">
                     {Array.from({ length: signupMemberCount }).map((_, idx) => (
                       <div key={idx} className="flex flex-col gap-1">
-                        <label className="text-[10px] text-slate-400 font-mono">
-                          {idx === 0 ? "Member #1 (Household Head)" : `Member #${idx + 1}`}
+                        <label
+                          className={`text-[10px] font-mono ${
+                            isAuthDay ? "text-slate-500" : "text-slate-400"
+                          }`}
+                        >
+                          {idx === 0
+                            ? "Member #1 (Household Head)"
+                            : `Member #${idx + 1}`}
                         </label>
                         <input
                           type="text"
                           required
-                          placeholder={idx === 0 ? "e.g. Pravin Patel" : idx === 1 ? "e.g. Geeta Patel" : idx === 2 ? "e.g. Aarav Patel" : `Member #${idx + 1} Name`}
+                          placeholder={
+                            idx === 0
+                              ? "e.g. Pravin Patel"
+                              : idx === 1
+                              ? "e.g. Geeta Patel"
+                              : idx === 2
+                              ? "e.g. Aarav Patel"
+                              : `Member #${idx + 1} Name`
+                          }
                           value={signupMemberNames[idx] || ""}
                           onChange={(e) => {
                             const updated = [...signupMemberNames];
                             updated[idx] = e.target.value;
                             setSignupMemberNames(updated);
                           }}
-                          className="bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-amber-500 font-sans"
+                          className={`border rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:border-amber-500 font-sans ${
+                            isAuthDay
+                              ? "bg-white border-slate-300 text-slate-900 placeholder-slate-400"
+                              : "bg-slate-900 border-slate-800 text-white placeholder-slate-600"
+                          }`}
                         />
                       </div>
                     ))}
@@ -2207,59 +2782,113 @@ export default function CivilizationDashboard() {
                 </div>
 
                 {/* 4. Home Address & Interactive Satellite Map Picker */}
-                <div className="bg-slate-950/60 border border-slate-800/80 p-3 rounded-xl flex flex-col gap-2.5">
+                <div
+                  className={`p-3 rounded-xl flex flex-col gap-2.5 border ${
+                    isAuthDay
+                      ? "bg-slate-50 border-slate-200"
+                      : "bg-slate-950/60 border-slate-800/80"
+                  }`}
+                >
                   <div className="flex justify-between items-center">
-                    <label className="text-xs font-semibold text-slate-300 block">
+                    <label
+                      className={`text-xs font-semibold block ${
+                        isAuthDay ? "text-slate-700" : "text-slate-300"
+                      }`}
+                    >
                       Home Address & Interactive Satellite Map
                     </label>
-                    <span className="text-[10px] text-amber-400 font-mono">📍 Click Map to Pick House</span>
+                    <span
+                      className={`text-[10px] font-mono ${
+                        isAuthDay ? "text-amber-700 font-bold" : "text-amber-400"
+                      }`}
+                    >
+                      📍 Click Map to Pick House
+                    </span>
                   </div>
-                  
+
                   <input
                     type="text"
-                    placeholder="Enter street address or area (e.g. Nandarkha, Bilimora or Sayaji Road, Navsari)"
+                    placeholder="Enter street address or area (e.g. Sayaji Road, Navsari or Nandarkha)"
                     value={signupAddress}
                     onChange={(e) => setSignupAddress(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-amber-500 font-mono"
+                    className={`w-full border rounded-lg px-3 py-1.5 text-xs font-mono focus:outline-none focus:border-amber-500 ${
+                      isAuthDay
+                        ? "bg-white border-slate-300 text-slate-900 placeholder-slate-400"
+                        : "bg-slate-900 border-slate-800 text-white placeholder-slate-600"
+                    }`}
                   />
 
                   {/* City search bar */}
                   <div className="flex gap-2 items-center">
                     <div className="relative flex-grow">
-                      <span className="absolute left-2.5 top-1.5 text-slate-500 text-xs">🔍</span>
+                      <span className="absolute left-2.5 top-1.5 text-slate-400 text-xs">
+                        🔍
+                      </span>
                       <input
                         type="text"
-                        placeholder="Search City/Village (e.g. Nandarkha Bilimora, Navsari, Surat...)"
+                        placeholder="Search City/Village (e.g. Nandarkha, Navsari, Surat...)"
                         value={signupCityQuery}
                         onChange={(e) => setSignupCityQuery(e.target.value)}
-                        className="w-full bg-slate-900 border border-slate-800 rounded-lg pl-7 pr-2 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 font-mono"
+                        className={`w-full border rounded-lg pl-7 pr-2 py-1.5 text-xs font-mono focus:outline-none focus:border-amber-500 ${
+                          isAuthDay
+                            ? "bg-white border-slate-300 text-slate-900 placeholder-slate-400"
+                            : "bg-slate-900 border-slate-800 text-white placeholder-slate-500"
+                        }`}
                       />
                     </div>
                     <button
                       type="button"
                       disabled={signupIsSearching}
                       onClick={handleSignupCitySearch}
-                      className="bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-xs px-3 py-1.5 rounded-lg transition-all"
+                      className="bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-xs px-3 py-1.5 rounded-lg transition-all cursor-pointer"
                     >
                       {signupIsSearching ? "..." : "SEARCH MAP"}
                     </button>
                   </div>
 
                   {/* Interactive Satellite Mini-Map for Home Location */}
-                  <div className="w-full h-48 bg-slate-950 rounded-xl overflow-hidden border border-slate-800 relative shadow-inner">
+                  <div
+                    className={`w-full h-48 rounded-xl overflow-hidden border relative shadow-inner ${
+                      isAuthDay ? "bg-slate-200 border-slate-300" : "bg-slate-950 border-slate-800"
+                    }`}
+                  >
                     <div ref={signupMapContainerRef} className="w-full h-full" />
-                    <div className="absolute top-2 right-2 z-[400] bg-slate-950/85 backdrop-blur-md px-2.5 py-1 rounded-md text-[10px] text-amber-400 border border-amber-500/30 font-mono shadow">
+                    <div
+                      className={`absolute top-2 right-2 z-[400] backdrop-blur-md px-2.5 py-1 rounded-md text-[10px] border font-mono shadow ${
+                        isAuthDay
+                          ? "bg-white/90 text-amber-800 border-amber-300"
+                          : "bg-slate-950/85 text-amber-400 border-amber-500/30"
+                      }`}
+                    >
                       👆 Click anywhere on satellite map to place house
                     </div>
                   </div>
 
                   {/* Selected Geolocation Badge */}
-                  <div className="bg-slate-900/90 border border-slate-800 p-2 rounded-lg flex items-center justify-between text-[11px]">
+                  <div
+                    className={`border p-2 rounded-lg flex items-center justify-between text-[11px] ${
+                      isAuthDay
+                        ? "bg-white border-slate-200"
+                        : "bg-slate-900/90 border-slate-800"
+                    }`}
+                  >
                     <div>
-                      <span className="text-amber-400 font-semibold block">📍 {signupCityName}</span>
-                      <span className="text-slate-400 font-mono text-[10px]">Exact Coordinates: [{signupCoords[0].toFixed(6)}, {signupCoords[1].toFixed(6)}]</span>
+                      <span
+                        className={`font-semibold block ${
+                          isAuthDay ? "text-amber-700" : "text-amber-400"
+                        }`}
+                      >
+                        📍 {signupCityName}
+                      </span>
+                      <span
+                        className={`font-mono text-[10px] ${
+                          isAuthDay ? "text-slate-500" : "text-slate-400"
+                        }`}
+                      >
+                        Exact Coordinates: [{signupCoords[0].toFixed(6)}, {signupCoords[1].toFixed(6)}]
+                      </span>
                     </div>
-                    <span className="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded font-mono font-bold">
+                    <span className="text-[10px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded font-mono font-bold">
                       PINPOINT SET ✓
                     </span>
                   </div>
@@ -2267,21 +2896,25 @@ export default function CivilizationDashboard() {
 
                 <button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-extrabold text-sm py-2.5 rounded-xl shadow-lg shadow-amber-500/20 transition-all active:scale-[0.99] mt-1"
+                  className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-extrabold text-sm py-2.5 rounded-xl shadow-lg shadow-amber-500/20 transition-all active:scale-[0.99] mt-1 cursor-pointer"
                 >
                   CREATE CITIZEN ACCOUNT & ENTER
                 </button>
               </form>
             )}
-
           </div>
         </div>
 
         {/* Footer */}
-        <footer className="text-center text-[10px] text-slate-500 py-3 border-t border-slate-900 font-mono">
+        <footer
+          className={`text-center text-[10px] py-3 border-t font-mono transition-colors ${
+            isAuthDay
+              ? "border-slate-200 text-slate-500 bg-white/40"
+              : "border-slate-900 text-slate-500 bg-slate-950/40"
+          }`}
+        >
           AI Civilization Simulator • 100% Pure TypeScript & High-Resolution Satellite GIS
         </footer>
-
       </div>
     );
   }
@@ -2299,32 +2932,32 @@ export default function CivilizationDashboard() {
   };
 
   return (
-    <div className={`h-screen w-screen overflow-hidden flex flex-col transition-colors duration-700 font-sans ${
+    <div className={`min-h-screen w-full max-w-full overflow-x-hidden flex flex-col transition-colors duration-700 font-sans ${
       isDayMode
         ? "bg-gradient-to-br from-amber-50/95 via-orange-50/80 to-amber-100/90 text-slate-900"
         : "bg-slate-950 text-slate-200"
-    } p-3 md:p-4`}>
+    } p-2 sm:p-3 md:p-4`}>
       
       {/* Header bar */}
-      <header className={`flex-none border-b ${isDayMode ? "border-amber-200/90 bg-white/70 shadow-sm" : "border-slate-800 bg-slate-950/60"} p-2.5 rounded-2xl pb-2 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-2.5 mb-2 backdrop-blur-md transition-all`}>
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 to-sky-500 flex items-center justify-center shadow">
-            <span className="text-base">🏛️</span>
+      <header className={`flex-none border-b ${isDayMode ? "border-amber-200/90 bg-white/80 shadow-sm" : "border-slate-800 bg-slate-950/70"} p-2.5 sm:p-3.5 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2.5 mb-2 backdrop-blur-md transition-all`}>
+        <div className="flex items-center gap-2.5 sm:gap-3">
+          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-tr from-amber-500 to-sky-500 flex items-center justify-center shadow shrink-0">
+            <span className="text-sm sm:text-base">🏛️</span>
           </div>
           <div>
-            <h1 className={`text-lg md:text-xl font-extrabold tracking-tight ${isDayMode ? "text-slate-900" : "text-white bg-gradient-to-r from-white via-slate-100 to-amber-500 bg-clip-text text-transparent"}`}>
+            <h1 className={`text-base sm:text-lg md:text-xl font-extrabold tracking-tight ${isDayMode ? "text-slate-900" : "text-white bg-gradient-to-r from-white via-slate-100 to-amber-500 bg-clip-text text-transparent"}`}>
               AI CIVILIZATION PANEL
             </h1>
-            <p className={`text-[10px] font-mono ${isDayMode ? "text-slate-600" : "text-slate-400"}`}>
-              Geolocated Satellite GIS Map &bull; PMO Cabinet &amp; Autonomous City Simulation
+            <p className={`text-[9.5px] sm:text-[10.5px] font-mono ${isDayMode ? "text-slate-600" : "text-slate-400"} truncate max-w-[280px] sm:max-w-none`}>
+              Geolocated Satellite GIS Map &bull; PMO Cabinet &amp; Autonomous Simulation
             </p>
           </div>
         </div>
         
         {/* Aesthetic Controls: Day/Night Theme, Sound FX & Ambient Tunes */}
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-1.5 flex-wrap">
           {/* Day / Night Theme Switcher */}
-          <div className={`flex items-center ${isDayMode ? "bg-amber-100/80 border-amber-300/80" : "bg-slate-900/90 border-slate-800"} p-1 rounded-xl border text-xs shadow-inner`}>
+          <div className={`flex items-center ${isDayMode ? "bg-amber-100/80 border-amber-300/80" : "bg-slate-900/90 border-slate-800"} p-0.5 sm:p-1 rounded-xl border text-xs shadow-inner`}>
             <button
               type="button"
               onClick={() => {
@@ -2365,7 +2998,7 @@ export default function CivilizationDashboard() {
                 soundEngine.playClick(650);
                 setThemeMode("auto");
               }}
-              className={`px-2 py-1 rounded-lg text-[10px] font-mono transition-all ${
+              className={`px-1.5 sm:px-2 py-1 rounded-lg text-[10px] font-mono transition-all ${
                 themeMode === "auto"
                   ? "bg-slate-800 text-amber-300 font-bold border border-slate-700"
                   : isDayMode ? "text-slate-500 hover:text-slate-800" : "text-slate-500 hover:text-slate-300"
@@ -2384,7 +3017,7 @@ export default function CivilizationDashboard() {
               setIsSoundMuted(muted);
               if (!muted) soundEngine.playClick(800);
             }}
-            className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all border flex items-center gap-1 shadow-sm ${
+            className={`px-2 py-1.5 sm:px-2.5 rounded-xl text-xs font-bold transition-all border flex items-center gap-1 shadow-sm active:scale-95 ${
               isSoundMuted
                 ? isDayMode ? "bg-amber-100 text-slate-500 border-amber-300" : "bg-slate-900 text-slate-500 border-slate-800"
                 : isDayMode ? "bg-emerald-100 text-emerald-800 border-emerald-300" : "bg-emerald-500/20 text-emerald-300 border-emerald-500/40 hover:bg-emerald-500/30"
@@ -2392,7 +3025,7 @@ export default function CivilizationDashboard() {
             title="Toggle UI Click Sound Effects"
           >
             <span>{isSoundMuted ? "🔇" : "🔊"}</span>
-            <span className="hidden sm:inline">{isSoundMuted ? "Muted" : "Clicks: ON"}</span>
+            <span className="hidden md:inline">{isSoundMuted ? "Muted" : "Clicks: ON"}</span>
           </button>
 
           {/* Soft Ambient Tunes Toggle */}
@@ -2403,7 +3036,7 @@ export default function CivilizationDashboard() {
               const active = soundEngine.toggleMusic();
               setIsMusicActive(active);
             }}
-            className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all border flex items-center gap-1.5 shadow-sm ${
+            className={`px-2 py-1.5 sm:px-2.5 rounded-xl text-xs font-bold transition-all border flex items-center gap-1 shadow-sm active:scale-95 ${
               isMusicActive
                 ? "bg-gradient-to-r from-purple-500/40 to-pink-500/40 text-purple-100 border-purple-400 shadow-purple-500/30 animate-pulse font-extrabold"
                 : isDayMode ? "bg-amber-100 text-slate-700 border-amber-300 hover:bg-amber-200" : "bg-slate-900 text-slate-400 border-slate-800 hover:text-white"
@@ -2411,16 +3044,16 @@ export default function CivilizationDashboard() {
             title="Toggle Soft Generative Ambient Background Music"
           >
             <span>🎵</span>
-            <span>{isMusicActive ? "Tunes: Playing ✨" : "Cozy Tunes"}</span>
+            <span className="text-[11px] sm:text-xs">{isMusicActive ? "Tunes ✨" : "Tunes"}</span>
           </button>
 
           {/* Active User Badge & Sign Out Button */}
-          <div className={`flex items-center gap-2 ${isDayMode ? "bg-white/90 border-amber-300/80" : "bg-slate-900/80 border-slate-800"} p-1.5 rounded-xl border`}>
-            <div className="flex items-center gap-1.5 px-1.5">
-              <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${isAdmin ? "bg-amber-500/10 text-amber-500 border border-amber-500/30 font-extrabold" : "bg-sky-500/10 text-sky-500 border border-sky-500/30"}`}>
-                {isAdmin ? "👑 PMO ADMIN" : "👤 CITIZEN"}
+          <div className={`flex items-center gap-1.5 ${isDayMode ? "bg-white/90 border-amber-300/80" : "bg-slate-900/80 border-slate-800"} p-1 rounded-xl border`}>
+            <div className="flex items-center gap-1 px-1">
+              <span className={`text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded ${isAdmin ? "bg-amber-500/10 text-amber-500 border border-amber-500/30 font-extrabold" : "bg-sky-500/10 text-sky-500 border border-sky-500/30"}`}>
+                {isAdmin ? "👑 ADMIN" : "👤 USER"}
               </span>
-              <span className={`text-xs font-mono truncate max-w-[120px] ${isDayMode ? "text-slate-800 font-bold" : "text-slate-300"}`}>
+              <span className={`text-[11px] sm:text-xs font-mono truncate max-w-[70px] sm:max-w-[120px] ${isDayMode ? "text-slate-800 font-bold" : "text-slate-300"}`}>
                 {userId}
               </span>
             </div>
@@ -2431,9 +3064,9 @@ export default function CivilizationDashboard() {
                 soundEngine.playClick(500);
                 handleLogout();
               }}
-              className={`${isDayMode ? "bg-slate-200 hover:bg-slate-300 text-slate-800" : "bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white"} font-bold text-[10px] px-2.5 py-1 rounded-lg border border-slate-700 transition-all`}
+              className={`${isDayMode ? "bg-slate-200 hover:bg-slate-300 text-slate-800" : "bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white"} font-bold text-[9.5px] sm:text-[10px] px-2 py-1 rounded-lg border border-slate-700 transition-all active:scale-95`}
             >
-              SIGN OUT
+              LOGOUT
             </button>
           </div>
         </div>
@@ -2483,30 +3116,30 @@ export default function CivilizationDashboard() {
           {/* Top Simulation Time, Speed Warp Controls & Statistics Bar */}
           <section className="flex-none flex flex-col gap-2 mb-2.5">
             {/* Top Control Strip: Clock, Speeds & Quick Launchers */}
-            <div className={`${isDayMode ? "bg-white/85 border-amber-250 shadow-sm" : "bg-slate-900/70 border-slate-800 shadow-lg"} border rounded-2xl p-2.5 flex flex-wrap items-center justify-between gap-2.5`}>
+            <div className={`${isDayMode ? "bg-white/85 border-amber-250 shadow-sm" : "bg-slate-900/70 border-slate-800 shadow-lg"} border rounded-2xl p-2 sm:p-2.5 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-2.5`}>
               
               {/* 24-Hour Indian Standard Time Display */}
-              <div className={`flex items-center gap-3 ${isDayMode ? "bg-amber-50/90 border-amber-300/80" : "bg-slate-950/80 border-slate-800"} px-3 py-1.5 rounded-xl border`}>
-                <div className="w-7 h-7 rounded-lg bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-sm animate-pulse">
+              <div className={`flex items-center justify-between sm:justify-start gap-2.5 sm:gap-3 ${isDayMode ? "bg-amber-50/90 border-amber-300/80" : "bg-slate-950/80 border-slate-800"} px-2.5 sm:px-3 py-1.5 rounded-xl border flex-none`}>
+                <div className="w-7 h-7 rounded-lg bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-sm animate-pulse shrink-0">
                   ⏰
                 </div>
                 <div>
                   <div className="flex items-center gap-1.5">
                     <span className={`${isDayMode ? "text-slate-900" : "text-white"} font-mono font-bold text-xs tracking-wide`}>{status.clock?.formatted || "Day 1 • 08:00 hrs (IST)"}</span>
-                    <span className={`text-[9px] ${isDayMode ? "bg-amber-200 text-amber-950 border-amber-400" : "bg-amber-500/10 text-amber-300 border-amber-500/20"} px-1.5 py-0.5 rounded font-mono font-extrabold border`}>
+                    <span className={`text-[8.5px] sm:text-[9px] ${isDayMode ? "bg-amber-200 text-amber-950 border-amber-400" : "bg-amber-500/10 text-amber-300 border-amber-500/20"} px-1.5 py-0.5 rounded font-mono font-extrabold border`}>
                       {status.clock?.is_night ? "🌙 NIGHT" : "☀️ DAY"}
                     </span>
                   </div>
-                  <div className={`flex items-center gap-2 text-[10px] ${isDayMode ? "text-slate-600" : "text-slate-400"} font-mono`}>
+                  <div className={`flex items-center gap-1.5 sm:gap-2 text-[9.5px] sm:text-[10px] ${isDayMode ? "text-slate-600" : "text-slate-400"} font-mono`}>
                     <span>📅 {status.clock?.indian_date || "01/01/2026"}</span>
                     <span>•</span>
-                    <span className={isDayMode ? "text-slate-500 font-semibold" : "text-slate-500"}>1 hr = 1 min • 1 day = 24 min</span>
+                    <span className={isDayMode ? "text-slate-500 font-semibold" : "text-slate-500"}>1 hr = 1 min</span>
                   </div>
                 </div>
               </div>
 
               {/* Multi-Speed Simulation Controls (Play / Pause / 1x / 10x / 60x / 1000x / Custom) */}
-              <div className={`flex items-center gap-1.5 ${isDayMode ? "bg-amber-50/80 border-amber-200" : "bg-slate-950/80 border-slate-800"} p-1 rounded-xl border flex-wrap`}>
+              <div className={`flex items-center gap-1 sm:gap-1.5 ${isDayMode ? "bg-amber-50/80 border-amber-200" : "bg-slate-950/80 border-slate-800"} p-1 rounded-xl border overflow-x-auto no-scrollbar touch-pan-x flex-nowrap sm:flex-wrap`}>
                 {/* Play / Pause */}
                 <button
                   type="button"
@@ -2525,7 +3158,7 @@ export default function CivilizationDashboard() {
                       })
                     }).then(() => fetchStatus()).catch(() => {});
                   }}
-                  className={`px-3 py-1 rounded-lg text-xs font-extrabold transition-all flex items-center gap-1 border ${isPaused ? "bg-rose-500/20 text-rose-400 border-rose-500/40 animate-pulse" : "bg-emerald-500/20 text-emerald-400 border-emerald-500/40"}`}
+                  className={`px-2.5 sm:px-3 py-1 rounded-lg text-xs font-extrabold transition-all flex items-center gap-1 shrink-0 border active:scale-95 ${isPaused ? "bg-rose-500/20 text-rose-400 border-rose-500/40 animate-pulse" : "bg-emerald-500/20 text-emerald-400 border-emerald-500/40"}`}
                   title={isPaused ? "Resume Simulation" : "Pause Simulation"}
                 >
                   <span>{isPaused ? "▶ PLAY" : "⏸ PAUSE"}</span>
@@ -2557,7 +3190,7 @@ export default function CivilizationDashboard() {
                         })
                       }).then(() => fetchStatus()).catch(() => {});
                     }}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition-all border ${simSpeed === s.val && !showCustomSpeedInput && !isPaused ? "bg-amber-500 text-slate-950 border-amber-400 shadow-md font-extrabold" : isDayMode ? "bg-white text-slate-700 border-amber-200 hover:bg-amber-100" : "bg-slate-900 text-slate-400 border-slate-800 hover:text-white hover:border-slate-700"}`}
+                    className={`px-2 sm:px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition-all shrink-0 border active:scale-95 ${simSpeed === s.val && !showCustomSpeedInput && !isPaused ? "bg-amber-500 text-slate-950 border-amber-400 shadow-md font-extrabold" : isDayMode ? "bg-white text-slate-700 border-amber-200 hover:bg-amber-100" : "bg-slate-900 text-slate-400 border-slate-800 hover:text-white hover:border-slate-700"}`}
                     title={s.hint}
                   >
                     {s.label}
@@ -2571,14 +3204,14 @@ export default function CivilizationDashboard() {
                     soundEngine.playClick(650);
                     setShowCustomSpeedInput(!showCustomSpeedInput);
                   }}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition-all border ${showCustomSpeedInput ? "bg-sky-500 text-slate-950 border-sky-400 shadow-md" : isDayMode ? "bg-white text-slate-700 border-amber-200 hover:bg-amber-100" : "bg-slate-900 text-slate-400 border-slate-800 hover:text-white"}`}
+                  className={`px-2 sm:px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition-all shrink-0 border active:scale-95 ${showCustomSpeedInput ? "bg-sky-500 text-slate-950 border-sky-400 shadow-md" : isDayMode ? "bg-white text-slate-700 border-amber-200 hover:bg-amber-100" : "bg-slate-900 text-slate-400 border-slate-800 hover:text-white"}`}
                   title="Custom Simulation Speed Multiplier"
                 >
-                  Custom ⚙️
+                  ⚙️
                 </button>
 
                 {showCustomSpeedInput && (
-                  <div className="flex items-center gap-1 pl-1">
+                  <div className="flex items-center gap-1 pl-1 shrink-0">
                     <input
                       type="number"
                       min="1"
@@ -2617,17 +3250,18 @@ export default function CivilizationDashboard() {
               </div>
 
               {/* Master Inventory & Resource Window Launcher */}
-              <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar touch-pan-x flex-nowrap sm:flex-wrap pb-0.5">
                 <button
                   type="button"
                   onClick={() => {
                     soundEngine.playClick(800);
                     setMasterInventoryModalOpen(true);
                   }}
-                  className={`bg-gradient-to-r from-emerald-500/20 to-teal-500/20 hover:from-emerald-500/30 hover:to-teal-500/30 ${isDayMode ? "text-emerald-800 border-emerald-400/60 bg-emerald-50" : "text-emerald-300 border-emerald-500/40"} border px-3 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 shadow-sm transition-all active:scale-95`}
+                  className={`bg-gradient-to-r from-emerald-500/20 to-teal-500/20 hover:from-emerald-500/30 hover:to-teal-500/30 ${isDayMode ? "text-emerald-800 border-emerald-400/60 bg-emerald-50" : "text-emerald-300 border-emerald-500/40"} border px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 shadow-sm transition-all active:scale-95 shrink-0`}
                 >
                   <span>📦</span>
-                  <span>MASTER INVENTORY &amp; RESOURCES</span>
+                  <span className="hidden sm:inline">MASTER INVENTORY</span>
+                  <span className="sm:hidden">INVENTORY</span>
                   <span className={`${isDayMode ? "bg-emerald-200 text-emerald-900" : "bg-emerald-500/30 text-emerald-200"} text-[10px] px-1.5 py-0.5 rounded-md font-mono font-bold`}>
                     {((Object.values(status.farm_barn || {}) as any[]).reduce((a: number, b: any) => a + Number(b || 0), 0)) + (Array.isArray(status.inventory) ? status.inventory.length : 0)}
                   </span>
@@ -2641,10 +3275,11 @@ export default function CivilizationDashboard() {
                         soundEngine.playClick(800);
                         setShowAdminCensusModal(true);
                       }}
-                      className={`bg-gradient-to-r from-amber-500/20 to-orange-500/20 hover:from-amber-500/30 hover:to-orange-500/30 ${isDayMode ? "text-amber-900 border-amber-400/60 bg-amber-50" : "text-amber-300 border-amber-500/40"} border px-3 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 shadow-sm transition-all active:scale-95`}
+                      className={`bg-gradient-to-r from-amber-500/20 to-orange-500/20 hover:from-amber-500/30 hover:to-orange-500/30 ${isDayMode ? "text-amber-900 border-amber-400/60 bg-amber-50" : "text-amber-300 border-amber-500/40"} border px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 shadow-sm transition-all active:scale-95 shrink-0`}
                     >
                       <span>👥</span>
-                      <span>ALL REGISTERED CITIZENS</span>
+                      <span className="hidden sm:inline">ALL CITIZENS</span>
+                      <span className="sm:hidden">CITIZENS</span>
                       <span className={`${isDayMode ? "bg-amber-200 text-amber-950 font-black" : "bg-amber-500/30 text-amber-200 font-bold"} text-[10px] px-1.5 py-0.5 rounded-md font-mono`}>
                         {registeredUsers.length}
                       </span>
@@ -2653,10 +3288,11 @@ export default function CivilizationDashboard() {
                     <button
                       type="button"
                       onClick={() => switchTab("people")}
-                      className={`bg-gradient-to-r from-sky-500/20 to-indigo-500/20 hover:from-sky-500/30 hover:to-indigo-500/30 ${isDayMode ? "text-sky-900 border-sky-400/60 bg-sky-50" : "text-sky-300 border-sky-500/40"} border px-3 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 shadow-sm transition-all active:scale-95`}
+                      className={`bg-gradient-to-r from-sky-500/20 to-indigo-500/20 hover:from-sky-500/30 hover:to-indigo-500/30 ${isDayMode ? "text-sky-900 border-sky-400/60 bg-sky-50" : "text-sky-300 border-sky-500/40"} border px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 shadow-sm transition-all active:scale-95 shrink-0`}
                     >
                       <span>🏠</span>
-                      <span>7 HOUSES &amp; ROOMS</span>
+                      <span className="hidden sm:inline">7 HOUSES &amp; ROOMS</span>
+                      <span className="sm:hidden">HOUSES</span>
                       <span className={`${isDayMode ? "bg-sky-200 text-sky-950 font-black" : "bg-sky-500/30 text-sky-200 font-bold"} text-[10px] px-1.5 py-0.5 rounded-md font-mono`}>
                         {status.families?.length || 7}
                       </span>
@@ -2664,8 +3300,8 @@ export default function CivilizationDashboard() {
                   </>
                 )}
 
-                <div className={`flex items-center gap-2 ${isDayMode ? "bg-white border-amber-300 text-slate-800" : "bg-slate-950/80 border-slate-800 text-slate-300"} px-2.5 py-1.5 rounded-xl border text-xs font-mono shadow-sm`}>
-                  <span className={`${isDayMode ? "text-slate-600" : "text-slate-400"} text-[10px] font-bold`}>Treasury:</span>
+                <div className={`flex items-center gap-1.5 sm:gap-2 ${isDayMode ? "bg-white border-amber-300 text-slate-800" : "bg-slate-950/80 border-slate-800 text-slate-300"} px-2 py-1.5 rounded-xl border text-xs font-mono shadow-sm shrink-0`}>
+                  <span className={`${isDayMode ? "text-slate-600" : "text-slate-400"} text-[9.5px] sm:text-[10px] font-bold`}>Treasury:</span>
                   <span className="font-extrabold text-amber-500">${status.city_treasury?.toLocaleString() || "0"}</span>
                 </div>
               </div>
@@ -2674,28 +3310,40 @@ export default function CivilizationDashboard() {
           </section>
 
           {/* Navigation tabs */}
-          <nav className={`flex-none flex gap-1.5 overflow-x-auto border-b ${isDayMode ? "border-amber-200/90" : "border-slate-800/60"} pb-2 mb-2.5 text-xs`}>
-            <button className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-all ${activeTab === "overview" ? "bg-amber-500 text-slate-950 font-bold border border-amber-400 shadow-md" : isDayMode ? "text-slate-700 hover:text-slate-950 border border-amber-200 bg-white/70 shadow-sm" : "text-slate-300 hover:text-white border border-slate-800 bg-slate-900/60"}`} onClick={() => switchTab("overview")}>
+          <nav className={`flex-none flex gap-1.5 overflow-x-auto no-scrollbar touch-pan-x border-b ${isDayMode ? "border-amber-200/90" : "border-slate-800/60"} pb-2 mb-2.5 text-xs select-none scroll-smooth w-full max-w-full px-0.5`}>
+            <button className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-all shrink-0 flex items-center gap-1.5 ${activeTab === "overview" ? "bg-amber-500 text-slate-950 font-bold border border-amber-400 shadow-md" : isDayMode ? "text-slate-700 hover:text-slate-950 border border-amber-200 bg-white/70 shadow-sm" : "text-slate-300 hover:text-white border border-slate-800 bg-slate-900/60"}`} onClick={() => switchTab("overview")}>
               <span>🏠</span> FAMILY &amp; ROOMS ({status.families?.length || 7})
             </button>
-            <button className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-all flex items-center gap-1.5 ${activeTab === "people" ? "bg-amber-500 text-slate-950 font-bold border border-amber-400 shadow-md" : isDayMode ? "text-slate-700 hover:text-slate-950 border border-amber-200 bg-white/70 shadow-sm" : "text-slate-300 hover:text-white border border-slate-800 bg-slate-900/60"}`} onClick={() => switchTab("people")}>
+            <button className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-all shrink-0 flex items-center gap-1.5 ${activeTab === "people" ? "bg-amber-500 text-slate-950 font-bold border border-amber-400 shadow-md" : isDayMode ? "text-slate-700 hover:text-slate-950 border border-amber-200 bg-white/70 shadow-sm" : "text-slate-300 hover:text-white border border-slate-800 bg-slate-900/60"}`} onClick={() => switchTab("people")}>
               <span>🔍</span>
-              <span>SEARCH PEOPLE ({status.families?.reduce((a: number, f: any) => a + (f.members?.length || 0), 0) || 22}+ CITIZENS)</span>
+              <span>
+                SEARCH PEOPLE (
+                {status.families?.reduce(
+                  (a: number, f: any) => a + (f.members?.length || 0),
+                  0
+                ) ||
+                  registeredUsers.reduce(
+                    (a: number, u: any) => a + (u.members?.length || 0),
+                    0
+                  ) ||
+                  listAllAdults.length}{" "}
+                CITIZENS)
+              </span>
             </button>
-            <button className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-all ${activeTab === "projects" ? "bg-amber-500/10 text-amber-500 border border-amber-500/30 font-bold" : isDayMode ? "text-slate-600 hover:text-slate-900" : "text-slate-400 hover:text-white"}`} onClick={() => switchTab("projects")}>CITY PROJECTS</button>
-            <button className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-all ${activeTab === "government" ? "bg-amber-500/10 text-amber-500 border border-amber-500/30 font-bold" : isDayMode ? "text-slate-600 hover:text-slate-900" : "text-slate-400 hover:text-white"}`} onClick={() => switchTab("government")}>GOVERNMENT CABINET</button>
-            <button className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-all ${activeTab === "farming" ? "bg-amber-500/10 text-amber-500 border border-amber-500/30 font-bold" : isDayMode ? "text-slate-600 hover:text-slate-900" : "text-slate-400 hover:text-white"}`} onClick={() => switchTab("farming")}>FARMS &amp; CROPS</button>
-            <button className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-all ${activeTab === "inventory" ? "bg-amber-500/10 text-amber-500 border border-amber-500/30 font-bold" : isDayMode ? "text-slate-600 hover:text-slate-900" : "text-slate-400 hover:text-white"}`} onClick={() => switchTab("inventory")}>PERSONAL INVENTORY</button>
-            <button className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-all ${activeTab === "market" ? "bg-amber-500/10 text-amber-500 border border-amber-500/30 font-bold" : isDayMode ? "text-slate-600 hover:text-slate-900" : "text-slate-400 hover:text-white"}`} onClick={() => switchTab("market")}>TOWN MARKETS</button>
-            <button className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-all ${activeTab === "industries" ? "bg-amber-500/10 text-amber-500 border border-amber-500/30 font-bold" : isDayMode ? "text-slate-600 hover:text-slate-900" : "text-slate-400 hover:text-white"}`} onClick={() => switchTab("industries")}>INDUSTRIES &amp; REFINERIES</button>
-            <button className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-all ${activeTab === "agents" ? "bg-amber-500/10 text-amber-500 border border-amber-500/30 font-bold" : isDayMode ? "text-slate-600 hover:text-slate-900" : "text-slate-400 hover:text-white"}`} onClick={() => switchTab("agents")}>AGENT SETTINGS</button>
+            <button className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-all shrink-0 ${activeTab === "projects" ? "bg-amber-500/10 text-amber-500 border border-amber-500/30 font-bold" : isDayMode ? "text-slate-600 hover:text-slate-900" : "text-slate-400 hover:text-white"}`} onClick={() => switchTab("projects")}>CITY PROJECTS</button>
+            <button className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-all shrink-0 ${activeTab === "government" ? "bg-amber-500/10 text-amber-500 border border-amber-500/30 font-bold" : isDayMode ? "text-slate-600 hover:text-slate-900" : "text-slate-400 hover:text-white"}`} onClick={() => switchTab("government")}>GOVERNMENT CABINET</button>
+            <button className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-all shrink-0 ${activeTab === "farming" ? "bg-amber-500/10 text-amber-500 border border-amber-500/30 font-bold" : isDayMode ? "text-slate-600 hover:text-slate-900" : "text-slate-400 hover:text-white"}`} onClick={() => switchTab("farming")}>FARMS &amp; CROPS</button>
+            <button className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-all shrink-0 ${activeTab === "inventory" ? "bg-amber-500/10 text-amber-500 border border-amber-500/30 font-bold" : isDayMode ? "text-slate-600 hover:text-slate-900" : "text-slate-400 hover:text-white"}`} onClick={() => switchTab("inventory")}>PERSONAL INVENTORY</button>
+            <button className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-all shrink-0 ${activeTab === "market" ? "bg-amber-500/10 text-amber-500 border border-amber-500/30 font-bold" : isDayMode ? "text-slate-600 hover:text-slate-900" : "text-slate-400 hover:text-white"}`} onClick={() => switchTab("market")}>TOWN MARKETS</button>
+            <button className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-all shrink-0 ${activeTab === "industries" ? "bg-amber-500/10 text-amber-500 border border-amber-500/30 font-bold" : isDayMode ? "text-slate-600 hover:text-slate-900" : "text-slate-400 hover:text-white"}`} onClick={() => switchTab("industries")}>INDUSTRIES &amp; REFINERIES</button>
+            <button className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-all shrink-0 ${activeTab === "agents" ? "bg-amber-500/10 text-amber-500 border border-amber-500/30 font-bold" : isDayMode ? "text-slate-600 hover:text-slate-900" : "text-slate-400 hover:text-white"}`} onClick={() => switchTab("agents")}>AGENT SETTINGS</button>
           </nav>
 
           {/* Main Grid Viewport */}
-          <main className="flex-grow grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-3 min-h-0 overflow-hidden mb-1">
+          <main className="flex-grow grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-3 min-h-0 w-full max-w-full overflow-y-auto lg:overflow-hidden mb-1 pb-safe">
             
             {/* Scrollable Left Panels */}
-            <section className={`${isDayMode ? "bg-white/80 border-amber-250 shadow-sm" : "bg-slate-900/25 border-slate-800/80"} border rounded-xl p-3.5 overflow-y-auto min-h-0`}>
+            <section className={`${isDayMode ? "bg-white/80 border-amber-250 shadow-sm" : "bg-slate-900/25 border-slate-800/80"} border rounded-xl p-2.5 sm:p-3.5 overflow-x-hidden overflow-y-auto min-h-0 w-full max-w-full`}>
               
               {/* Tab: Overview (Geolocated Leaflet Map & Residences) */}
               {activeTab === "overview" && (
@@ -2884,13 +3532,13 @@ export default function CivilizationDashboard() {
                     </div>
 
                     {showHomeBuilder && (
-                      <div className={`${isDayMode ? "bg-white border-emerald-300 shadow-md text-slate-800" : "bg-slate-950/90 border-emerald-500/40 text-white"} border rounded-xl p-3 flex flex-col gap-3`}>
+                      <div className={`${isDayMode ? "bg-white border-emerald-300 shadow-md text-slate-800" : "bg-slate-950/90 border-emerald-500/40 text-white"} border rounded-xl p-3.5 flex flex-col gap-3.5`}>
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2.5 text-xs">
                           <div className="flex flex-col gap-1">
                             <label className={`text-[10px] ${isDayMode ? "text-slate-700 font-bold" : "text-slate-400 font-semibold"}`}>Residence Name:</label>
                             <input
                               type="text"
-                              placeholder="e.g. Patel Villa, Sharma House"
+                              placeholder="e.g. Thakorbhai Residency, Patel Villa"
                               value={homeNameInput}
                               onChange={(e) => setHomeNameInput(e.target.value)}
                               className={`${isDayMode ? "bg-amber-50/70 border-amber-200 text-slate-900" : "bg-slate-900 border-slate-800 text-white"} border rounded-lg px-2.5 py-1.5 text-xs font-mono`}
@@ -2898,10 +3546,10 @@ export default function CivilizationDashboard() {
                           </div>
 
                           <div className="flex flex-col gap-1">
-                            <label className={`text-[10px] ${isDayMode ? "text-slate-700 font-bold" : "text-slate-400 font-semibold"}`}>Address / Zone:</label>
+                            <label className={`text-[10px] ${isDayMode ? "text-slate-700 font-bold" : "text-slate-400 font-semibold"}`}>Address / Zone / City:</label>
                             <input
                               type="text"
-                              placeholder="e.g. Navsari West Sector"
+                              placeholder="e.g. Rumla, Chikhli, Navsari"
                               value={homeAddressInput}
                               onChange={(e) => setHomeAddressInput(e.target.value)}
                               className={`${isDayMode ? "bg-amber-50/70 border-amber-200 text-slate-900" : "bg-slate-900 border-slate-800 text-white"} border rounded-lg px-2.5 py-1.5 text-xs font-mono`}
@@ -2931,6 +3579,107 @@ export default function CivilizationDashboard() {
                           </div>
                         </div>
 
+                        {/* Family Members Customization Section */}
+                        <div className={`pt-2.5 border-t ${isDayMode ? "border-amber-200" : "border-slate-800"} flex flex-col gap-2`}>
+                          <div className="flex justify-between items-center flex-wrap gap-2">
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-sm">👨‍👩‍👧‍👦</span>
+                              <strong className={`text-xs ${isDayMode ? "text-slate-900" : "text-emerald-400"}`}>
+                                Family Members Roster ({homeMemberCountInput} Members)
+                              </strong>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className={`text-[10px] ${isDayMode ? "text-slate-700 font-bold" : "text-slate-400 font-semibold"}`}>Total Members:</span>
+                              <select
+                                value={homeMemberCountInput}
+                                onChange={(e) => {
+                                  const count = Number(e.target.value);
+                                  setHomeMemberCountInput(count);
+                                  setHomeMemberNamesInput(prev => {
+                                    const next = [...prev];
+                                    while (next.length < count) next.push("");
+                                    return next.slice(0, count);
+                                  });
+                                  setHomeMemberRolesInput(prev => {
+                                    const next = [...prev];
+                                    while (next.length < count) next.push("Child");
+                                    return next.slice(0, count);
+                                  });
+                                }}
+                                className={`${isDayMode ? "bg-amber-50/70 border-amber-200 text-slate-900" : "bg-slate-900 border-slate-800 text-white"} border rounded-lg px-2 py-1 text-xs font-mono`}
+                              >
+                                {[1, 2, 3, 4, 5, 6, 7, 8].map(n => (
+                                  <option key={n} value={n}>{n} Member{n > 1 ? "s" : ""}</option>
+                                ))}
+                              </select>
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2">
+                            {Array.from({ length: homeMemberCountInput }).map((_, mIdx) => (
+                              <div
+                                key={mIdx}
+                                className={`${isDayMode ? "bg-amber-50/50 border-amber-200/80" : "bg-slate-900/60 border-slate-800"} border rounded-xl p-2 flex flex-col gap-1.5`}
+                              >
+                                <div className="flex justify-between items-center gap-1">
+                                  <span className={`text-[10px] font-mono font-bold ${isDayMode ? "text-amber-900" : "text-amber-400"}`}>
+                                    Member #{mIdx + 1} {mIdx === 0 ? "(Head)" : ""}
+                                  </span>
+                                  <div className="flex items-center gap-1">
+                                    <span className="text-[10px] font-mono font-semibold opacity-80">🎂</span>
+                                    <input
+                                      type="number"
+                                      min="1"
+                                      max="120"
+                                      title="Citizen Age (Years)"
+                                      placeholder="Age"
+                                      value={homeMemberAgesInput[mIdx] ?? (mIdx === 0 ? 35 : mIdx === 1 ? 32 : 12)}
+                                      onChange={(e) => {
+                                        const val = parseInt(e.target.value) || 1;
+                                        setHomeMemberAgesInput(prev => {
+                                          const next = [...prev];
+                                          next[mIdx] = val;
+                                          return next;
+                                        });
+                                      }}
+                                      className={`w-12 text-center text-[10px] font-mono font-bold rounded px-1 py-0.5 border ${isDayMode ? "bg-white border-amber-300 text-slate-900" : "bg-slate-950 border-slate-700 text-white"}`}
+                                    />
+                                    <span className="text-xs">{mIdx === 0 ? "🚗" : mIdx === 1 ? "🛵" : "🚲"}</span>
+                                  </div>
+                                </div>
+                                <input
+                                  type="text"
+                                  placeholder={mIdx === 0 ? "Head Name (e.g. Thakorbhai)" : `Member #${mIdx + 1} Name`}
+                                  value={homeMemberNamesInput[mIdx] || ""}
+                                  onChange={(e) => {
+                                    const val = e.target.value;
+                                    setHomeMemberNamesInput(prev => {
+                                      const next = [...prev];
+                                      next[mIdx] = val;
+                                      return next;
+                                    });
+                                  }}
+                                  className={`${isDayMode ? "bg-white border-amber-200 text-slate-900" : "bg-slate-950 border-slate-800 text-white"} border rounded-lg px-2 py-1 text-xs font-mono`}
+                                />
+                                <textarea
+                                  rows={2}
+                                  placeholder="Role & Detailed Description (e.g. Head of family, manages farms & business)"
+                                  value={homeMemberRolesInput[mIdx] || (mIdx === 0 ? "Head of Family" : mIdx === 1 ? "Spouse" : "Resident Member")}
+                                  onChange={(e) => {
+                                    const val = e.target.value;
+                                    setHomeMemberRolesInput(prev => {
+                                      const next = [...prev];
+                                      next[mIdx] = val;
+                                      return next;
+                                    });
+                                  }}
+                                  className={`${isDayMode ? "bg-white border-amber-200 text-slate-900" : "bg-slate-950 border-slate-800 text-white"} border rounded-lg px-2.5 py-1.5 text-[11px] font-mono resize-y min-h-[44px] leading-relaxed`}
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
                         <div className={`flex items-center justify-between gap-2 flex-wrap pt-2 border-t ${isDayMode ? "border-amber-200" : "border-slate-850"}`}>
                           <div className={`text-[11px] ${isDayMode ? "text-emerald-800 font-bold" : "text-emerald-400"} font-mono flex items-center gap-1.5`}>
                             <span>🌐</span>
@@ -2943,7 +3692,7 @@ export default function CivilizationDashboard() {
                             className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-extrabold px-4 py-1.5 rounded-xl text-xs transition-all shadow-md flex items-center gap-1.5"
                           >
                             <span>💾</span>
-                            <span>SAVE PRIVATE HOME TO DATABASE</span>
+                            <span>SAVE RESIDENCE &amp; FAMILY TO DATABASE</span>
                           </button>
                         </div>
 
@@ -3050,33 +3799,33 @@ export default function CivilizationDashboard() {
                     </div>
                   )}
 
-                  <div className="grid grid-cols-1 md:grid-cols-[1.2fr_0.8fr] gap-4 flex-grow min-h-0">
+                  <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-3.5 flex-grow min-h-0">
                     {/* Geolocated GIS Map Frame Container */}
-                    <div className="flex flex-col h-full min-h-[300px]">
+                    <div className="flex flex-col h-[280px] sm:h-[380px] lg:h-full min-h-[260px]">
                       <div className="relative w-full h-full bg-slate-950 border border-slate-850 rounded-xl overflow-hidden shadow-inner flex-grow">
                         <div ref={mapContainerRef} className="absolute inset-0 h-full w-full z-10" />
                       </div>
 
                       {/* Map Legends */}
-                      <div className="mt-2 flex gap-2 flex-wrap justify-center text-[10px] text-slate-400 flex-none font-mono">
-                        <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded bg-[#0284c7]"></span> Zone 1</span>
-                        <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded bg-[#0d9488]"></span> Zone 2</span>
-                        <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded bg-[#4f46e5]"></span> Zone 3</span>
-                        <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded bg-[#8b5cf6]"></span> Hostels</span>
-                        <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded bg-[#16a34a]"></span> Farms</span>
-                        <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded bg-[#dc2626]"></span> Factory</span>
-                        <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded bg-[#d97706]"></span> Markets</span>
+                      <div className="mt-2 flex gap-1.5 sm:gap-2 flex-wrap justify-center text-[9px] sm:text-[10px] text-slate-400 flex-none font-mono">
+                        <span className="flex items-center gap-1"><span className="w-2 sm:w-2.5 h-2 sm:h-2.5 rounded bg-[#0284c7]"></span> Zone 1</span>
+                        <span className="flex items-center gap-1"><span className="w-2 sm:w-2.5 h-2 sm:h-2.5 rounded bg-[#0d9488]"></span> Zone 2</span>
+                        <span className="flex items-center gap-1"><span className="w-2 sm:w-2.5 h-2 sm:h-2.5 rounded bg-[#4f46e5]"></span> Zone 3</span>
+                        <span className="flex items-center gap-1"><span className="w-2 sm:w-2.5 h-2 sm:h-2.5 rounded bg-[#8b5cf6]"></span> Hostels</span>
+                        <span className="flex items-center gap-1"><span className="w-2 sm:w-2.5 h-2 sm:h-2.5 rounded bg-[#16a34a]"></span> Farms</span>
+                        <span className="flex items-center gap-1"><span className="w-2 sm:w-2.5 h-2 sm:h-2.5 rounded bg-[#dc2626]"></span> Factory</span>
+                        <span className="flex items-center gap-1"><span className="w-2 sm:w-2.5 h-2 sm:h-2.5 rounded bg-[#d97706]"></span> Markets</span>
                       </div>
                     </div>
 
                     {/* Residences & Housing Registry Container with clean auto-flowing layout */}
-                    <div className={`flex flex-col h-full min-h-[380px] ${isDayMode ? "bg-white/90 border-amber-250 shadow-sm text-slate-800" : "bg-slate-900/60 border-slate-800/90 shadow-xl text-slate-200"} border rounded-2xl p-3.5 flex-grow overflow-hidden`}>
+                    <div className={`flex flex-col h-auto lg:h-full min-h-[380px] ${isDayMode ? "bg-white/90 border-amber-250 shadow-sm text-slate-800" : "bg-slate-900/60 border-slate-800/90 shadow-xl text-slate-200"} border rounded-2xl p-2.5 sm:p-3.5 flex-grow overflow-hidden`}>
                       <div className={`flex justify-between items-center border-b ${isDayMode ? "border-amber-200" : "border-slate-800/80"} pb-2 mb-2 flex-none flex-wrap gap-2`}>
                         <div className="flex items-center gap-2">
                           <span className="text-base">🏠</span>
                           <div>
-                            <h3 className={`${isDayMode ? "text-slate-900 font-black" : "text-white font-extrabold"} text-xs uppercase tracking-wider`}>Family &amp; Rooms (7 Total Arrived)</h3>
-                            <span className={`text-[10px] ${isDayMode ? "text-amber-800 font-extrabold" : "text-amber-400 font-bold"} font-mono`}>7 Civilization Residences &bull; Active Family Households &amp; Worker Hostels</span>
+                            <h3 className={`${isDayMode ? "text-slate-900 font-black" : "text-white font-extrabold"} text-xs uppercase tracking-wider`}>Family &amp; Rooms ({status.families?.length || 0} Total Arrived)</h3>
+                            <span className={`text-[10px] ${isDayMode ? "text-amber-800 font-extrabold" : "text-amber-400 font-bold"} font-mono`}>{status.families?.length || 0} Civilization Residences &bull; Active Family Households &amp; Worker Hostels</span>
                           </div>
                         </div>
                         <div className="flex items-center gap-1.5 flex-wrap">
@@ -3284,14 +4033,14 @@ export default function CivilizationDashboard() {
                                     </button>
                                   </div>
 
-                                  {selectedFamily.id !== "house_1" && selectedFamily.id !== "house_2" && selectedFamily.id !== "house_3" && (
+                                  {isAdmin && (
                                     <button
                                       type="button"
                                       onClick={() => submitDeleteResidence(selectedFamily.id)}
-                                      className={`bg-rose-500/10 hover:bg-rose-500/20 ${isDayMode ? "text-rose-800 border-rose-300" : "text-rose-400 border-rose-500/30"} border px-2 py-1 rounded-lg text-[10px] font-bold transition-all flex items-center gap-1`}
+                                      className={`bg-rose-500/10 hover:bg-rose-500/20 ${isDayMode ? "text-rose-800 border-rose-300" : "text-rose-400 border-rose-500/30"} border px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all flex items-center gap-1 shadow-sm active:scale-95`}
                                     >
                                       <span>🗑️</span>
-                                      <span>Delete</span>
+                                      <span>Delete Residence</span>
                                     </button>
                                   )}
                                 </div>
@@ -3390,6 +4139,10 @@ export default function CivilizationDashboard() {
                                             <span className={`${isDayMode ? "text-slate-900 font-extrabold" : "text-white font-bold"} text-xs`}>{m.name}</span>
                                             <span className={`text-[10px] ${isDayMode ? "bg-sky-100 text-sky-900 border-sky-300" : "bg-sky-500/10 text-sky-300 border-sky-500/20"} px-2 py-0.5 rounded-md border font-bold capitalize`}>
                                               {m.role || "Citizen"}
+                                            </span>
+                                            <span className={`text-[10px] ${isDayMode ? "bg-emerald-100 text-emerald-950 border-emerald-300" : "bg-emerald-500/10 text-emerald-300 border-emerald-500/20"} px-2 py-0.5 rounded-md border font-mono font-bold flex items-center gap-1`}>
+                                              <span>🎂</span>
+                                              <span>{m.age || 25} yrs</span>
                                             </span>
                                             <span className={`text-[10px] ${isDayMode ? "bg-amber-100 text-amber-950 border-amber-300" : "bg-amber-500/10 text-amber-300 border-amber-500/20"} px-2 py-0.5 rounded-md border font-mono font-bold flex items-center gap-1`}>
                                               <span>{vehEmoji}</span>
@@ -3627,7 +4380,7 @@ export default function CivilizationDashboard() {
                             onChange={(e) => setPmInput(e.target.value)}
                             className={`w-full ${isDayMode ? "bg-amber-50/70 border-amber-200 text-slate-900 font-semibold" : "bg-slate-950 border-slate-850 text-white"} border rounded p-1.5 text-xs disabled:opacity-60`}
                           >
-                            {listAllAdults.map(a => <option key={a} value={a}>{a}</option>)}
+                            {listAllAdults.map((a: string) => <option key={a} value={a}>{a}</option>)}
                           </select>
                         </div>
 
@@ -3639,7 +4392,7 @@ export default function CivilizationDashboard() {
                             onChange={(e) => setDmInput(e.target.value)}
                             className={`w-full ${isDayMode ? "bg-amber-50/70 border-amber-200 text-slate-900 font-semibold" : "bg-slate-950 border-slate-850 text-white"} border rounded p-1.5 text-xs disabled:opacity-60`}
                           >
-                            {listAllAdults.map(a => <option key={a} value={a}>{a}</option>)}
+                            {listAllAdults.map((a: string) => <option key={a} value={a}>{a}</option>)}
                           </select>
                         </div>
 
@@ -3651,7 +4404,7 @@ export default function CivilizationDashboard() {
                             onChange={(e) => setFinInput(e.target.value)}
                             className={`w-full ${isDayMode ? "bg-amber-50/70 border-amber-200 text-slate-900 font-semibold" : "bg-slate-950 border-slate-850 text-white"} border rounded p-1.5 text-xs disabled:opacity-60`}
                           >
-                            {listAllAdults.map(a => <option key={a} value={a}>{a}</option>)}
+                            {listAllAdults.map((a: string) => <option key={a} value={a}>{a}</option>)}
                           </select>
                         </div>
 
@@ -3663,7 +4416,7 @@ export default function CivilizationDashboard() {
                             onChange={(e) => setEduInput(e.target.value)}
                             className={`w-full ${isDayMode ? "bg-amber-50/70 border-amber-200 text-slate-900 font-semibold" : "bg-slate-950 border-slate-850 text-white"} border rounded p-1.5 text-xs disabled:opacity-60`}
                           >
-                            {listAllAdults.map(a => <option key={a} value={a}>{a}</option>)}
+                            {listAllAdults.map((a: string) => <option key={a} value={a}>{a}</option>)}
                           </select>
                         </div>
 
@@ -3675,7 +4428,7 @@ export default function CivilizationDashboard() {
                             onChange={(e) => setInfraInput(e.target.value)}
                             className={`w-full ${isDayMode ? "bg-amber-50/70 border-amber-200 text-slate-900 font-semibold" : "bg-slate-950 border-slate-850 text-white"} border rounded p-1.5 text-xs disabled:opacity-60`}
                           >
-                            {listAllAdults.map(a => <option key={a} value={a}>{a}</option>)}
+                            {listAllAdults.map((a: string) => <option key={a} value={a}>{a}</option>)}
                           </select>
                         </div>
 
@@ -5527,10 +6280,13 @@ export default function CivilizationDashboard() {
                                   {vehicleIcon}
                                 </div>
                                 <div>
-                                  <h3 className={`${isDayMode ? "text-slate-900" : "text-white"} text-sm font-extrabold flex items-center gap-1.5`}>
+                                  <h3 className={`${isDayMode ? "text-slate-900" : "text-white"} text-sm font-extrabold flex items-center gap-1.5 flex-wrap`}>
                                     <span>{c.name}</span>
                                     <span className={`text-[10px] ${isDayMode ? "bg-amber-100 text-amber-950 border-amber-300" : "bg-slate-900 text-amber-400 border-amber-500/30"} border px-2 py-0.2 rounded-md font-mono font-bold capitalize`}>
                                       {c.role || "Resident"}
+                                    </span>
+                                    <span className={`text-[10px] ${isDayMode ? "bg-emerald-100 text-emerald-950 border-emerald-300" : "bg-emerald-500/10 text-emerald-300 border-emerald-500/20"} px-2 py-0.2 rounded-md border font-mono font-bold`}>
+                                      🎂 {c.age || 25} yrs
                                     </span>
                                   </h3>
                                   <span className={`text-[11px] ${isDayMode ? "text-slate-600 font-semibold" : "text-slate-400"} font-mono block`}>
@@ -6673,16 +7429,27 @@ export default function CivilizationDashboard() {
                             👨‍👩‍👧‍👦 Family ({u.members?.length || 0}):
                           </span>
                           {u.members && u.members.length > 0 ? (
-                            u.members.map((m: any, mIdx: number) => (
-                              <span
-                                key={mIdx}
-                                className={`${isDayMode ? "bg-amber-50/90 border-amber-200 text-slate-800" : "bg-slate-900 border-slate-800 text-slate-200"} border text-[10px] px-2 py-0.5 rounded-md font-mono flex items-center gap-1`}
-                              >
-                                <span>{VEHICLE_EMOJIS[m.vehicle] || "🚗"}</span>
-                                <span>{m.name}</span>
-                                <span className={`${isDayMode ? "text-slate-600" : "text-slate-400"} text-[9px]`}>({m.role || "Member"})</span>
-                              </span>
-                            ))
+                            u.members.map((m: any, mIdx: number) => {
+                              const name = typeof m === "string" ? m : m?.name || `Member #${mIdx + 1}`;
+                              const role = typeof m === "string" ? (mIdx === 0 ? "Head" : "Member") : m?.role || "Member";
+                              const vehicle = typeof m === "string" ? "🚗" : VEHICLE_EMOJIS[m?.vehicle] || "🚗";
+                              const age = typeof m === "object" && m?.age ? `${m.age} yrs` : "";
+                              return (
+                                <span
+                                  key={mIdx}
+                                  className={`${isDayMode ? "bg-amber-50/90 border-amber-200 text-slate-800" : "bg-slate-900 border-slate-850 text-slate-200"} border text-[10px] px-2 py-0.5 rounded-md font-mono flex items-center gap-1`}
+                                >
+                                  <span>{vehicle}</span>
+                                  <span>{name}</span>
+                                  {age && (
+                                    <span className={`text-[9px] ${isDayMode ? "bg-emerald-100 text-emerald-900 border-emerald-300" : "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"} border px-1 rounded font-bold`}>
+                                      🎂 {age}
+                                    </span>
+                                  )}
+                                  <span className={`${isDayMode ? "text-slate-600" : "text-slate-400"} text-[9px]`}>({role})</span>
+                                </span>
+                              );
+                            })
                           ) : (
                             <span className={`${isDayMode ? "text-slate-500" : "text-slate-500"} text-[10px] italic`}>No family members registered</span>
                           )}
@@ -6702,6 +7469,15 @@ export default function CivilizationDashboard() {
                         >
                           <span>🎯</span>
                           <span>Fly to on Map</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => openAdminEditCitizenModal(u)}
+                          className={`${isDayMode ? "bg-sky-100 hover:bg-sky-200 text-sky-950 border-sky-300 font-extrabold" : "bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border-sky-500/40"} border text-xs font-bold px-3 py-1.5 rounded-xl transition-all flex items-center gap-1 shadow-sm`}
+                        >
+                          <span>✏️</span>
+                          <span>Edit Citizen</span>
                         </button>
 
                         <button
@@ -7031,6 +7807,244 @@ export default function CivilizationDashboard() {
         </div>
       )}
 
+      {/* Supreme Admin: Edit Citizen & Family Modal (Upper Index over Census Modal) */}
+      {adminEditModalOpen && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-[100000] flex items-center justify-center p-3 sm:p-4">
+          <div className={`${isDayMode ? "bg-amber-50/95 border-amber-300 text-slate-800" : "bg-slate-900 border-slate-700 text-slate-100"} border rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150`}>
+            {/* Modal Header */}
+            <div className={`p-4 border-b ${isDayMode ? "border-amber-200 bg-amber-100/70" : "border-slate-800 bg-slate-950/70"} flex justify-between items-center`}>
+              <div className="flex items-center gap-2.5">
+                <div className={`w-8 h-8 rounded-xl ${isDayMode ? "bg-sky-100 border-sky-300" : "bg-sky-500/20 border-sky-500/40"} border flex items-center justify-center text-base`}>
+                  ✏️
+                </div>
+                <div>
+                  <h3 className={`${isDayMode ? "text-slate-900 font-black" : "text-white font-bold"} text-sm`}>
+                    Admin Citizen Editor &amp; Geolocation Sync
+                  </h3>
+                  <span className={`text-[10px] ${isDayMode ? "text-sky-800 font-bold" : "text-sky-400"} font-mono`}>
+                    Account: {adminEditTargetUserId}
+                  </span>
+                </div>
+              </div>
+              <button
+                onClick={() => setAdminEditModalOpen(false)}
+                className={`w-7 h-7 rounded-lg ${isDayMode ? "bg-slate-200 hover:bg-slate-300 text-slate-800" : "bg-slate-800 hover:bg-slate-700 text-slate-300"} font-bold flex items-center justify-center transition-all`}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-4 overflow-y-auto flex flex-col gap-3.5 text-xs">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="flex flex-col gap-1">
+                  <label className={`text-[11px] ${isDayMode ? "text-slate-700 font-bold" : "text-slate-300 font-semibold"}`}>
+                    Citizen Primary Name:
+                  </label>
+                  <input
+                    type="text"
+                    value={adminEditName}
+                    onChange={(e) => setAdminEditName(e.target.value)}
+                    className={`${isDayMode ? "bg-white border-amber-200 text-slate-900" : "bg-slate-950 border-slate-800 text-white"} border rounded-lg px-2.5 py-1.5 text-xs font-mono`}
+                    placeholder="e.g. Thakorbhai Patel"
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className={`text-[11px] ${isDayMode ? "text-slate-700 font-bold" : "text-slate-300 font-semibold"}`}>
+                    Residence Name:
+                  </label>
+                  <input
+                    type="text"
+                    value={adminEditHomeName}
+                    onChange={(e) => setAdminEditHomeName(e.target.value)}
+                    className={`${isDayMode ? "bg-white border-amber-200 text-slate-900" : "bg-slate-950 border-slate-800 text-white"} border rounded-lg px-2.5 py-1.5 text-xs font-mono`}
+                    placeholder="e.g. Thakorbhai Residency"
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className={`text-[11px] ${isDayMode ? "text-slate-700 font-bold" : "text-slate-300 font-semibold"}`}>
+                    Address / City / Village:
+                  </label>
+                  <input
+                    type="text"
+                    value={adminEditAddress}
+                    onChange={(e) => setAdminEditAddress(e.target.value)}
+                    className={`${isDayMode ? "bg-white border-amber-200 text-slate-900" : "bg-slate-950 border-slate-800 text-white"} border rounded-lg px-2.5 py-1.5 text-xs font-mono`}
+                    placeholder="e.g. Rumla, Gujarat"
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className={`text-[11px] ${isDayMode ? "text-slate-700 font-bold" : "text-slate-300 font-semibold"}`}>
+                    Wallet Cash Balance ($):
+                  </label>
+                  <input
+                    type="number"
+                    value={adminEditMoney}
+                    onChange={(e) => setAdminEditMoney(Number(e.target.value))}
+                    className={`${isDayMode ? "bg-white border-amber-200 text-slate-900" : "bg-slate-950 border-slate-800 text-white"} border rounded-lg px-2.5 py-1.5 text-xs font-mono`}
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className={`text-[11px] ${isDayMode ? "text-slate-700 font-bold" : "text-slate-300 font-semibold"}`}>
+                    GPS Latitude:
+                  </label>
+                  <input
+                    type="text"
+                    value={adminEditLat}
+                    onChange={(e) => setAdminEditLat(e.target.value)}
+                    className={`${isDayMode ? "bg-white border-amber-200 text-slate-900" : "bg-slate-950 border-slate-800 text-white"} border rounded-lg px-2.5 py-1.5 text-xs font-mono`}
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className={`text-[11px] ${isDayMode ? "text-slate-700 font-bold" : "text-slate-300 font-semibold"}`}>
+                    GPS Longitude:
+                  </label>
+                  <input
+                    type="text"
+                    value={adminEditLng}
+                    onChange={(e) => setAdminEditLng(e.target.value)}
+                    className={`${isDayMode ? "bg-white border-amber-200 text-slate-900" : "bg-slate-950 border-slate-800 text-white"} border rounded-lg px-2.5 py-1.5 text-xs font-mono`}
+                  />
+                </div>
+              </div>
+
+              {/* Family Members Roster Editor */}
+              <div className={`pt-3 border-t ${isDayMode ? "border-amber-200" : "border-slate-800"} flex flex-col gap-2`}>
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-sm">👨‍👩‍👧‍👦</span>
+                    <strong className={`text-xs ${isDayMode ? "text-slate-900" : "text-sky-400"}`}>
+                      Family Members Roster ({adminEditMemberCount} Members)
+                    </strong>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className={`text-[10px] ${isDayMode ? "text-slate-700 font-bold" : "text-slate-400 font-semibold"}`}>Count:</span>
+                    <select
+                      value={adminEditMemberCount}
+                      onChange={(e) => {
+                        const count = Number(e.target.value);
+                        setAdminEditMemberCount(count);
+                        setAdminEditMemberNames(prev => {
+                          const next = [...prev];
+                          while (next.length < count) next.push("");
+                          return next.slice(0, count);
+                        });
+                        setAdminEditMemberRoles(prev => {
+                          const next = [...prev];
+                          while (next.length < count) next.push("Child");
+                          return next.slice(0, count);
+                        });
+                      }}
+                      className={`${isDayMode ? "bg-white border-amber-200 text-slate-900" : "bg-slate-950 border-slate-800 text-white"} border rounded-lg px-2 py-1 text-xs font-mono`}
+                    >
+                      {[1, 2, 3, 4, 5, 6, 7, 8].map(n => (
+                        <option key={n} value={n}>{n} Member{n > 1 ? "s" : ""}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {Array.from({ length: adminEditMemberCount }).map((_, mIdx) => (
+                    <div
+                      key={mIdx}
+                      className={`${isDayMode ? "bg-white border-amber-200/90" : "bg-slate-950/80 border-slate-800"} border rounded-xl p-2 flex flex-col gap-1.5`}
+                    >
+                      <div className="flex justify-between items-center gap-1">
+                        <span className={`text-[10px] font-mono font-bold ${isDayMode ? "text-amber-900" : "text-amber-400"}`}>
+                          Member #{mIdx + 1} {mIdx === 0 ? "(Head)" : ""}
+                        </span>
+                        <div className="flex items-center gap-1">
+                          <span className="text-[10px] font-mono font-semibold opacity-80">🎂</span>
+                          <input
+                            type="number"
+                            min="1"
+                            max="120"
+                            title="Citizen Age (Years)"
+                            placeholder="Age"
+                            value={adminEditMemberAges[mIdx] ?? (mIdx === 0 ? 35 : mIdx === 1 ? 32 : 12)}
+                            onChange={(e) => {
+                              const val = parseInt(e.target.value) || 1;
+                              setAdminEditMemberAges(prev => {
+                                const next = [...prev];
+                                next[mIdx] = val;
+                                return next;
+                              });
+                            }}
+                            className={`w-12 text-center text-[10px] font-mono font-bold rounded px-1 py-0.5 border ${isDayMode ? "bg-amber-50 border-amber-300 text-slate-900" : "bg-slate-900 border-slate-700 text-white"}`}
+                          />
+                          <span className="text-xs">{mIdx === 0 ? "🚗" : mIdx === 1 ? "🛵" : "🚲"}</span>
+                        </div>
+                      </div>
+                      <input
+                        type="text"
+                        placeholder={`Member #${mIdx + 1} Name`}
+                        value={adminEditMemberNames[mIdx] || ""}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setAdminEditMemberNames(prev => {
+                            const next = [...prev];
+                            next[mIdx] = val;
+                            return next;
+                          });
+                        }}
+                        className={`${isDayMode ? "bg-amber-50/50 border-amber-200 text-slate-900" : "bg-slate-900 border-slate-800 text-white"} border rounded-lg px-2 py-1 text-xs font-mono`}
+                      />
+                      <textarea
+                        rows={2}
+                        placeholder="Role & Detailed Description (e.g. Head of family, runs the farm, system developer)"
+                        value={adminEditMemberRoles[mIdx] || (mIdx === 0 ? "Head" : mIdx === 1 ? "Spouse" : "Child")}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setAdminEditMemberRoles(prev => {
+                            const next = [...prev];
+                            next[mIdx] = val;
+                            return next;
+                          });
+                        }}
+                        className={`${isDayMode ? "bg-amber-50/50 border-amber-200 text-slate-900" : "bg-slate-900 border-slate-800 text-white"} border rounded-lg px-2.5 py-1.5 text-[11px] font-mono resize-y min-h-[44px] leading-relaxed`}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {adminEditMsg && (
+                <div className={`${isDayMode ? "bg-emerald-100 text-emerald-950 border-emerald-300" : "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"} border p-2 rounded-lg text-xs font-mono font-bold`}>
+                  {adminEditMsg}
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className={`p-4 border-t ${isDayMode ? "border-amber-200 bg-amber-100/50" : "border-slate-800 bg-slate-950/70"} flex justify-between items-center`}>
+              <button
+                type="button"
+                onClick={() => setAdminEditModalOpen(false)}
+                className={`${isDayMode ? "bg-slate-200 text-slate-800 hover:bg-slate-300" : "bg-slate-800 text-slate-300 hover:bg-slate-700"} px-4 py-1.5 rounded-xl font-bold transition-all text-xs`}
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                onClick={handleSaveAdminEditCitizen}
+                className="bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-black text-xs px-5 py-2 rounded-xl shadow-lg transition-all flex items-center gap-1.5"
+              >
+                <span>💾</span>
+                <span>SAVE CITIZEN CHANGES TO MONGODB</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
+

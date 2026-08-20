@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { loadPlayer, savePlayer, loadAllCatalogs } from "@/lib/io";
+import { loadPlayer, savePlayer, loadAllCatalogs, listAllPlayers } from "@/lib/io";
 import { runSimulationTick, fluctuatePrices } from "@/lib/simulation";
 
 export async function GET(req: NextRequest) {
@@ -43,7 +43,8 @@ export async function GET(req: NextRequest) {
     }
 
     // Map output to match original python REST response exactly
-    const plotsMapped = player.plots.map((p) => {
+    const plotsList = Array.isArray(player.plots) ? player.plots : [];
+    const plotsMapped = plotsList.map((p) => {
       let cropKey = String(p.crop_id || "").trim().toLowerCase().replace(/^crop_/, "");
       if (cropKey === "broccoli") cropKey = "brokeli";
       if (cropKey === "cabbage") cropKey = "cabbige";
@@ -94,7 +95,8 @@ export async function GET(req: NextRequest) {
       };
     });
 
-    const placedBuildingsMapped = player.buildings
+    const buildingsList = Array.isArray(player.buildings) ? player.buildings : [];
+    const placedBuildingsMapped = buildingsList
       .filter((b) => b.x !== null)
       .map((b) => ({
         building_id: b.building_id,
@@ -104,11 +106,13 @@ export async function GET(req: NextRequest) {
         ready: b.ready_at_game_seconds === null
       }));
 
-    const buildQueueMapped = player.build_queue.map((bj) => ({
+    const buildQueueList = Array.isArray(player.build_queue) ? player.build_queue : [];
+    const clockTotalSeconds = player.clock?.total_seconds ?? 480;
+    const buildQueueMapped = buildQueueList.map((bj) => ({
       building_id: bj.building_id,
       name: catalogs.buildings[bj.building_id]?.name || bj.building_id,
       ready_at: bj.ready_at_game_seconds,
-      current: player.clock.total_seconds
+      current: clockTotalSeconds
     }));
 
     const activeCraftMapped = player.craft_job
@@ -119,23 +123,15 @@ export async function GET(req: NextRequest) {
         }
       : null;
 
-    const clockHour = Math.floor((player.clock.total_seconds % (24 * 60)) / 60) % 24;
-    const clockMinute = Math.floor(player.clock.total_seconds % 60);
-    const clockDay = Math.floor(player.clock.total_seconds / (24 * 60)) + 1;
+    const clockHour = Math.floor((clockTotalSeconds % (24 * 60)) / 60) % 24;
+    const clockMinute = Math.floor(clockTotalSeconds % 60);
+    const clockDay = Math.floor(clockTotalSeconds / (24 * 60)) + 1;
     const isNight = clockHour >= 20 || clockHour < 6;
 
-    let dailySummaries: string[] = [];
-    try {
-      const fs = require("fs");
-      const path = require("path");
-      const summaryPath = path.join(process.cwd(), "..", "saves", "players", `${userId.replace(/[^a-zA-Z0-9_-]/g, "")}_daily_summaries.json`);
-      if (fs.existsSync(summaryPath)) {
-        dailySummaries = JSON.parse(fs.readFileSync(summaryPath, "utf-8"));
-      }
-    } catch {}
+    const dailySummaries: string[] = (player as any).daily_summaries || [];
 
     const formattedClock = `Day ${clockDay} • ${clockHour.toString().padStart(2, "0")}:${clockMinute.toString().padStart(2, "0")} hrs (IST)`;
-    const dayOffset = Math.floor(player.clock.total_seconds / (24 * 60));
+    const dayOffset = Math.floor(clockTotalSeconds / (24 * 60));
     const baseDate = new Date(2026, 0, 1);
     baseDate.setDate(baseDate.getDate() + dayOffset);
     const indianDate = `${baseDate.getDate().toString().padStart(2, "0")}/${(baseDate.getMonth() + 1).toString().padStart(2, "0")}/${baseDate.getFullYear()}`;
@@ -143,24 +139,74 @@ export async function GET(req: NextRequest) {
     const adminEmail = (process.env.ADMIN_EMAIL || "vandan11patel@gmail.com").toLowerCase().trim();
     const isAdmin = userId.toLowerCase() === "vandan_11" || userId.toLowerCase().trim() === adminEmail;
 
-    // Privacy filter for non-admin citizens:
-    // Citizens can see where houses are located on the map, but cannot see private family names, member counts, budgets, or jobs
+    const allUsers = await listAllPlayers();
+    const cleanUserId = String(userId || "").trim().toLowerCase();
+
+    // Map all registered citizens directly to simulation families (1 citizen = 1 family & 1 house)
+    const citizenFamilies = allUsers.map((u: any, idx: number) => {
+      const isOwn =
+        u.user_id?.toLowerCase() === cleanUserId ||
+        u.user_id?.toLowerCase() === player.user_id?.toLowerCase();
+      return {
+        id: `house_${u.user_id.replace(/[^a-zA-Z0-9_-]/g, "")}`,
+        name: u.home_name || (u.name ? `${u.name}'s Residence` : `Citizen Residence #${idx + 1}`),
+        address: u.address || u.city_name || "Civilization Zone",
+        type: "house" as const,
+        budget: isOwn ? (player.money || u.money || 150) : (u.budget || u.money || 150),
+        inventory: { wheat: 5, apple: 5, milk: 2, bread: 3 },
+        coords: u.coords || [20.9472, 72.9515],
+        members:
+          u.members && u.members.length > 0
+            ? u.members
+            : [{ name: u.name || "Citizen", role: "Head", relation: "Household Head", vehicle: "car" }],
+      };
+    });
+
     const filteredFamilies = isAdmin
-      ? player.families
-      : (player.families || []).map((fam, idx) => ({
-          id: fam.id,
-          name: `Private Residence #${idx + 1}`,
-          budget: undefined, // Hidden for privacy
-          inventory: {}, // Hidden for privacy
-          members: [
-            {
-              name: "Citizen Resident",
-              role: "resident",
-              relation: "Protected by Civic Privacy Laws",
-              state: "Private Routine"
-            }
-          ]
-        }));
+      ? citizenFamilies
+      : citizenFamilies.map((fam) => {
+          const isOwn =
+            fam.id === `house_${cleanUserId.replace(/[^a-zA-Z0-9_-]/g, "")}` ||
+            fam.id === `house_${player.user_id.replace(/[^a-zA-Z0-9_-]/g, "")}`;
+          if (isOwn) return fam;
+          return {
+            id: fam.id,
+            name: fam.name,
+            address: fam.address,
+            type: fam.type,
+            coords: fam.coords,
+            budget: undefined,
+            inventory: {},
+            members: [
+              {
+                name: "Citizen Resident",
+                role: "resident",
+                relation: "Protected by Civic Privacy Laws",
+                state: "Private Routine",
+              },
+            ],
+          };
+        });
+
+    const sanitizedRegisteredUsers = isAdmin
+      ? allUsers
+      : allUsers.map((u: any) => {
+          const isOwn =
+            u.user_id?.toLowerCase() === cleanUserId ||
+            u.user_id?.toLowerCase() === player.user_id.toLowerCase();
+          return {
+            user_id: isOwn ? u.user_id : "citizen",
+            home_name: u.home_name || "Citizen Residence",
+            city_name: u.city_name || u.address,
+            address: u.address || u.city_name,
+            coords: u.coords,
+            money: isOwn ? u.money : undefined,
+            members: isOwn ? u.members : [],
+            member_count: isOwn ? u.member_count : undefined,
+            budget: isOwn ? u.budget : undefined,
+            is_own: isOwn,
+          };
+        });
 
     return NextResponse.json({
       ok: true,
@@ -171,15 +217,15 @@ export async function GET(req: NextRequest) {
         day: clockDay,
         hour: clockHour,
         minute: clockMinute,
-        total_seconds: player.clock.total_seconds,
+        total_seconds: clockTotalSeconds,
         formatted: formattedClock,
         indian_date: indianDate,
         is_night: isNight,
-        weather: player.clock.weather,
-        speed: Number(player.clock.speed || 1),
+        weather: player.clock?.weather || "sunny",
+        speed: Number(player.clock?.speed || 1),
         paused: Boolean((player.clock as any)?.paused)
       },
-      inventory: Object.entries(player.inventory),
+      inventory: Object.entries(player.inventory || {}),
       plots: plotsMapped,
       placed_buildings: placedBuildingsMapped,
       build_queue: buildQueueMapped,
@@ -203,7 +249,8 @@ export async function GET(req: NextRequest) {
       farm_barn: player.farm_barn || { milk: 20, wool: 15, egg: 30, wheat: 50, carrot: 30, apple: 25 },
       automated_farming_enabled: player.automated_farming_enabled !== false,
       city_manager_enabled: player.city_manager_enabled,
-      zone_locations: player.zone_locations
+      zone_locations: player.zone_locations,
+      registered_users: sanitizedRegisteredUsers
     });
   } catch (err: any) {
     return NextResponse.json({ ok: false, message: err.message }, { status: 500 });

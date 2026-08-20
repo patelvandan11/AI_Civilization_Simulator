@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { loadPlayer, savePlayer, loadAllCatalogs, createNewPlayer, updateWorldLocation, resetWorldLocations, listAllPlayers, deletePlayer } from "@/lib/io";
 import { plantCrop, harvestCrop, startCraft, getPlotStatus, conductDemocraticElection, runSimulationTick, normalizeCropKey } from "@/lib/simulation";
 import { KisanAgentManager } from "@/lib/kisan_agent";
+import { createUser } from "@/lib/auth";
+import { getAuthCollection, getWorldCollection } from "@/lib/db";
 
 export async function GET(req: NextRequest) {
   try {
@@ -32,7 +34,7 @@ export async function POST(req: NextRequest) {
 
     if (action === "register_citizen") {
       const citizenName = String(body.citizen_name || "").trim();
-      const emailOrPhone = String(body.email_or_phone || "").trim() || userId;
+      const emailOrPhone = String(body.email_or_phone || "").trim().toLowerCase() || userId.toLowerCase();
       const address = String(body.address || "").trim();
       const lat = Number(body.lat) || 20.6728;
       const lng = Number(body.lng) || 73.0805;
@@ -41,6 +43,16 @@ export async function POST(req: NextRequest) {
       if (!emailOrPhone) {
         return NextResponse.json({ ok: false, message: "Email or Phone is required." }, { status: 400 });
       }
+
+      await createUser({
+        user_id: emailOrPhone,
+        email: emailOrPhone,
+        name: citizenName,
+        address,
+        lat,
+        lng,
+        members
+      });
 
       const newPlayer = createNewPlayer(emailOrPhone, {
         name: citizenName,
@@ -507,7 +519,12 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ ok: false, message: "Access Denied: Only Admin can conduct elections." }, { status: 403 });
       }
 
-      const msg = conductDemocraticElection(player);
+      const allPlayers = await listAllPlayers();
+      const allCitizenNames = allPlayers.flatMap((p: any) =>
+        (p.members || []).map((m: any) => (typeof m === "string" ? m : m.name))
+      ).filter(Boolean);
+
+      const msg = conductDemocraticElection(player, allCitizenNames);
       await savePlayer(player);
       return NextResponse.json({ ok: true, message: msg });
     }
@@ -868,6 +885,142 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    if (action === "admin_edit_citizen") {
+      if (!isUserAdmin) {
+        return NextResponse.json({ ok: false, message: "Access Denied: Only Admin can edit citizen information." }, { status: 403 });
+      }
+
+      const targetUserId = String(body.target_user_id || "").trim().toLowerCase();
+      if (!targetUserId) {
+        return NextResponse.json({ ok: false, message: "Target citizen email or user ID is required." }, { status: 400 });
+      }
+
+      const citizenName = String(body.name || body.citizen_name || "").trim();
+      const homeName = String(body.home_name || "").trim() || `${citizenName || targetUserId.split(/[@_]/)[0]}'s Residence`;
+      const address = String(body.address || body.city_name || "").trim() || "Civilization Citizen Zone";
+      const lat = body.lat !== undefined ? Number(body.lat) : 20.9472;
+      const lng = body.lng !== undefined ? Number(body.lng) : 72.9515;
+      const money = body.money !== undefined ? Number(body.money) : 500;
+      const rawMembers = Array.isArray(body.members) ? body.members : [];
+      const memberNames = rawMembers.map((m: any) => typeof m === "string" ? m.trim() : (m?.name || "").trim()).filter(Boolean);
+
+      // 1. Update Auth DB
+      try {
+        const authCol = await getAuthCollection("users");
+        if (authCol) {
+          await authCol.updateOne(
+            { user_id: targetUserId },
+            {
+              $set: {
+                name: citizenName,
+                home_name: homeName,
+                address: address,
+                city_name: address,
+                lat: lat,
+                lng: lng,
+                members: memberNames,
+                updated_at: new Date().toISOString()
+              }
+            },
+            { upsert: true }
+          );
+        }
+      } catch (err: any) {
+        console.warn("[Admin Edit Citizen Auth Warning]:", err.message);
+      }
+
+      // 2. Update World DB Player State
+      const targetPlayer = (await loadPlayer(targetUserId)) as any;
+      targetPlayer.name = citizenName || targetPlayer.name;
+      targetPlayer.address = address;
+      targetPlayer.city_name = address;
+      targetPlayer.lat = lat;
+      targetPlayer.lng = lng;
+      targetPlayer.money = money;
+      if (!targetPlayer.zone_locations) targetPlayer.zone_locations = {};
+      targetPlayer.zone_locations["my_home"] = [lat, lng];
+
+      // Update family in targetPlayer
+      const familyStructured = rawMembers.map((m: any, idx: number) => {
+        if (typeof m === "string") {
+          return {
+            id: `mem_${idx + 1}`,
+            name: m,
+            role: idx === 0 ? "Head" : idx === 1 ? "Spouse" : "Family Member",
+            relation: idx === 0 ? "Household Head" : "Family Member",
+            vehicle: "bicycle",
+            age: idx === 0 ? 35 : 25,
+            health: 100,
+            happiness: 95
+          };
+        }
+        return {
+          id: m?.id || `mem_${idx + 1}`,
+          name: m?.name || `Member #${idx + 1}`,
+          role: m?.role || (idx === 0 ? "Head" : "Family Member"),
+          relation: m?.relation || "Family Member",
+          vehicle: m?.vehicle || "bicycle",
+          age: Number(m?.age) || (idx === 0 ? 35 : 25),
+          health: 100,
+          happiness: 95
+        };
+      });
+
+      if (!targetPlayer.families) targetPlayer.families = [];
+      const famIndex = targetPlayer.families.findIndex((f: any) => f.id === "my_home" || f.id === `house_${targetUserId}`);
+      const updatedFamDoc = {
+        id: "my_home",
+        name: homeName,
+        address: address,
+        type: "house" as const,
+        head: citizenName || memberNames[0] || "Head",
+        member_count: familyStructured.length,
+        budget: targetPlayer.families[famIndex]?.budget || 150,
+        coords: [lat, lng],
+        inventory: { wheat: 5, apple: 5, milk: 2 },
+        members: familyStructured
+      };
+
+      if (famIndex >= 0) {
+        targetPlayer.families[famIndex] = updatedFamDoc;
+      } else {
+        targetPlayer.families.unshift(updatedFamDoc);
+      }
+
+      await savePlayer(targetPlayer);
+
+      // 3. Update world_locations manifest
+      try {
+        const worldCol = await getWorldCollection("world_locations");
+        if (worldCol) {
+          const cleanKey = `homes.${targetUserId.replace(/[@.]/g, "_")}`;
+          await worldCol.updateOne(
+            { id: "locations_manifest" },
+            {
+              $set: {
+                [cleanKey]: {
+                  name: homeName,
+                  address: address,
+                  coords: [lat, lng],
+                  members: memberNames
+                }
+              }
+            },
+            { upsert: true }
+          );
+        }
+      } catch (err: any) {
+        console.warn("[Admin Edit World Locations Warning]:", err.message);
+      }
+
+      const updatedUsersList = await listAllPlayers();
+      return NextResponse.json({
+        ok: true,
+        message: `Successfully updated citizen '${targetUserId}' (${citizenName || homeName}) in MongoDB!`,
+        users: updatedUsersList
+      });
+    }
+
     if (action === "edit_person_details") {
       const familyId = String(body.family_id || "").trim();
       const oldName = String(body.old_name || body.member_name || "").trim();
@@ -996,8 +1149,8 @@ export async function POST(req: NextRequest) {
       }
 
       const familyId = String(body.family_id || "").trim();
-      if (familyId === "house_1" || familyId === "house_2" || familyId === "house_3") {
-        return NextResponse.json({ ok: false, message: "Core historical houses (House 1, 2, 3) cannot be deleted." }, { status: 400 });
+      if (!familyId) {
+        return NextResponse.json({ ok: false, message: "Residence ID is required." }, { status: 400 });
       }
 
       const famIdx = player.families?.findIndex(f => f.id === familyId);
@@ -1006,16 +1159,29 @@ export async function POST(req: NextRequest) {
       }
 
       const fam = player.families[famIdx];
-      if (fam.members && fam.members.length > 0) {
-        return NextResponse.json({ ok: false, message: `Cannot delete '${fam.name}' because it still has ${fam.members.length} occupant(s). Please transfer them first.` }, { status: 400 });
+      player.families.splice(famIdx, 1);
+      if (player.zone_locations) {
+        delete player.zone_locations[familyId];
       }
 
-      player.families.splice(famIdx, 1);
-      delete player.zone_locations[familyId];
+      // Also clean up from world_locations manifest if present
+      try {
+        const worldCol = await getWorldCollection("world_locations");
+        if (worldCol) {
+          await worldCol.updateOne(
+            { id: "locations_manifest" },
+            { $unset: { [familyId]: "", [`homes.${familyId}`]: "" } }
+          );
+        }
+      } catch {}
 
-      player.agent_logs.push(`Government: Admin decommissioned residence '${fam.name}' (${familyId}).`);
+      player.agent_logs.push(`Municipal Administration: Admin deleted residence '${fam.name}' (${familyId}).`);
       await savePlayer(player);
-      return NextResponse.json({ ok: true, message: `Decommissioned '${fam.name}' successfully.`, families: player.families });
+      return NextResponse.json({
+        ok: true,
+        message: `Decommissioned and deleted residence '${fam.name}' successfully.`,
+        families: player.families
+      });
     }
 
     if (action === "set_speed" || action === "set_simulation_speed") {
@@ -1272,39 +1438,59 @@ export async function POST(req: NextRequest) {
     if (action === "set_home_location" || action === "build_my_home") {
       const lat = Number(body.lat || 20.9472);
       const lng = Number(body.lng || 72.9515);
-      const homeName = String(body.home_name || "My Private Residence").trim();
-      const address = String(body.address || "Navsari Citizen Zone").trim();
-      const familyName = String(body.family_name || `${player.user_id.split(/[@_]/)[0]}'s Family`).trim();
+      const homeName = String(body.home_name || "").trim() || `${player.user_id.split(/[@_]/)[0]}'s Residence`;
+      const address = String(body.address || "").trim() || "Civilization Citizen Zone";
+      const familyName = String(body.family_name || "").trim() || homeName;
       const memberCount = Math.max(1, Math.min(8, Number(body.member_count || 4)));
 
       if (!player.zone_locations) player.zone_locations = {};
       player.zone_locations["my_home"] = [lat, lng];
+      const pAny = player as any;
+      pAny.lat = lat;
+      pAny.lng = lng;
+      pAny.address = address;
+      pAny.city_name = address;
+      pAny.home_name = homeName;
 
       // Update or create the user's private family in families array
       if (!player.families) player.families = [];
       const myFamIndex = player.families.findIndex(f => f.id === "my_home" || f.id === `house_${player.user_id}`);
       
-      const memberNames = body.member_names || [
-        `${familyName} (Head)`,
-        "Spouse",
-        "Eldest Child",
-        "Youngest Child"
-      ].slice(0, memberCount);
+      const rawMembers = Array.isArray(body.members) ? body.members : (body.member_names || []);
+      const memberNames: string[] = [];
+      const structuredMembers = [];
+
+      for (let i = 0; i < memberCount; i++) {
+        const item = rawMembers[i];
+        let name = typeof item === "string" ? item.trim() : (item?.name || "").trim();
+        if (!name) {
+          name = i === 0 ? `${pAny.name || "Head"} (Head)` : i === 1 ? "Spouse" : `Member #${i + 1}`;
+        }
+        memberNames.push(name);
+        structuredMembers.push({
+          id: `mem_${i + 1}`,
+          name: name,
+          role: typeof item === "object" && item?.role ? item.role : (i === 0 ? "Head" : i === 1 ? "Spouse" : "Child"),
+          relation: typeof item === "object" && item?.relation ? item.relation : (i === 0 ? "Household Head" : "Family Member"),
+          vehicle: typeof item === "object" && item?.vehicle ? item.vehicle : (i === 0 ? "car" : i === 1 ? "scooter" : "bicycle"),
+          age: typeof item === "object" && item?.age ? Number(item.age) : (i === 0 ? 35 : i === 1 ? 32 : 12),
+          health: 100,
+          happiness: 95,
+          state: "At Home"
+        });
+      }
 
       const updatedFam = {
         id: "my_home",
         name: familyName,
         address: address,
         type: "house" as const,
-        budget: 150,
+        head: memberNames[0] || pAny.name || "Head",
+        member_count: structuredMembers.length,
+        budget: player.families[myFamIndex]?.budget || 150,
+        coords: [lat, lng],
         inventory: { wheat: 5, apple: 5, milk: 2 },
-        members: memberNames.map((mName: string, idx: number) => ({
-          name: mName,
-          role: idx === 0 ? "father" : idx === 1 ? "mother" : idx === 2 ? "son" : "daughter",
-          relation: idx === 0 ? "Household Head" : "Family Member",
-          vehicle: idx === 0 ? "car" : idx === 1 ? "scooter" : "bicycle",
-          state: "At Home"
-        }))
+        members: structuredMembers
       };
 
       if (myFamIndex >= 0) {
@@ -1313,11 +1499,60 @@ export async function POST(req: NextRequest) {
         player.families.unshift(updatedFam);
       }
 
-      player.agent_logs.push(`Database: Saved private residence '${homeName}' at [${lat.toFixed(4)}, ${lng.toFixed(4)}] to private user profile.`);
+      // 1. Sync to Auth DB
+      try {
+        const authCol = await getAuthCollection("users");
+        if (authCol) {
+          await authCol.updateOne(
+            { user_id: player.user_id },
+            {
+              $set: {
+                name: memberNames[0] || pAny.name || "Citizen",
+                home_name: homeName,
+                address: address,
+                city_name: address,
+                lat: lat,
+                lng: lng,
+                members: memberNames,
+                updated_at: new Date().toISOString()
+              }
+            },
+            { upsert: true }
+          );
+        }
+      } catch (err: any) {
+        console.warn("[Save Home Auth Warning]:", err.message);
+      }
+
+      // 2. Sync to World Locations Manifest
+      try {
+        const worldCol = await getWorldCollection("world_locations");
+        if (worldCol) {
+          const cleanKey = `homes.${player.user_id.replace(/[@.]/g, "_")}`;
+          await worldCol.updateOne(
+            { id: "locations_manifest" },
+            {
+              $set: {
+                [cleanKey]: {
+                  name: homeName,
+                  address: address,
+                  coords: [lat, lng],
+                  members: memberNames
+                }
+              }
+            },
+            { upsert: true }
+          );
+        }
+      } catch (err: any) {
+        console.warn("[Save Home World Location Warning]:", err.message);
+      }
+
+      player.agent_logs.push(`Database: Saved private residence '${homeName}' with ${structuredMembers.length} family members at [${lat.toFixed(4)}, ${lng.toFixed(4)}].`);
       await savePlayer(player);
       return NextResponse.json({
         ok: true,
-        message: `Private residence '${homeName}' saved to database at [${lat.toFixed(4)}, ${lng.toFixed(4)}]! (Visible only to you).`,
+        message: `Private residence '${homeName}' and family members saved to MongoDB database!`,
         zone_locations: player.zone_locations,
         families: player.families
       });

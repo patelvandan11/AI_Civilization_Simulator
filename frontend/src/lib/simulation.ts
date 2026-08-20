@@ -30,6 +30,7 @@ export interface FamilyMember {
   role: string;
   relation: string;
   state: string;
+  age?: number;
   vehicle?: string;
   destination?: string;
 }
@@ -106,6 +107,7 @@ export interface PlayerState {
     headline: string;
     category: string;
   }[];
+  daily_summaries?: string[];
   livestock?: {
     cows: number;
     sheep: number;
@@ -239,11 +241,10 @@ export function getPlotStatus(plot: FarmPlot, cropsCatalog: any, playerClockSeco
   
   const growthSeconds = Number(crop.growth_seconds) || 20;
   const rawPlot = plot as any;
-  const realElapsed = (Date.now() - new Date(plot.planted_at).getTime()) / 1000;
   const inGameElapsed = (rawPlot.planted_game_seconds !== undefined && playerClockSeconds !== undefined)
     ? Math.max(0, playerClockSeconds - rawPlot.planted_game_seconds)
-    : 0;
-  const elapsed = Math.max(realElapsed, inGameElapsed);
+    : (Date.now() - new Date(plot.planted_at).getTime()) / 1000;
+  const elapsed = inGameElapsed;
 
   const remaining = Math.max(0, growthSeconds - elapsed);
   const progress = Math.min(100, Math.max(0, Math.floor((elapsed / growthSeconds) * 100)));
@@ -369,7 +370,8 @@ export function startCraft(player: PlayerState, recipeId: string, recipesCatalog
   
   const duration = Number(recipe.craft_seconds || 5);
   const finishes = new Date(Date.now() + duration * 1000).toISOString();
-  player.craft_job = { recipe_id: recipeId, finishes_at: finishes };
+  const readyAt = (player.clock?.total_seconds || 0) + duration;
+  player.craft_job = { recipe_id: recipeId, finishes_at: finishes, ready_at_game_seconds: readyAt } as any;
   
   return `Crafting ${recipe.name}... (${duration}s)`;
 }
@@ -761,29 +763,7 @@ export function generateDailySummary(logsThisDay: string[]): string {
 }
 
 export function saveDailySummaryTS(userId: string, day: number, summaryText: string): void {
-  // Only execute on server side (Node.js)
-  if (typeof window !== "undefined") return;
-
-  try {
-    const fs = require("fs");
-    const path = require("path");
-    const WORKSPACE_DIR = path.resolve(process.cwd(), "..");
-    const filePath = path.join(WORKSPACE_DIR, "saves", "players", `${userId.replace(/[^a-zA-Z0-9_-]/g, "")}_daily_summaries.json`);
-
-    let summaries: string[] = [];
-    if (fs.existsSync(filePath)) {
-      try {
-        summaries = JSON.parse(fs.readFileSync(filePath, "utf-8"));
-      } catch {}
-    }
-
-    summaries.push(`Day ${day}: ${summaryText}`);
-    
-    fs.mkdirSync(path.dirname(filePath), { recursive: true });
-    fs.writeFileSync(filePath, JSON.stringify(summaries, null, 2), "utf-8");
-  } catch (err) {
-    console.error("[simulation TS ERROR] Failed to save daily summary:", err);
-  }
+  // Pure in-memory summary handler (persisted via MongoDB player document)
 }
 
 // Publishes real-time headlines to the micro-nation news feed
@@ -1238,16 +1218,51 @@ export function tickHouseholdAndProjects(player: PlayerState, dt: number, catalo
 }
 
 // Conduct democratic election across all citizens
-export function conductDemocraticElection(player: PlayerState): string {
-  const candidates = ["Thakorbhai", "Bharatbhai", "Rameshbhai", "Vasantiben", "Mayuriben", "Hemuben"];
-  
-  // Dynamic democratic voting simulation
+export function conductDemocraticElection(player: PlayerState, allCitizensList?: string[]): string {
+  const candidateSet = new Set<string>();
+
+  if (allCitizensList && Array.isArray(allCitizensList) && allCitizensList.length > 0) {
+    allCitizensList.forEach(n => {
+      if (n && n.trim() && !n.includes("Private Resident") && !n.includes("Protected") && !n.startsWith("Member #")) {
+        candidateSet.add(n.trim());
+      }
+    });
+  }
+
+  // Also collect from player's families & household
+  if (Array.isArray(player.families)) {
+    for (const fam of player.families) {
+      if (Array.isArray(fam.members)) {
+        for (const m of fam.members) {
+          const name = typeof m === "string" ? m : m.name;
+          if (name && name.trim() && !name.includes("Private Resident") && !name.includes("Protected") && !name.startsWith("Member #")) {
+            candidateSet.add(name.trim());
+          }
+        }
+      }
+    }
+  }
+
+  if (player.household?.members && Array.isArray(player.household.members)) {
+    for (const m of player.household.members) {
+      const name = typeof m === "string" ? m : m.name;
+      if (name && name.trim() && !name.includes("Private Resident") && !name.includes("Protected") && !name.startsWith("Member #")) {
+        candidateSet.add(name.trim());
+      }
+    }
+  }
+
+  const candidates = candidateSet.size >= 2
+    ? Array.from(candidateSet)
+    : ["Thakorbhai", "Vasantiben", "Vandan", "Hetvi", "v", "5", "6", "58"];
+
+  // Dynamic democratic voting simulation strictly among real registered citizens
   const shuffled = [...candidates].sort(() => 0.5 - Math.random());
-  const newPM = shuffled[0];
-  const newDM = shuffled[1];
-  const newFin = shuffled[2];
-  const newEdu = shuffled[3];
-  const newInfra = shuffled[4];
+  const newPM = shuffled[0] || "Thakorbhai";
+  const newDM = shuffled[1] || (shuffled.length > 1 ? shuffled[1] : shuffled[0]);
+  const newFin = shuffled[2] || shuffled[0];
+  const newEdu = shuffled[3] || shuffled[1] || shuffled[0];
+  const newInfra = shuffled[4] || shuffled[2] || shuffled[0];
 
   player.cabinet = {
     prime_minister: newPM,
@@ -1262,10 +1277,10 @@ export function conductDemocraticElection(player: PlayerState): string {
   const totalDays = Math.floor(player.clock.total_seconds / SECONDS_PER_GAME_DAY) + 1;
   const currentYear = Math.floor((totalDays - 1) / 365) + 1;
 
-  const headline = `🏛️ DEMOCRACY (Year ${currentYear}): Citizens elected ${newPM} as Prime Minister & ${newDM} as District Magistrate!`;
+  const headline = `🏛️ DEMOCRACY (Year ${currentYear}): Out of ${candidates.length} registered citizens, voters elected ${newPM} as Prime Minister & ${newDM} as District Magistrate!`;
   publishNews(player, headline, "POLITICS");
   
-  player.agent_logs.push(`Democracy: Year ${currentYear} civic elections certified. PM: ${newPM}, DM: ${newDM}, Finance: ${newFin}, Education: ${newEdu}, Infra: ${newInfra}.`);
+  player.agent_logs.push(`Democracy: Year ${currentYear} civic elections certified among ${candidates.length} citizens. PM: ${newPM}, DM: ${newDM}, Finance: ${newFin}, Education: ${newEdu}, Infra: ${newInfra}.`);
   return headline;
 }
 
@@ -1289,7 +1304,8 @@ export function runSimulationTick(player: PlayerState, inGameDeltaSeconds: numbe
     // Generate daily summary for day that just ended
     if (player.last_price_update_day > 0) {
       const summaryText = generateDailySummary(rawPlayer.logs_this_day);
-      saveDailySummaryTS(player.user_id, player.last_price_update_day, summaryText);
+      if (!player.daily_summaries) player.daily_summaries = [];
+      player.daily_summaries.push(`Day ${player.last_price_update_day}: ${summaryText}`);
       logs.push(`System: Day ${player.last_price_update_day} operations summary logged.`);
       rawPlayer.logs_this_day = [];
     }
@@ -1299,11 +1315,43 @@ export function runSimulationTick(player: PlayerState, inGameDeltaSeconds: numbe
     logs.push(`System: Dynamic market prices fluctuated for Day ${currentDay}!`);
     publishNews(player, `Market Fluctuation: Commodity exchange updated daily prices for Day ${currentDay}.`, "ECONOMY");
 
-    // Automatic Democratic Election every 10 in-game years (or every 10 in-game days cycle)
+    // Automatic Aging & Democratic Election every 10 in-game days cycle (1 In-Game Year)
     const currentYear = Math.floor((currentDay - 1) / 10) + 1;
+
+    // Annual Citizen Aging system (+1 year to every family member)
+    if (!rawPlayer.last_aging_year) {
+      rawPlayer.last_aging_year = currentYear;
+    } else if (rawPlayer.last_aging_year !== currentYear) {
+      rawPlayer.last_aging_year = currentYear;
+
+      if (Array.isArray(player.families)) {
+        player.families.forEach((fam) => {
+          if (Array.isArray(fam.members)) {
+            fam.members.forEach((m) => {
+              if (m && typeof m === "object") {
+                m.age = (typeof m.age === "number" && !isNaN(m.age) ? m.age : 25) + 1;
+              }
+            });
+          }
+        });
+      }
+
+      if (player.household?.members && Array.isArray(player.household.members)) {
+        player.household.members.forEach((m) => {
+          if (m && typeof m === "object") {
+            m.age = (typeof m.age === "number" && !isNaN(m.age) ? m.age : 25) + 1;
+          }
+        });
+      }
+
+      logs.push(`🎂 Civilization Aging (Year ${currentYear}): All citizen family members celebrated a birthday and aged +1 year!`);
+      publishNews(player, `🎂 Annual Census: All citizens advanced +1 year in age in Year ${currentYear}.`, "LOCAL");
+    }
+
+    // Automatic Democratic Election every 10 in-game years (10 cycles)
     if (!rawPlayer.last_election_cycle) {
       rawPlayer.last_election_cycle = currentYear;
-    } else if (rawPlayer.last_election_cycle !== currentYear) {
+    } else if (rawPlayer.last_election_cycle !== currentYear && currentYear % 10 === 0) {
       rawPlayer.last_election_cycle = currentYear;
       const electionMsg = conductDemocraticElection(player);
       logs.push(electionMsg);
