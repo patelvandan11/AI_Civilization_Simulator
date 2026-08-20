@@ -29,17 +29,17 @@ export async function GET(req: NextRequest) {
           runSimulationTick(player, dt, catalogs);
         }
         rawPlayer.last_saved_at = new Date().toISOString();
-        await savePlayer(player);
+        await savePlayer(player, false);
       }
     } else {
       rawPlayer.last_saved_at = new Date().toISOString();
-      await savePlayer(player);
+      await savePlayer(player, false);
     }
 
     // Ensure prices are initialized and contain all catalog items
     if (!player.item_prices || Object.keys(player.item_prices).length < Object.keys(catalogs.items).length) {
       fluctuatePrices(player, catalogs.items);
-      await savePlayer(player);
+      await savePlayer(player, false);
     }
 
     // Map output to match original python REST response exactly
@@ -143,23 +143,48 @@ export async function GET(req: NextRequest) {
     const cleanUserId = String(userId || "").trim().toLowerCase();
 
     // Map all registered citizens directly to simulation families (1 citizen = 1 family & 1 house)
-    const citizenFamilies = allUsers.map((u: any, idx: number) => {
+    const citizenFamilies: any[] = [];
+    allUsers.forEach((u: any, idx: number) => {
       const isOwn =
         u.user_id?.toLowerCase() === cleanUserId ||
         u.user_id?.toLowerCase() === player.user_id?.toLowerCase();
-      return {
-        id: `house_${u.user_id.replace(/[^a-zA-Z0-9_-]/g, "")}`,
-        name: u.home_name || (u.name ? `${u.name}'s Residence` : `Citizen Residence #${idx + 1}`),
-        address: u.address || u.city_name || "Civilization Zone",
-        type: "house" as const,
-        budget: isOwn ? (player.money || u.money || 150) : (u.budget || u.money || 150),
-        inventory: { wheat: 5, apple: 5, milk: 2, bread: 3 },
-        coords: u.coords || [20.9472, 72.9515],
-        members:
-          u.members && u.members.length > 0
-            ? u.members
-            : [{ name: u.name || "Citizen", role: "Head", relation: "Household Head", vehicle: "car" }],
-      };
+      
+      if (Array.isArray(u.families) && u.families.length > 0) {
+        u.families.forEach((fam: any) => {
+          citizenFamilies.push({
+            ...fam,
+            budget: fam.budget !== undefined ? fam.budget : (u.budget !== undefined ? u.budget : (isOwn ? player.money : 150)),
+            members: (fam.members || []).map((m: any) => {
+              if (typeof m === "object") {
+                return {
+                  ...m,
+                  vehicle: m.vehicle || u.vehicle || "car"
+                };
+              }
+              return {
+                name: m,
+                role: "resident",
+                relation: "Citizen",
+                vehicle: u.vehicle || "car",
+                state: "At Home"
+              };
+            })
+          });
+        });
+      } else {
+        citizenFamilies.push({
+          id: `house_${u.user_id.replace(/[^a-zA-Z0-9_-]/g, "")}`,
+          name: u.home_name || (u.name ? `${u.name}'s Residence` : `Citizen Residence #${idx + 1}`),
+          address: u.address || u.city_name || "Civilization Zone",
+          type: "house" as const,
+          budget: u.budget !== undefined ? u.budget : (isOwn ? player.money : 150),
+          inventory: { wheat: 5, apple: 5, milk: 2, bread: 3 },
+          coords: u.coords || [20.9472, 72.9515],
+          members: Array.isArray(u.members) && u.members.length > 0
+            ? u.members.map((m: any) => typeof m === "object" ? { ...m, vehicle: m.vehicle || u.vehicle || "car" } : { name: m, role: "resident", relation: "Citizen", vehicle: u.vehicle || "car", state: "At Home" })
+            : [{ name: u.name || "Citizen", role: "Head", relation: "Household Head", vehicle: u.vehicle || "car" }],
+        });
+      }
     });
 
     const filteredFamilies = isAdmin
@@ -189,7 +214,13 @@ export async function GET(req: NextRequest) {
         });
 
     const sanitizedRegisteredUsers = isAdmin
-      ? allUsers
+      ? allUsers.map((u: any) => ({
+          ...u,
+          budget: u.families?.[0]?.budget !== undefined ? u.families[0].budget : (u.budget || 201),
+          members: (u.families?.[0]?.members || u.members || []).map((m: any) => 
+            typeof m === "object" ? { ...m, vehicle: m.vehicle || u.vehicle || "car" } : { name: m, role: "resident", relation: "Citizen", vehicle: u.vehicle || "car", state: "At Home" }
+          )
+        }))
       : allUsers.map((u: any) => {
           const isOwn =
             u.user_id?.toLowerCase() === cleanUserId ||
@@ -201,9 +232,10 @@ export async function GET(req: NextRequest) {
             address: u.address || u.city_name,
             coords: u.coords,
             money: isOwn ? u.money : undefined,
-            members: isOwn ? u.members : [],
+            members: isOwn ? (u.families?.[0]?.members || u.members || []) : [],
             member_count: isOwn ? u.member_count : undefined,
-            budget: isOwn ? u.budget : undefined,
+            budget: isOwn ? (u.families?.[0]?.budget || u.budget) : undefined,
+            vehicle: u.vehicle || u.families?.[0]?.members?.[0]?.vehicle || "car",
             is_own: isOwn,
           };
         });

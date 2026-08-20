@@ -277,6 +277,19 @@ export default function CivilizationDashboard() {
   const [otpNotice, setOtpNotice] = useState<string>("");
   const [magicLinkSent, setMagicLinkSent] = useState<boolean>(false);
 
+  // Forgot Password States
+  const [isForgotPassword, setIsForgotPassword] = useState<boolean>(false);
+  const [forgotEmail, setForgotEmail] = useState<string>("");
+  const [forgotOtp, setForgotOtp] = useState<string>("");
+  const [forgotNewPassword, setForgotNewPassword] = useState<string>("");
+  const [showForgotNewPassword, setShowForgotNewPassword] = useState<boolean>(false);
+  const [forgotOtpSent, setForgotOtpSent] = useState<boolean>(false);
+  const [forgotMsg, setForgotMsg] = useState<string>("");
+  const [forgotError, setForgotError] = useState<string>("");
+  const [isSendingForgotOtp, setIsSendingForgotOtp] = useState<boolean>(false);
+  const [isVerifyingForgot, setIsVerifyingForgot] = useState<boolean>(false);
+  const [devForgotCode, setDevForgotCode] = useState<string>("");
+
   // New Citizen Registration States
   const [signupName, setSignupName] = useState<string>("");
   const [signupAddress, setSignupAddress] = useState<string>("");
@@ -339,6 +352,8 @@ export default function CivilizationDashboard() {
   const [editPersonRole, setEditPersonRole] = useState<string>("worker");
   const [editPersonRelation, setEditPersonRelation] = useState<string>("");
   const [editPersonVehicle, setEditPersonVehicle] = useState<string>("bicycle");
+  const [editPersonHouseBudget, setEditPersonHouseBudget] = useState<number>(150);
+  const [editPersonTargetUserId, setEditPersonTargetUserId] = useState<string>("");
 
   // Cozy Aesthetics: Day Mode, Night Mode, Sound SFX & Ambient Tunes
   const [themeMode, setThemeMode] = useState<"night" | "day" | "auto">("night");
@@ -1213,25 +1228,24 @@ export default function CivilizationDashboard() {
       });
   }, [userId, apiHost, isLoggedIn]);
 
-  // Dynamic Polling simulation status based on active simulation speed
+  // Dynamic Polling simulation status with smooth cadence
   useEffect(() => {
     if (!isLoggedIn) return;
     fetchStatus();
 
-    // Fast polling when simulation speed is high
-    const pollIntervalTime = isPaused ? 2500 : simSpeed >= 60 ? 200 : simSpeed >= 10 ? 350 : 1000;
+    const pollIntervalTime = isPaused ? 3000 : simSpeed >= 60 ? 600 : simSpeed >= 10 ? 800 : 1200;
     const interval = setInterval(fetchStatus, pollIntervalTime);
     return () => {
       clearInterval(interval);
     };
   }, [fetchStatus, isLoggedIn, isPaused, simSpeed]);
 
-  // Fast Simulation Speed Runner Ticker (Steps smoothly 4x/sec at 10x, 60x, 1000x)
+  // Fast Simulation Speed Runner Ticker (Steps smoothly at 10x, 60x, 1000x)
   useEffect(() => {
     if (!isLoggedIn || isPaused || simSpeed <= 1) return;
 
-    // Step every 250ms (4 times per second) with proportional slice of in-game seconds
-    const intervalTime = 250;
+    // Step every 500ms (2 times per second) with proportional slice of in-game seconds
+    const intervalTime = 500;
     const stepSeconds = (simSpeed * (intervalTime / 1000));
 
     const timer = setInterval(() => {
@@ -1246,16 +1260,11 @@ export default function CivilizationDashboard() {
         })
       })
         .then((res) => res.json())
-        .then((data) => {
-          if (data.ok) {
-            fetchStatus();
-          }
-        })
         .catch(() => {});
     }, intervalTime);
 
     return () => clearInterval(timer);
-  }, [isLoggedIn, isPaused, simSpeed, userId, apiHost, fetchStatus]);
+  }, [isLoggedIn, isPaused, simSpeed, userId, apiHost]);
 
   const handleMemberCountChange = (count: number) => {
     setSignupMemberCount(count);
@@ -1525,6 +1534,98 @@ export default function CivilizationDashboard() {
     }
   };
 
+  const handleSendForgotOtp = async () => {
+    const targetEmail = (forgotEmail || authInput).trim().toLowerCase();
+    if (!targetEmail) {
+      setForgotError("Please enter your registered email address.");
+      return;
+    }
+    setForgotError("");
+    setForgotMsg("");
+    setIsSendingForgotOtp(true);
+
+    try {
+      const res = await fetch(`${apiHost}/api/auth/password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "forgot_password_send_otp",
+          email: targetEmail
+        })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        setForgotOtpSent(true);
+        setForgotOtp("");
+        setForgotMsg(data.message || `Password reset verification code sent to ${targetEmail}. Please check your inbox.`);
+        if (data.devCode) {
+          setDevForgotCode(data.devCode);
+        }
+      } else {
+        setForgotError(data.message || "No account found with this email address.");
+      }
+    } catch (err: any) {
+      setForgotError("Failed to send reset code: " + err.message);
+    } finally {
+      setIsSendingForgotOtp(false);
+    }
+  };
+
+  const handleVerifyAndResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const targetEmail = (forgotEmail || authInput).trim().toLowerCase();
+    if (!targetEmail) {
+      setForgotError("Please enter your registered email address.");
+      return;
+    }
+    if (!forgotOtp.trim()) {
+      setForgotError("Please enter the 6-digit OTP code sent to your email.");
+      return;
+    }
+    if (!forgotNewPassword.trim() || forgotNewPassword.trim().length < 4) {
+      setForgotError("New password must be at least 4 characters long.");
+      return;
+    }
+
+    setForgotError("");
+    setForgotMsg("");
+    setIsVerifyingForgot(true);
+
+    try {
+      const res = await fetch(`${apiHost}/api/auth/password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "forgot_password_verify_and_reset",
+          email: targetEmail,
+          otp: forgotOtp.trim(),
+          new_password: forgotNewPassword.trim()
+        })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        alert(data.message || "Password successfully reset! Logging in with your new password...");
+        setAuthInput(targetEmail);
+        setAuthPassword(forgotNewPassword.trim());
+        setUserId(targetEmail);
+        setIsLoggedIn(true);
+        try {
+          localStorage.setItem("civilization_active_user", targetEmail);
+        } catch {}
+        setIsForgotPassword(false);
+        setForgotOtpSent(false);
+        setForgotOtp("");
+        setForgotNewPassword("");
+      } else {
+        setForgotError(data.message || "Invalid OTP or failed to reset password.");
+      }
+    } catch (err: any) {
+      setForgotError("Error resetting password: " + err.message);
+    } finally {
+      setIsVerifyingForgot(false);
+    }
+  };
+
 
 
   // Logout / Switch account
@@ -1657,6 +1758,39 @@ export default function CivilizationDashboard() {
     }
   };
 
+  const populateHomeInputs = () => {
+    const myFam = status?.families?.find((f: any) => f.id === "my_home" || f.id === `house_${userId}`) || status?.families?.[0];
+    const hName = myFam?.name || status?.home_name || `${userId.split(/[@_]/)[0]}'s Residence`;
+    const addr = myFam?.address || status?.address || status?.city_name || "Civilization Citizen Zone";
+    const coords = status?.zone_locations?.my_home || myFam?.coords || [status?.lat ?? 20.9472, status?.lng ?? 72.9515];
+
+    setHomeNameInput(hName);
+    setHomeAddressInput(addr);
+    setHomeLatInput(String(coords[0] ?? 20.9472));
+    setHomeLngInput(String(coords[1] ?? 72.9515));
+
+    const mems = myFam?.members || status?.household?.members || status?.members || [];
+    const mCount = Math.max(1, mems.length || 4);
+    setHomeMemberCountInput(mCount);
+
+    const mNames = Array.from({ length: mCount }).map((_, idx) => {
+      const m = mems[idx];
+      return typeof m === "string" ? m : m?.name || (idx === 0 ? (status?.name || userId.split(/[@_]/)[0]) : `Member #${idx + 1}`);
+    });
+    const mRoles = Array.from({ length: mCount }).map((_, idx) => {
+      const m = mems[idx];
+      return typeof m === "object" && m?.role ? m.role : (idx === 0 ? "Head of Family" : idx === 1 ? "Spouse" : "Child");
+    });
+    const mAges = Array.from({ length: mCount }).map((_, idx) => {
+      const m = mems[idx];
+      return typeof m === "object" && m?.age ? Number(m.age) : (idx === 0 ? 35 : idx === 1 ? 32 : 12);
+    });
+
+    setHomeMemberNamesInput(mNames);
+    setHomeMemberRolesInput(mRoles);
+    setHomeMemberAgesInput(mAges);
+  };
+
   const savePrivateHome = async () => {
     const lat = parseFloat(homeLatInput) || 20.9472;
     const lng = parseFloat(homeLngInput) || 72.9515;
@@ -1670,21 +1804,24 @@ export default function CivilizationDashboard() {
       vehicle: idx === 0 ? "car" : idx === 1 ? "scooter" : "bicycle"
     }));
 
-    const res = await dispatchAction("set_home_location", {
+    const res = await dispatchAction("update_user_details", {
+      target_user_id: userId,
       lat,
       lng,
       home_name: homeNameInput.trim() || `${userId.split(/[@_]/)[0]}'s Residence`,
       address: homeAddressInput.trim() || "Civilization Citizen Zone",
-      family_name: homeFamilyNameInput.trim() || homeNameInput.trim() || `${userId.split(/[@_]/)[0]}'s Family`,
+      family_name: homeFamilyNameInput.trim() || homeNameInput.trim() || `${userId.split(/[@_]/)[0]}'s Residence`,
       member_count: homeMemberCountInput,
       members: validMembers
     });
     if (res?.ok) {
-      setHomeSaveMsg(`✅ Private residence & ${validMembers.length} family members saved to MongoDB database!`);
+      setHomeSaveMsg(`✅ Private residence & ${validMembers.length} family members saved successfully!`);
       if (mapInstanceRef.current) {
         mapInstanceRef.current.flyTo([lat, lng], 16);
       }
       setTimeout(() => setHomeSaveMsg(""), 6000);
+    } else if (res?.message) {
+      setHomeSaveMsg(`❌ ${res.message}`);
     }
   };
 
@@ -1793,6 +1930,15 @@ export default function CivilizationDashboard() {
   };
   const toggleCityManager = () => {
     dispatchAction("toggle_city_manager", { enabled: !status?.city_manager_enabled });
+  };
+  const resetAndSeedDb = async () => {
+    if (window.confirm("Are you sure you want to reset the database and seed clean 6 Citizens architecture (Vandan_Home & Vpatel Residence)?")) {
+      const res = await dispatchAction("reset_and_seed_database");
+      if (res?.ok) {
+        alert(res.message || "Database reset successfully!");
+        fetchStatus();
+      }
+    }
   };
 
   // Admin Location Fix Helpers
@@ -2094,52 +2240,40 @@ export default function CivilizationDashboard() {
   const selectedFamily = isAdmin
     ? (status?.families?.find((f: any) => f.id === selectedFamilyId) || status?.families?.[0])
     : myPersonalFamily;
-  // Dynamically compute list of all actual registered citizens in civilization (out of total registered citizens)
+  // Dynamically compute list of all actual registered citizens eligible for Government Cabinet (Age >= 18 criteria)
   const listAllAdults = useMemo(() => {
-    const namesSet = new Set<string>();
+    const map = new Map<string, number>();
+
+    const processMembers = (members: any[]) => {
+      if (!Array.isArray(members)) return;
+      members.forEach((m: any, idx: number) => {
+        const mName = typeof m === "string" ? m.trim() : (m?.name || "").trim();
+        const mAge = typeof m === "object" && m?.age !== undefined ? Number(m.age) : (idx === 0 ? 35 : idx === 1 ? 32 : 12);
+        if (
+          mName &&
+          !mName.includes("Private Resident") &&
+          !mName.includes("Protected") &&
+          !mName.startsWith("Member #") &&
+          mAge >= 18 // Age eligibility criteria (Adults >= 18 only)
+        ) {
+          if (!map.has(mName) || (map.get(mName) || 0) < mAge) {
+            map.set(mName, mAge);
+          }
+        }
+      });
+    };
 
     if (status?.families && Array.isArray(status.families)) {
-      status.families.forEach((fam: any) => {
-        if (fam.members && Array.isArray(fam.members)) {
-          fam.members.forEach((m: any) => {
-            const mName = typeof m === "string" ? m : m.name;
-            if (
-              mName &&
-              mName.trim() &&
-              !mName.includes("Private Resident") &&
-              !mName.includes("Protected") &&
-              !mName.startsWith("Member #")
-            ) {
-              namesSet.add(mName.trim());
-            }
-          });
-        }
-      });
+      status.families.forEach((fam: any) => processMembers(fam.members));
     }
-
     if (registeredUsers && Array.isArray(registeredUsers)) {
-      registeredUsers.forEach((u: any) => {
-        if (u.members && Array.isArray(u.members)) {
-          u.members.forEach((m: any) => {
-            const mName = typeof m === "string" ? m : m.name;
-            if (
-              mName &&
-              mName.trim() &&
-              !mName.includes("Private Resident") &&
-              !mName.includes("Protected") &&
-              !mName.startsWith("Member #")
-            ) {
-              namesSet.add(mName.trim());
-            }
-          });
-        }
-      });
+      registeredUsers.forEach((u: any) => processMembers(u.members));
     }
 
-    const arr = Array.from(namesSet);
+    const arr = Array.from(map.keys());
     return arr.length > 0
       ? arr
-      : ["Thakorbhai", "Vasantiben", "Vandan", "Hetvi", "v", "5", "6", "58"];
+      : ["Thakorbhai", "Vasantiben", "Vandan", "Hetvi", "V1", "V2"];
   }, [status?.families, registeredUsers]);
 
   // =========================================================================
@@ -2288,21 +2422,45 @@ export default function CivilizationDashboard() {
               <div className="flex items-center justify-center gap-2 mt-2.5">
                 <span
                   className={`inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-full font-medium shadow-sm border ${
-                    isAuthDay
-                      ? "bg-emerald-50 border-emerald-300 text-emerald-800"
-                      : "bg-emerald-950/80 border-emerald-500/40 text-emerald-300"
+                    dbHealth?.ok === false
+                      ? isAuthDay
+                        ? "bg-red-50 border-red-300 text-red-800"
+                        : "bg-red-950/80 border-red-500/40 text-red-300"
+                      : dbHealth?.ok
+                        ? isAuthDay
+                          ? "bg-emerald-50 border-emerald-300 text-emerald-800"
+                          : "bg-emerald-950/80 border-emerald-500/40 text-emerald-300"
+                        : isAuthDay
+                          ? "bg-amber-50 border-amber-300 text-amber-800"
+                          : "bg-amber-950/80 border-amber-500/40 text-amber-300"
                   }`}
                 >
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                  <span>MongoDB Atlas Connected</span>
                   <span
-                    className={`text-[10px] ${
-                      isAuthDay ? "text-emerald-700" : "text-emerald-400/60"
+                    className={`w-2 h-2 rounded-full ${
+                      dbHealth?.ok === false
+                        ? "bg-red-400"
+                        : dbHealth?.ok
+                          ? "bg-emerald-400 animate-pulse"
+                          : "bg-amber-400 animate-pulse"
                     }`}
-                  >
-                    (auth • world • catalog)
+                  ></span>
+                  <span>
+                    {dbHealth?.ok === false
+                      ? "MongoDB Disconnected"
+                      : dbHealth?.ok
+                        ? "MongoDB Atlas Connected"
+                        : "Checking MongoDB..."}
                   </span>
-                  {dbHealth?.latencyMs !== undefined && (
+                  {dbHealth?.ok && (
+                    <span
+                      className={`text-[10px] ${
+                        isAuthDay ? "text-emerald-700" : "text-emerald-400/60"
+                      }`}
+                    >
+                      (auth • world • catalog)
+                    </span>
+                  )}
+                  {dbHealth?.latencyMs !== undefined && dbHealth?.ok && (
                     <span
                       className={`font-mono text-[10px] ${
                         isAuthDay ? "text-emerald-700 font-bold" : "text-emerald-400/80"
@@ -2315,47 +2473,187 @@ export default function CivilizationDashboard() {
               </div>
             </div>
 
-            {/* Tab Switcher: Sign In vs Sign Up */}
-            <div
-              className={`flex p-1 rounded-xl border transition-all ${
-                isAuthDay
-                  ? "bg-slate-100 border-slate-200"
-                  : "bg-slate-950 border-slate-800/80"
-              }`}
-            >
-              <button
-                type="button"
-                onClick={() => {
-                  setAuthTab("signin");
-                  setAuthError("");
-                }}
-                className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${
-                  authTab === "signin"
-                    ? "bg-amber-500 text-slate-950 shadow-md"
-                    : isAuthDay
-                    ? "text-slate-600 hover:text-slate-900"
-                    : "text-slate-400 hover:text-white"
-                }`}
-              >
-                SIGN IN
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setAuthTab("signup");
-                  setAuthError("");
-                }}
-                className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${
-                  authTab === "signup"
-                    ? "bg-amber-500 text-slate-950 shadow-md"
-                    : isAuthDay
-                    ? "text-slate-600 hover:text-slate-900"
-                    : "text-slate-400 hover:text-white"
-                }`}
-              >
-                CREATE CITIZEN ACCOUNT
-              </button>
-            </div>
+            {/* Forgot Password View */}
+            {isForgotPassword ? (
+              <div className="flex flex-col gap-4">
+                <div className="flex items-center justify-between border-b pb-3 border-amber-500/20">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">🔑</span>
+                    <div>
+                      <h3 className={`text-sm font-black ${isAuthDay ? "text-slate-900" : "text-white"}`}>
+                        Reset Account Password
+                      </h3>
+                      <p className={`text-xs font-mono ${isAuthDay ? "text-slate-600" : "text-slate-400"}`}>
+                        Enter email to receive 6-digit OTP reset code
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsForgotPassword(false);
+                      setForgotError("");
+                      setForgotMsg("");
+                    }}
+                    className={`text-xs font-bold px-3 py-1.5 rounded-xl border ${
+                      isAuthDay ? "bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-300" : "bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700"
+                    }`}
+                  >
+                    ← Back to Sign In
+                  </button>
+                </div>
+
+                {forgotMsg && (
+                  <div className={`text-xs p-3 rounded-xl flex items-center justify-between gap-2 border ${
+                    isAuthDay ? "bg-emerald-50 border-emerald-300 text-emerald-900" : "bg-emerald-950/60 border-emerald-500/50 text-emerald-200"
+                  }`}>
+                    <span>✅ {forgotMsg}</span>
+                    {devForgotCode && (
+                      <button
+                        type="button"
+                        onClick={() => setForgotOtp(devForgotCode)}
+                        className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-[10px] font-bold px-2 py-1 rounded shadow"
+                      >
+                        AUTO-FILL
+                      </button>
+                    )}
+                  </div>
+                )}
+
+                {forgotError && (
+                  <div className={`text-xs p-3 rounded-xl flex items-center gap-2 border ${
+                    isAuthDay ? "bg-rose-50 border-rose-300 text-rose-800" : "bg-rose-950/40 border-rose-500/40 text-rose-300"
+                  }`}>
+                    <span>⚠️</span>
+                    <span>{forgotError}</span>
+                  </div>
+                )}
+
+                <form onSubmit={handleVerifyAndResetPassword} className="flex flex-col gap-4">
+                  <div>
+                    <label className={`text-xs font-semibold mb-1.5 block ${isAuthDay ? "text-slate-700" : "text-slate-300"}`}>
+                      Registered Email Address
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        type="email"
+                        required
+                        placeholder="e.g. citizen@gmail.com"
+                        value={forgotEmail}
+                        onChange={(e) => setForgotEmail(e.target.value)}
+                        className={`flex-1 border rounded-xl px-3 py-2 text-sm font-mono transition-all outline-none ${
+                          isAuthDay ? "bg-slate-50 border-slate-300 text-slate-900 focus:bg-white" : "bg-slate-950 border-slate-800 text-white"
+                        }`}
+                      />
+                      <button
+                        type="button"
+                        disabled={isSendingForgotOtp}
+                        onClick={handleSendForgotOtp}
+                        className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs px-3 py-2 rounded-xl shadow transition-all whitespace-nowrap disabled:opacity-50"
+                      >
+                        {isSendingForgotOtp ? "Sending..." : forgotOtpSent ? "Resend Code" : "Send Reset Code 📩"}
+                      </button>
+                    </div>
+                  </div>
+
+                  {forgotOtpSent && (
+                    <>
+                      <div>
+                        <label className={`text-xs font-semibold mb-1.5 block ${isAuthDay ? "text-slate-700" : "text-slate-300"}`}>
+                          6-Digit OTP Verification Code
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          maxLength={6}
+                          placeholder="e.g. 123456"
+                          value={forgotOtp}
+                          onChange={(e) => setForgotOtp(e.target.value)}
+                          className={`w-full border rounded-xl px-3 py-2 text-sm font-mono transition-all outline-none ${
+                            isAuthDay ? "bg-slate-50 border-slate-300 text-slate-900 focus:bg-white" : "bg-slate-950 border-slate-800 text-white"
+                          }`}
+                        />
+                      </div>
+
+                      <div>
+                        <label className={`text-xs font-semibold mb-1.5 block ${isAuthDay ? "text-slate-700" : "text-slate-300"}`}>
+                          New Password
+                        </label>
+                        <div className="relative">
+                          <input
+                            type={showForgotNewPassword ? "text" : "password"}
+                            required
+                            placeholder="Enter new password (min 4 chars)"
+                            value={forgotNewPassword}
+                            onChange={(e) => setForgotNewPassword(e.target.value)}
+                            className={`w-full border rounded-xl pl-3 pr-16 py-2.5 text-sm font-mono transition-all outline-none ${
+                              isAuthDay ? "bg-slate-50 border-slate-300 text-slate-900 focus:bg-white" : "bg-slate-950 border-slate-800 text-white"
+                            }`}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowForgotNewPassword(!showForgotNewPassword)}
+                            className={`absolute right-3 top-2.5 text-xs font-mono ${isAuthDay ? "text-slate-500 hover:text-slate-900" : "text-slate-400 hover:text-white"}`}
+                          >
+                            {showForgotNewPassword ? "🙈 Hide" : "👁️ Show"}
+                          </button>
+                        </div>
+                      </div>
+
+                      <button
+                        type="submit"
+                        disabled={isVerifyingForgot}
+                        className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-sm py-3 rounded-xl shadow-lg transition-all cursor-pointer"
+                      >
+                        {isVerifyingForgot ? "Updating Password..." : "🔐 Verify Code & Reset Password"}
+                      </button>
+                    </>
+                  )}
+                </form>
+              </div>
+            ) : (
+              <>
+                {/* Tab Switcher: Sign In vs Sign Up */}
+                <div
+                  className={`flex p-1 rounded-xl border transition-all ${
+                    isAuthDay
+                      ? "bg-slate-100 border-slate-200"
+                      : "bg-slate-950 border-slate-800/80"
+                  }`}
+                >
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAuthTab("signin");
+                      setAuthError("");
+                    }}
+                    className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${
+                      authTab === "signin"
+                        ? "bg-amber-500 text-slate-950 shadow-md"
+                        : isAuthDay
+                        ? "text-slate-600 hover:text-slate-900"
+                        : "text-slate-400 hover:text-white"
+                    }`}
+                  >
+                    SIGN IN
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAuthTab("signup");
+                      setAuthError("");
+                    }}
+                    className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${
+                      authTab === "signup"
+                        ? "bg-amber-500 text-slate-950 shadow-md"
+                        : isAuthDay
+                        ? "text-slate-600 hover:text-slate-900"
+                        : "text-slate-400 hover:text-white"
+                    }`}
+                  >
+                    CREATE CITIZEN ACCOUNT
+                  </button>
+                </div>
 
             {/* Notification / OTP Toast */}
             {otpNotice && (
@@ -2517,6 +2815,26 @@ export default function CivilizationDashboard() {
                         }`}
                       >
                         {showPassword ? "🙈 Hide" : "👁️ Show"}
+                      </button>
+                    </div>
+                    <div className="flex justify-end mt-1">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setForgotEmail(authInput.trim());
+                          setForgotOtp("");
+                          setForgotNewPassword("");
+                          setForgotOtpSent(false);
+                          setForgotMsg("");
+                          setForgotError("");
+                          setDevForgotCode("");
+                          setIsForgotPassword(true);
+                        }}
+                        className={`text-xs font-bold font-mono ${
+                          isAuthDay ? "text-amber-700 hover:text-amber-800" : "text-amber-400 hover:text-amber-300"
+                        } hover:underline transition-all flex items-center gap-1`}
+                      >
+                        <span>❓ Forgot Password?</span>
                       </button>
                     </div>
                   </div>
@@ -2901,6 +3219,8 @@ export default function CivilizationDashboard() {
                   CREATE CITIZEN ACCOUNT & ENTER
                 </button>
               </form>
+            )}
+            </>
             )}
           </div>
         </div>
@@ -3523,6 +3843,9 @@ export default function CivilizationDashboard() {
                         type="button"
                         onClick={() => {
                           soundEngine.playClick(650);
+                          if (!showHomeBuilder) {
+                            populateHomeInputs();
+                          }
                           setShowHomeBuilder(!showHomeBuilder);
                         }}
                         className={`bg-emerald-500/20 hover:bg-emerald-500/30 ${isDayMode ? "text-emerald-950 border-emerald-400 bg-emerald-100" : "text-emerald-300 border-emerald-500/40"} border text-xs font-bold px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 shadow-sm`}
@@ -6196,36 +6519,6 @@ export default function CivilizationDashboard() {
                         </button>
                       ))}
                     </div>
-
-                    {/* Vehicle Filter Strip */}
-                    <div className={`flex items-center gap-1.5 flex-wrap text-xs pt-1.5 border-t ${isDayMode ? "border-amber-200" : "border-slate-850"}`}>
-                      <span className={`${isDayMode ? "text-slate-600 font-bold" : "text-slate-400"} font-mono text-[10px] uppercase shrink-0`}>Commute Vehicle:</span>
-                      {[
-                        { id: "all", label: "All Vehicles", icon: "🌐" },
-                        { id: "car", label: "Cars", icon: "🚗" },
-                        { id: "scooter", label: "Scooters", icon: "🛵" },
-                        { id: "bicycle", label: "Bicycles", icon: "🚲" },
-                        { id: "tractor", label: "Tractors", icon: "🚜" },
-                        { id: "truck", label: "Trucks", icon: "🚚" },
-                        { id: "walk", label: "Foot/Walk", icon: "🚶" }
-                      ].map((vf) => (
-                        <button
-                          key={vf.id}
-                          onClick={() => {
-                            soundEngine.playClick(620);
-                            setPersonVehicleFilter(vf.id);
-                          }}
-                          className={`px-2 py-0.5 rounded-lg text-[10px] font-bold transition-all border flex items-center gap-1 ${
-                            personVehicleFilter === vf.id
-                              ? "bg-sky-500 text-slate-950 border-sky-400 shadow-sm"
-                              : isDayMode ? "bg-amber-50 text-slate-700 border-amber-200 hover:bg-amber-100" : "bg-slate-900 text-slate-400 border-slate-800 hover:text-white"
-                          }`}
-                        >
-                          <span>{vf.icon}</span>
-                          <span>{vf.label}</span>
-                        </button>
-                      ))}
-                    </div>
                   </div>
 
                   {/* Citizens Roster Cards Grid */}
@@ -6234,8 +6527,12 @@ export default function CivilizationDashboard() {
                       const allCitizens: any[] = [];
                       status.families?.forEach((fam: any) => {
                         fam.members?.forEach((mem: any) => {
+                          const isObj = typeof mem === "object";
+                          const memVehicle = (isObj && mem.vehicle) ? mem.vehicle : (fam.vehicle || status.player?.vehicle || "walk");
                           allCitizens.push({
-                            ...mem,
+                            ...(isObj ? mem : { name: mem }),
+                            vehicle: (isObj && mem.vehicle) ? mem.vehicle : memVehicle,
+                            target_user_id: userId,
                             family_id: fam.id,
                             family_name: fam.name,
                             family_type: fam.type || (fam.id.startsWith("hostel_") ? "hostel" : "house"),
@@ -6245,9 +6542,32 @@ export default function CivilizationDashboard() {
                         });
                       });
 
+                      registeredUsers?.forEach((u: any) => {
+                        const famId = `house_${u.user_id.toLowerCase().replace(/[^a-z0-9]/g, "")}`;
+                        if (!allCitizens.some((c: any) => c.family_id === famId || c.target_user_id === u.user_id)) {
+                          (u.members || []).forEach((mem: any) => {
+                            const isObj = typeof mem === "object";
+                            const memVehicle = (isObj && mem.vehicle) ? mem.vehicle : (u.vehicle || "walk");
+                            allCitizens.push({
+                              name: isObj ? mem.name : mem,
+                              age: isObj ? (mem.age || 25) : (u.age || 25),
+                              role: isObj ? (mem.role || "resident") : "resident",
+                              relation: isObj ? (mem.relation || "Citizen") : "Citizen",
+                              vehicle: memVehicle,
+                              state: "At Home",
+                              target_user_id: u.user_id,
+                              family_id: famId,
+                              family_name: u.home_name || `${u.user_id}'s Residence`,
+                              family_type: "house",
+                              family_address: u.address || u.city_name || "Civilization Region",
+                              budget: u.budget || 201
+                            });
+                          });
+                        }
+                      });
+
                       const filtered = allCitizens.filter((c: any) => {
                         if (personResidenceFilter !== "all" && c.family_id !== personResidenceFilter) return false;
-                        if (personVehicleFilter !== "all" && (c.vehicle || "bicycle").toLowerCase() !== personVehicleFilter.toLowerCase()) return false;
                         if (!personSearchQuery.trim()) return true;
                         const q = personSearchQuery.toLowerCase();
                         return (
@@ -6268,7 +6588,6 @@ export default function CivilizationDashboard() {
                       }
 
                       return filtered.map((c: any, idx: number) => {
-                        const vehicleIcon = VEHICLE_EMOJIS[c.vehicle] || "🚗";
                         return (
                           <div
                             key={`${c.family_id}_${c.name}_${idx}`}
@@ -6277,7 +6596,7 @@ export default function CivilizationDashboard() {
                             <div className="flex justify-between items-start gap-2">
                               <div className="flex items-center gap-2.5">
                                 <div className={`w-10 h-10 rounded-xl ${isDayMode ? "bg-amber-100 border-amber-300" : "bg-amber-500/10 border-amber-500/30"} border flex items-center justify-center text-xl shrink-0 shadow-inner`}>
-                                  {vehicleIcon}
+                                  👤
                                 </div>
                                 <div>
                                   <h3 className={`${isDayMode ? "text-slate-900" : "text-white"} text-sm font-extrabold flex items-center gap-1.5 flex-wrap`}>
@@ -6306,9 +6625,27 @@ export default function CivilizationDashboard() {
                                 <span>🏠 <strong>Residence:</strong> {c.family_name}</span>
                                 <span className={`text-[10px] font-mono ${isDayMode ? "text-slate-500" : "text-slate-500"}`}>ID: {c.family_id}</span>
                               </div>
-                              <div className={`flex justify-between items-center ${isDayMode ? "text-slate-700" : "text-slate-400"}`}>
-                                <span>🧭 <strong>Commuting By:</strong> {c.vehicle ? `${c.vehicle.toUpperCase()} (${vehicleIcon})` : "Bicycle (🚲)"}</span>
-                                <span className={`${isDayMode ? "text-emerald-700 font-extrabold" : "text-emerald-400 font-bold"} font-mono`}>House Budget: ${c.budget}/day</span>
+                              <div className={`flex justify-between items-center ${isDayMode ? "text-slate-700" : "text-slate-400"} flex-wrap gap-1.5`}>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    soundEngine.playClick(750);
+                                    setEditPersonTargetUserId(c.target_user_id || userId);
+                                    setEditPersonOldName(c.name);
+                                    setEditPersonNewName(c.name);
+                                    setEditPersonFamilyId(c.family_id);
+                                    setEditPersonNewFamilyId(c.family_id);
+                                    setEditPersonRole(c.role || "worker");
+                                    setEditPersonRelation(c.relation || "");
+                                    setEditPersonHouseBudget(c.budget || 150);
+                                    setEditingPersonModalOpen(true);
+                                  }}
+                                  className={`${isDayMode ? "text-emerald-800 font-extrabold" : "text-emerald-400 font-bold"} font-mono hover:underline flex items-center gap-1 cursor-pointer`}
+                                  title="Click to edit daily house budget"
+                                >
+                                  <span>💰 <strong>House Budget:</strong> ${c.budget}/day</span>
+                                  <span className="text-[9px] bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 px-1 rounded border border-emerald-500/30 font-sans font-bold">✏️ Change</span>
+                                </button>
                               </div>
                             </div>
 
@@ -6331,6 +6668,7 @@ export default function CivilizationDashboard() {
                                 type="button"
                                 onClick={() => {
                                   soundEngine.playClick(750);
+                                  setEditPersonTargetUserId(c.target_user_id || userId);
                                   setEditPersonOldName(c.name);
                                   setEditPersonNewName(c.name);
                                   setEditPersonFamilyId(c.family_id);
@@ -6338,6 +6676,7 @@ export default function CivilizationDashboard() {
                                   setEditPersonRole(c.role || "worker");
                                   setEditPersonRelation(c.relation || "");
                                   setEditPersonVehicle(c.vehicle || "bicycle");
+                                  setEditPersonHouseBudget(c.budget || 150);
                                   setEditingPersonModalOpen(true);
                                 }}
                                 className={`${isDayMode ? "bg-amber-100 hover:bg-amber-200 text-amber-950 border-amber-300" : "bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border-amber-500/40"} border text-xs font-bold px-3 py-1.5 rounded-xl transition-all flex items-center gap-1 shadow-sm active:scale-95`}
@@ -7368,6 +7707,14 @@ export default function CivilizationDashboard() {
               </div>
 
               <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={resetAndSeedDb}
+                  className="bg-red-500/20 hover:bg-red-500/30 text-red-600 dark:text-red-400 border border-red-500/40 text-xs font-bold px-3 py-1.5 rounded-xl transition-all flex items-center gap-1 shadow-sm"
+                  title="Clean slate database reset with 6 Citizens architecture"
+                >
+                  <span>🧹 Reset DB (6 Citizens)</span>
+                </button>
                 <input
                   type="text"
                   placeholder="🔍 Search email, home, city..."
@@ -7682,38 +8029,9 @@ export default function CivilizationDashboard() {
                 />
               </div>
 
-              {/* Commute Vehicle */}
-              <div>
-                <label className={`${isDayMode ? "text-slate-700 font-bold" : "text-slate-300"} block mb-1 font-semibold text-[11px]`}>4. Commuting Vehicle:</label>
-                <div className="grid grid-cols-3 gap-2">
-                  {[
-                    { id: "car", label: "Electric Car", icon: "🚗" },
-                    { id: "scooter", label: "City Scooter", icon: "🛵" },
-                    { id: "bicycle", label: "Bicycle", icon: "🚲" },
-                    { id: "tractor", label: "Heavy Tractor", icon: "🚜" },
-                    { id: "truck", label: "Cargo Truck", icon: "🚚" },
-                    { id: "walk", label: "On Foot / Walk", icon: "🚶" }
-                  ].map((v) => (
-                    <button
-                      key={v.id}
-                      type="button"
-                      onClick={() => setEditPersonVehicle(v.id)}
-                      className={`p-2 rounded-xl text-center flex flex-col items-center justify-center gap-1 border transition-all ${
-                        editPersonVehicle === v.id
-                          ? "bg-amber-500 text-slate-950 border-amber-400 font-extrabold shadow-md"
-                          : isDayMode ? "bg-white text-slate-700 border-amber-250 hover:bg-amber-50" : "bg-slate-950 text-slate-300 border-slate-800 hover:border-slate-700"
-                      }`}
-                    >
-                      <span className="text-base">{v.icon}</span>
-                      <span className="text-[10px] font-bold">{v.label}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
               {/* Residence Reassignment */}
               <div>
-                <label className={`${isDayMode ? "text-slate-700 font-bold" : "text-slate-300"} block mb-1 font-semibold text-[11px]`}>5. Assigned House / Hostel (7 Total):</label>
+                <label className={`${isDayMode ? "text-slate-700 font-bold" : "text-slate-300"} block mb-1 font-semibold text-[11px]`}>4. Assigned House / Hostel (7 Total):</label>
                 <select
                   value={editPersonNewFamilyId}
                   onChange={(e) => setEditPersonNewFamilyId(e.target.value)}
@@ -7725,6 +8043,23 @@ export default function CivilizationDashboard() {
                     </option>
                   ))}
                 </select>
+              </div>
+
+              {/* House Daily Budget */}
+              <div>
+                <label className={`${isDayMode ? "text-slate-700 font-bold" : "text-slate-300"} block mb-1 font-semibold text-[11px]`}>5. Daily House Budget ($/day):</label>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-bold text-emerald-500">$</span>
+                  <input
+                    type="number"
+                    min={10}
+                    max={10000}
+                    value={editPersonHouseBudget}
+                    onChange={(e) => setEditPersonHouseBudget(Number(e.target.value))}
+                    className={`w-full ${isDayMode ? "bg-white border-amber-200 text-slate-900 font-bold" : "bg-slate-950 border-slate-800 text-white font-mono"} border rounded-xl p-2.5 text-xs outline-none`}
+                    placeholder="e.g. 201"
+                  />
+                </div>
               </div>
             </div>
 
@@ -7770,36 +8105,110 @@ export default function CivilizationDashboard() {
                 </button>
                 <button
                   type="button"
-                  onClick={async () => {
-                    try {
-                      const res = await fetch(`${apiHost}/api/action?user_id=${userId}`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                          action: "edit_person_details",
-                          family_id: editPersonFamilyId,
-                          old_name: editPersonOldName,
-                          new_name: editPersonNewName,
-                          role: editPersonRole,
-                          relation: editPersonRelation,
+                  onClick={() => {
+                    soundEngine.playClick(750);
+
+                    // 1. INSTANT OPTIMISTIC LIVE STATE UPDATE (0ms UI latency)
+                    setRegisteredUsers((prev: any[]) => {
+                      if (!Array.isArray(prev)) return prev;
+                      return prev.map((u: any) => {
+                        const targetIdClean = (editPersonTargetUserId || userId).toLowerCase().replace(/[^a-z0-9]/g, "");
+                        const uIdClean = (u.user_id || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+                        const famIdClean = editPersonFamilyId.toLowerCase().replace(/[^a-z0-9]/g, "");
+                        const isMatch = uIdClean === targetIdClean || famIdClean.includes(uIdClean) || uIdClean.includes(famIdClean);
+                        
+                        if (!isMatch) return u;
+
+                        const updatedMems = (u.members || []).map((m: any) => {
+                          const mName = typeof m === "string" ? m : m.name;
+                          if (mName?.toLowerCase() === editPersonOldName.toLowerCase()) {
+                            return {
+                              ...(typeof m === "object" ? m : {}),
+                              name: editPersonNewName,
+                              role: editPersonRole,
+                              relation: editPersonRelation,
+                              vehicle: editPersonVehicle,
+                              state: "At Home"
+                            };
+                          }
+                          return m;
+                        });
+
+                        return {
+                          ...u,
+                          budget: editPersonHouseBudget,
                           vehicle: editPersonVehicle,
-                          new_family_id: editPersonNewFamilyId
-                        })
+                          members: updatedMems
+                        };
                       });
-                      const d = await res.json();
-                      if (d.ok) {
-                        setEditingPersonModalOpen(false);
+                    });
+
+                    setStatus((prev: any) => {
+                      if (!prev || !prev.families) return prev;
+                      const targetIdClean = (editPersonTargetUserId || userId).toLowerCase().replace(/[^a-z0-9]/g, "");
+                      const famIdClean = editPersonFamilyId.toLowerCase().replace(/[^a-z0-9]/g, "");
+                      return {
+                        ...prev,
+                        families: prev.families.map((f: any) => {
+                          const fIdClean = f.id.toLowerCase().replace(/[^a-z0-9]/g, "");
+                          const isTargetFam = f.id === editPersonFamilyId || fIdClean === famIdClean || famIdClean.includes(fIdClean) || (f.id === "my_home" && targetIdClean.includes("vandan"));
+                          if (!isTargetFam) return f;
+                          return {
+                            ...f,
+                            budget: editPersonHouseBudget,
+                            members: (f.members || []).map((m: any) => {
+                              const mName = typeof m === "string" ? m : m.name;
+                              if (mName?.toLowerCase() === editPersonOldName.toLowerCase()) {
+                                return {
+                                  ...(typeof m === "object" ? m : {}),
+                                  name: editPersonNewName,
+                                  role: editPersonRole,
+                                  relation: editPersonRelation,
+                                  vehicle: editPersonVehicle,
+                                  state: "At Home"
+                                };
+                              }
+                              return m;
+                            })
+                          };
+                        })
+                      };
+                    });
+
+                    // 2. Close Modal Instantly for 0ms user feedback
+                    setEditingPersonModalOpen(false);
+
+                    // 3. Asynchronously persist to server in background
+                    fetch(`${apiHost}/api/action?user_id=${userId}`, {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        action: "edit_person_details",
+                        target_user_id: editPersonTargetUserId || userId,
+                        family_id: editPersonFamilyId,
+                        old_name: editPersonOldName,
+                        new_name: editPersonNewName,
+                        role: editPersonRole,
+                        relation: editPersonRelation,
+                        vehicle: editPersonVehicle,
+                        budget: editPersonHouseBudget,
+                        new_family_id: editPersonNewFamilyId
+                      })
+                    })
+                      .then(res => res.json())
+                      .then(d => {
+                        if (d.ok && Array.isArray(d.users)) {
+                          setRegisteredUsers(d.users);
+                        }
                         fetchStatus();
-                      } else {
-                        alert(d.message || "Failed to save person details.");
-                      }
-                    } catch (e: any) {
-                      alert("Error: " + e.message);
-                    }
+                      })
+                      .catch(err => {
+                        console.warn("[Async Citizen Update Notice]:", err);
+                      });
                   }}
-                  className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-xs px-5 py-2 rounded-xl shadow-lg transition-all"
+                  className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-xs px-5 py-2 rounded-xl shadow-lg transition-all active:scale-95 cursor-pointer"
                 >
-                  💾 Save Details
+                  ⚡ Save &amp; Live Update Instantly
                 </button>
               </div>
             </div>
