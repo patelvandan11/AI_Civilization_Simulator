@@ -1,23 +1,22 @@
-import fs from "fs";
-import path from "path";
 import { PlayerState } from "./simulation";
-import { getCollection } from "./db";
+import {
+  getWorldCollection,
+  getAuthCollection,
+  getCatalogCollection,
+  getMongoClient,
+  DB_NAMES,
+} from "./db";
 
-// Direct imports of static catalog data for 100% build compatibility
+// Direct imports of static catalog data for instant initialization & build compatibility
 import itemsCatalog from "@/data/items.json";
 import cropsCatalog from "@/data/crops.json";
 import recipesCatalog from "@/data/recipes.json";
 import buildingsCatalog from "@/data/buildings.json";
 
-const SAVES_DIR = fs.existsSync(path.join(process.cwd(), "saves"))
-  ? path.join(process.cwd(), "saves")
-  : path.join(process.cwd(), "..", "saves");
-const PLAYERS_DIR = path.join(SAVES_DIR, "players");
-const WORLD_LOCATIONS_FILE = path.join(SAVES_DIR, "world_locations.json");
-
 // Helper to ensure directories exist
 export const inMemoryCache: Record<string, PlayerState> = {};
 let inMemoryWorldLocations: Record<string, [number, number]> | null = null;
+let catalogsSeeded = false;
 
 // Canonical default coordinates for all civilization landmarks & residences (Navsari / Civilization standard)
 export const DEFAULT_WORLD_LOCATIONS: Record<string, [number, number]> = {
@@ -45,22 +44,55 @@ export const DEFAULT_WORLD_LOCATIONS: Record<string, [number, number]> = {
   steel_mill: [20.9580, 72.9600]
 };
 
-function ensureDirs() {
+/**
+ * Seed catalogs to MongoDB civilization_catalog database
+ */
+export async function seedCatalogsToMongo(): Promise<void> {
+  if (catalogsSeeded) return;
+  catalogsSeeded = true;
   try {
-    if (!fs.existsSync(SAVES_DIR)) fs.mkdirSync(SAVES_DIR, { recursive: true });
-    if (!fs.existsSync(PLAYERS_DIR)) fs.mkdirSync(PLAYERS_DIR, { recursive: true });
-  } catch {}
+    const itemsCol = await getCatalogCollection("items");
+    const cropsCol = await getCatalogCollection("crops");
+    const recipesCol = await getCatalogCollection("recipes");
+    const buildingsCol = await getCatalogCollection("buildings");
+
+    if (itemsCol && (await itemsCol.countDocuments()) === 0) {
+      const itemsList = Object.entries(itemsCatalog).map(([k, v]) => ({ id: k, ...(v as any) }));
+      await itemsCol.insertMany(itemsList as any);
+      console.log(`[MongoDB Catalog] Seeded ${itemsList.length} items to database '${DB_NAMES.CATALOG}'.`);
+    }
+
+    if (cropsCol && (await cropsCol.countDocuments()) === 0) {
+      const cropsList = Object.entries(cropsCatalog).map(([k, v]) => ({ id: k, ...(v as any) }));
+      await cropsCol.insertMany(cropsList as any);
+      console.log(`[MongoDB Catalog] Seeded ${cropsList.length} crops to database '${DB_NAMES.CATALOG}'.`);
+    }
+
+    if (recipesCol && (await recipesCol.countDocuments()) === 0) {
+      const recipesList = Object.entries(recipesCatalog).map(([k, v]) => ({ id: k, ...(v as any) }));
+      await recipesCol.insertMany(recipesList as any);
+      console.log(`[MongoDB Catalog] Seeded ${recipesList.length} recipes to database '${DB_NAMES.CATALOG}'.`);
+    }
+
+    if (buildingsCol && (await buildingsCol.countDocuments()) === 0) {
+      const buildingsList = Object.entries(buildingsCatalog).map(([k, v]) => ({ id: k, ...(v as any) }));
+      await buildingsCol.insertMany(buildingsList as any);
+      console.log(`[MongoDB Catalog] Seeded ${buildingsList.length} buildings to database '${DB_NAMES.CATALOG}'.`);
+    }
+  } catch (err: any) {
+    console.warn("[MongoDB Catalog Seed Warning]:", err?.message || err);
+  }
 }
 
-// Load canonical world locations (attempts memory -> Mongo -> file system -> defaults)
+// Load canonical world locations exclusively from MongoDB civilization_world.world_locations
 export async function loadWorldLocations(): Promise<Record<string, [number, number]>> {
   if (inMemoryWorldLocations) {
     return { ...DEFAULT_WORLD_LOCATIONS, ...inMemoryWorldLocations };
   }
 
-  // 1. Try MongoDB
+  // Fetch from MongoDB civilization_world.world_locations
   try {
-    const col = await getCollection("world_settings");
+    const col = await getWorldCollection("world_locations");
     if (col) {
       const doc = await col.findOne({ _id: "canonical_world_locations" as any });
       if (doc && (doc as any).locations) {
@@ -68,32 +100,19 @@ export async function loadWorldLocations(): Promise<Record<string, [number, numb
         return { ...DEFAULT_WORLD_LOCATIONS, ...inMemoryWorldLocations };
       }
     }
-  } catch {}
-
-  // 2. Try Disk File
-  ensureDirs();
-  if (fs.existsSync(WORLD_LOCATIONS_FILE)) {
-    try {
-      const content = fs.readFileSync(WORLD_LOCATIONS_FILE, "utf-8");
-      const parsed = JSON.parse(content);
-      if (parsed && typeof parsed === "object") {
-        inMemoryWorldLocations = parsed;
-        return { ...DEFAULT_WORLD_LOCATIONS, ...inMemoryWorldLocations };
-      }
-    } catch {}
+  } catch (err) {
+    console.warn("[MongoDB World Locations]:", err);
   }
 
-  // 3. Fallback to Defaults and persist
   inMemoryWorldLocations = { ...DEFAULT_WORLD_LOCATIONS };
   await saveWorldLocations(inMemoryWorldLocations);
   return { ...inMemoryWorldLocations };
 }
 
-// Save canonical world locations permanently to disk & Mongo & active in-memory caches
+// Save canonical world locations permanently to MongoDB civilization_world
 export async function saveWorldLocations(locations: Record<string, [number, number]>): Promise<void> {
   inMemoryWorldLocations = { ...locations };
 
-  // Sync to all inMemoryCache players so active user sessions immediately have the fixed location
   for (const uid of Object.keys(inMemoryCache)) {
     if (inMemoryCache[uid]) {
       inMemoryCache[uid].zone_locations = {
@@ -103,9 +122,8 @@ export async function saveWorldLocations(locations: Record<string, [number, numb
     }
   }
 
-  // Save to MongoDB
   try {
-    const col = await getCollection("world_settings");
+    const col = await getWorldCollection("world_locations");
     if (col) {
       await col.replaceOne(
         { _id: "canonical_world_locations" as any },
@@ -114,15 +132,7 @@ export async function saveWorldLocations(locations: Record<string, [number, numb
       );
     }
   } catch (err) {
-    console.warn("[MongoDB Standby] Failed to save world locations to Mongo:", err);
-  }
-
-  // Save to Disk
-  try {
-    ensureDirs();
-    fs.writeFileSync(WORLD_LOCATIONS_FILE, JSON.stringify(locations, null, 2), "utf-8");
-  } catch (err) {
-    console.error("[Storage Error] Failed to write world_locations.json:", err);
+    console.warn("[MongoDB World Locations Save Warning]:", err);
   }
 }
 
@@ -141,8 +151,9 @@ export async function resetWorldLocations(): Promise<Record<string, [number, num
   return defaults;
 }
 
-// Load static catalog
+// Load static & dynamic catalogs
 export function loadCatalog(name: string): any {
+  seedCatalogsToMongo().catch(() => {});
   switch (name) {
     case "items": return itemsCatalog;
     case "crops": return cropsCatalog;
@@ -154,6 +165,7 @@ export function loadCatalog(name: string): any {
 
 // Load all catalogs
 export function loadAllCatalogs(): any {
+  seedCatalogsToMongo().catch(() => {});
   return {
     items: itemsCatalog,
     crops: cropsCatalog,
@@ -251,127 +263,32 @@ export function createNewPlayer(userId: string, citizenOptions?: CitizenRegistra
   };
 
   const customFamilyId = `house_${safeName}`;
-  const customMembers = (citizenOptions?.members && citizenOptions.members.length > 0)
-    ? citizenOptions.members.map((mName, i) => ({
-        name: mName.trim() || `Citizen ${i + 1}`,
-        role: i === 0 ? "head" : i === 1 ? "spouse" : "member",
-        relation: i === 0 ? "Household Head" : `Family Member`,
-        state: "Sleeping"
-      }))
-    : null;
+  const rawMems = (citizenOptions?.members && citizenOptions.members.length > 0)
+    ? citizenOptions.members
+    : [citizenOptions?.name || safeName];
 
-  const defaultFamilies: PlayerState['families'] = [
+  const defaultFamilies: any[] = [
     {
-      id: "house_1",
-      name: "Thakorbhai's Residence",
-      type: "house",
-      budget: 50,
-      inventory: { milk: 5, wheat: 5, apple: 5, carrot: 5 },
-      members: [
-        { name: "Thakorbhai", role: "father", relation: "Main Person / Household Head", state: "Sleeping", vehicle: "tractor" },
-        { name: "vasantiben", role: "mother", relation: "Wife of Thakorbhai", state: "Sleeping", vehicle: "scooter" },
-        { name: "hetvi", role: "daughter", relation: "Daughter of Thakorbhai", state: "Sleeping", vehicle: "bicycle" },
-        { name: "vandan", role: "son", relation: "Son of Thakorbhai", state: "Sleeping", vehicle: "car" }
-      ]
-    },
-    {
-      id: "house_2",
-      name: "Bharatbhai's Residence",
-      type: "house",
-      budget: 40,
-      inventory: { milk: 4, wheat: 4, apple: 4, carrot: 4 },
-      members: [
-        { name: "bharatbhai", role: "father", relation: "Brother of Vasantiben / Head", state: "Sleeping", vehicle: "scooter" },
-        { name: "mayuriben", role: "mother", relation: "Wife of Bharatbhai", state: "Sleeping", vehicle: "scooter" },
-        { name: "vainavi", role: "daughter", relation: "Daughter of Bharatbhai", state: "Sleeping", vehicle: "bicycle" },
-        { name: "prathav", role: "son", relation: "Son of Bharatbhai", state: "Sleeping", vehicle: "car" },
-        { name: "Dinesh", role: "worker", relation: "Farmer Assistant", state: "Sleeping", vehicle: "tractor" },
-        { name: "Geeta", role: "worker", relation: "Grocery Shop Assistant", state: "Sleeping", vehicle: "scooter" }
-      ]
-    },
-    {
-      id: "house_3",
-      name: "Rameshbhai's Residence",
-      type: "house",
-      budget: 35,
-      inventory: { milk: 3, wheat: 3, apple: 3, carrot: 3 },
-      members: [
-        { name: "rameshbhai", role: "father", relation: "Husband of Hemuben / Head", state: "Sleeping", vehicle: "car" },
-        { name: "hemuben", role: "mother", relation: "Sister of Vasantiben", state: "Sleeping", vehicle: "scooter" },
-        { name: "krushil", role: "son", relation: "Son of Rameshbhai", state: "Sleeping", vehicle: "bicycle" },
-        { name: "harshil", role: "son", relation: "Son of Rameshbhai", state: "Sleeping", vehicle: "bicycle" },
-        { name: "Sanjay", role: "worker", relation: "Factory Operator", state: "Sleeping", vehicle: "truck" }
-      ]
-    },
-    {
-      id: "house_maritime",
-      name: "Port Captain's Naval Quarters",
-      type: "house",
-      budget: 120,
-      inventory: { milk: 6, wheat: 8, apple: 6, fish: 12 },
-      members: [
-        { name: "Captain Vikram", role: "captain", relation: "Shipyard Harbor Master", state: "Sleeping", vehicle: "car" },
-        { name: "Priya Sharma", role: "navigator", relation: "First Navigation Officer", state: "Sleeping", vehicle: "scooter" },
-        { name: "Rahul Tandel", role: "deck_officer", relation: "Maritime Cargo Pilot", state: "Sleeping", vehicle: "truck" }
-      ]
-    },
-    {
-      id: "hostel_refinery",
-      name: "PetroChem Industrial Workers Dormitory",
-      type: "hostel",
-      capacity: 10,
-      budget: 180,
-      inventory: { milk: 8, wheat: 12, apple: 8, bread: 10 },
-      members: [
-        { name: "Arjun Patel", role: "engineer", relation: "Chief Refinery Engineer", state: "Sleeping", vehicle: "truck" },
-        { name: "Deepa Shah", role: "chemist", relation: "Petroleum Chemist", state: "Sleeping", vehicle: "scooter" },
-        { name: "Rohan Mistri", role: "technician", relation: "Petrol Pump Supervisor", state: "Sleeping", vehicle: "scooter" },
-        { name: "Meera Dave", role: "inspector", relation: "Industrial Safety Inspector", state: "Sleeping", vehicle: "car" }
-      ]
-    },
-    {
-      id: "house_merchant",
-      name: "Market Square Traders Manor",
-      type: "house",
-      budget: 160,
-      inventory: { milk: 6, wheat: 10, carrot: 10, apple: 10 },
-      members: [
-        { name: "Kisan Mandi", role: "merchant", relation: "Farmers Market Proprietor", state: "Sleeping", vehicle: "car" },
-        { name: "Sunil Varma", role: "grocer", relation: "Wholesale Grocery Manager", state: "Sleeping", vehicle: "truck" },
-        { name: "Anita Ben", role: "cashier", relation: "Dairy Depot Cashier", state: "Sleeping", vehicle: "scooter" }
-      ]
-    },
-    {
-      id: "hostel_central",
-      name: "Navsari Central Workers Hostel",
-      type: "hostel",
-      capacity: 12,
-      budget: 150,
-      inventory: { milk: 10, wheat: 10, apple: 10, carrot: 10 },
-      members: [
-        { name: "Ashok Kumar", role: "worker", relation: "High-Tech Fabrication Specialist", state: "Sleeping", vehicle: "scooter" },
-        { name: "Manoj Bhai", role: "worker", relation: "Agricultural Logistician", state: "Sleeping", vehicle: "tractor" },
-        { name: "Suresh Patil", role: "worker", relation: "Municipal Infrastructure Builder", state: "Sleeping", vehicle: "truck" },
-        { name: "Raju Sharma", role: "worker", relation: "Renewable Grid Electrician", state: "Sleeping", vehicle: "bicycle" }
-      ]
-    }
-  ];
-
-  if (customMembers && customMembers.length > 0) {
-    const customHomeName = citizenOptions?.name || `${userId.split(/[@_]/)[0]}'s Residence`;
-    defaultFamilies.unshift({
       id: "my_home",
-      name: customHomeName,
+      name: citizenOptions?.name ? (citizenOptions.name.endsWith("Residence") || citizenOptions.name.endsWith("Villa") ? citizenOptions.name : `${citizenOptions.name}'s Residence`) : `${safeName}'s Residence`,
       address: citizenOptions?.address || "Civilization Citizen Zone",
       type: "house",
       budget: 150,
       inventory: { milk: 8, wheat: 10, apple: 8, carrot: 6, bread: 5 },
-      members: customMembers.map((m, idx) => ({
-        ...m,
-        vehicle: idx === 0 ? "car" : idx === 1 ? "scooter" : "bicycle"
+      coords: (citizenOptions?.lat && citizenOptions?.lng) ? [citizenOptions.lat, citizenOptions.lng] : [20.9472, 72.9515],
+      members: rawMems.map((mName, idx) => ({
+        id: `mem_${idx + 1}`,
+        name: mName.trim() || `Citizen ${idx + 1}`,
+        role: idx === 0 ? "head" : idx === 1 ? "spouse" : "child",
+        relation: idx === 0 ? "Household Head" : "Family Member",
+        vehicle: idx === 0 ? "car" : idx === 1 ? "scooter" : "bicycle",
+        age: idx === 0 ? 35 : 25,
+        health: 100,
+        happiness: 95,
+        state: "At Home"
       }))
-    });
-  }
+    }
+  ];
 
   const initialLocations: Record<string, [number, number]> = {
     ...DEFAULT_WORLD_LOCATIONS,
@@ -425,9 +342,12 @@ export function createNewPlayer(userId: string, citizenOptions?: CitizenRegistra
       name: `${citizenOptions?.name || userId} Household`,
       budget: 50,
       inventory: { milk: 5, wheat: 5, apple: 5 },
-      members: (customMembers || []).map((m, idx) => ({
-        ...m,
-        vehicle: idx === 0 ? "car" : idx === 1 ? "scooter" : "bicycle"
+      members: rawMems.map((mName, idx) => ({
+        name: mName.trim() || `Citizen ${idx + 1}`,
+        role: idx === 0 ? "head" : idx === 1 ? "spouse" : "child",
+        relation: idx === 0 ? "Household Head" : "Family Member",
+        vehicle: idx === 0 ? "car" : idx === 1 ? "scooter" : "bicycle",
+        state: "At Home"
       }))
     },
     families: defaultFamilies as any,
@@ -440,12 +360,12 @@ export function createNewPlayer(userId: string, citizenOptions?: CitizenRegistra
       welfare_checks_payouts: 0
     },
     cabinet: {
-      prime_minister: "Thakorbhai",
-      district_magistrate: "Bharatbhai",
+      prime_minister: rawMems[0] || "Thakorbhai",
+      district_magistrate: rawMems[1] || "Vasantiben",
       ministers: {
-        finance: "Rameshbhai",
-        education: "Vasantiben",
-        infrastructure: "Mayuriben"
+        finance: rawMems[2] || "Vandan",
+        education: rawMems[3] || "Hetvi",
+        infrastructure: rawMems[0] || "v"
       }
     },
     news_feed: [
@@ -547,21 +467,133 @@ export function createNewPlayer(userId: string, citizenOptions?: CitizenRegistra
   };
 }
 
-// Load player save (attempts MongoDB, falls back to disk, always synchronizing canonical world locations)
+/**
+ * Accurately check if a player exists in MongoDB civilization_world (or civilization_auth)
+ */
+export async function playerExists(userId: string): Promise<boolean> {
+  const cleanId = String(userId || "").trim().toLowerCase();
+  if (!cleanId) return false;
+
+  // 1. Check in-memory cache
+  if (inMemoryCache[cleanId]) return true;
+
+  // 2. Check MongoDB civilization_world.players
+  try {
+    const playersCol = await getWorldCollection("players");
+    if (playersCol) {
+      const doc = await playersCol.findOne({ user_id: cleanId });
+      if (doc) return true;
+    }
+  } catch (err) {
+    console.warn("[MongoDB playerExists World]:", err);
+  }
+
+  // 3. Check MongoDB civilization_auth.users
+  try {
+    const authCol = await getAuthCollection("users");
+    if (authCol) {
+      const u = await authCol.findOne({
+        $or: [{ user_id: cleanId }, { email: cleanId }],
+      });
+      if (u) return true;
+    }
+  } catch (err) {
+    console.warn("[MongoDB playerExists Auth]:", err);
+  }
+
+  return false;
+}
+
+/**
+ * Fetch existing player from MongoDB civilization_world without creating a new default profile
+ */
+export async function getPlayer(userId: string): Promise<PlayerState | null> {
+  const cleanId = String(userId || "").trim().toLowerCase();
+  if (!cleanId) return null;
+
+  const worldLocations = await loadWorldLocations();
+
+  // 1. Check in-memory cache
+  if (inMemoryCache[cleanId]) {
+    inMemoryCache[cleanId].zone_locations = {
+      ...DEFAULT_WORLD_LOCATIONS,
+      ...(inMemoryCache[cleanId].zone_locations || {}),
+      ...worldLocations,
+    };
+    return inMemoryCache[cleanId];
+  }
+
+  // 2. Fetch from MongoDB civilization_world.players
+  try {
+    const collection = await getWorldCollection("players");
+    if (collection) {
+      const data = await collection.findOne({ user_id: cleanId });
+      if (data) {
+        const playerState = data as unknown as PlayerState;
+        const userPrivateHome = playerState.zone_locations?.my_home;
+        playerState.zone_locations = {
+          ...DEFAULT_WORLD_LOCATIONS,
+          ...worldLocations,
+          ...(playerState.zone_locations || {}),
+          ...(userPrivateHome ? { my_home: userPrivateHome } : {}),
+        };
+        inMemoryCache[cleanId] = playerState;
+        return playerState;
+      }
+    }
+  } catch (err) {
+    console.warn("[MongoDB getPlayer World Standby]:", err);
+  }
+
+  return null;
+}
+
+// Load player save for active gameplay (fetches from MongoDB civilization_world, creates new if first play)
 export async function loadPlayer(userId: string): Promise<PlayerState> {
-  const safeName = userId.replace(/[^a-zA-Z0-9_-]/g, "");
+  const cleanId = String(userId || "citizen").trim().toLowerCase();
+  const safeName = cleanId.replace(/[^a-zA-Z0-9_-]/g, "");
   const worldLocations = await loadWorldLocations();
 
   try {
-    const collection = await getCollection("players");
+    const collection = await getWorldCollection("players");
     if (collection) {
-      const data = await collection.findOne({ user_id: userId });
+      const data = await collection.findOne({ user_id: cleanId });
       if (data) {
-        const playerState = data as unknown as PlayerState;
+        const defaultState = createNewPlayer(cleanId);
+        const playerState: PlayerState = {
+          ...defaultState,
+          ...data,
+          clock: data.clock || defaultState.clock,
+          plots: Array.isArray(data.plots) && data.plots.length > 0 ? data.plots : defaultState.plots,
+          buildings: Array.isArray(data.buildings) ? data.buildings : defaultState.buildings,
+          build_queue: Array.isArray(data.build_queue) ? data.build_queue : defaultState.build_queue,
+          inventory:
+            data.inventory && Object.keys(data.inventory).length > 0
+              ? data.inventory
+              : defaultState.inventory,
+          item_prices: data.item_prices || defaultState.item_prices,
+          families:
+            Array.isArray(data.families) && data.families.length > 0
+              ? data.families
+              : defaultState.families,
+          shops:
+            Array.isArray(data.shops) && data.shops.length > 0
+              ? data.shops
+              : defaultState.shops,
+          industry: data.industry || defaultState.industry,
+          cabinet: data.cabinet || defaultState.cabinet,
+          news_feed:
+            Array.isArray(data.news_feed) && data.news_feed.length > 0
+              ? data.news_feed
+              : defaultState.news_feed,
+          agent_settings: data.agent_settings || defaultState.agent_settings,
+          agent_logs: data.agent_logs || defaultState.agent_logs,
+          government: data.government || defaultState.government,
+        };
         let modified = false;
 
         if (!playerState.agent_settings) {
-          const d = createNewPlayer(userId);
+          const d = createNewPlayer(cleanId);
           playerState.agent_settings = d.agent_settings;
           playerState.agent_logs = d.agent_logs;
           playerState.item_prices = d.item_prices;
@@ -569,7 +601,7 @@ export async function loadPlayer(userId: string): Promise<PlayerState> {
           modified = true;
         }
         if (!playerState.city_name) {
-          const d = createNewPlayer(userId);
+          const d = createNewPlayer(cleanId);
           playerState.city_name = d.city_name;
           playerState.city_treasury = d.city_treasury;
           playerState.tax_rate = d.tax_rate;
@@ -578,18 +610,18 @@ export async function loadPlayer(userId: string): Promise<PlayerState> {
           modified = true;
         }
         if (!playerState.shops) {
-          const d = createNewPlayer(userId);
+          const d = createNewPlayer(cleanId);
           playerState.shops = d.shops;
           modified = true;
-        } else if (!playerState.shops.some(s => s.id === "farmers_market")) {
-          const fm = createNewPlayer(userId).shops.find(s => s.id === "farmers_market");
+        } else if (!playerState.shops.some((s) => s.id === "farmers_market")) {
+          const fm = createNewPlayer(cleanId).shops.find((s) => s.id === "farmers_market");
           if (fm) {
             playerState.shops.unshift(fm);
             modified = true;
           }
         }
 
-        // Normalize bloated shop inventories to realistic store capacities (max 40)
+        // Normalize bloated shop inventories
         if (playerState.shops) {
           for (const shop of playerState.shops) {
             if (shop.inventory) {
@@ -604,28 +636,18 @@ export async function loadPlayer(userId: string): Promise<PlayerState> {
         }
 
         if (!playerState.industry) {
-          const d = createNewPlayer(userId);
+          const d = createNewPlayer(cleanId);
           playerState.industry = d.industry;
           modified = true;
         }
 
         if (!playerState.families) {
-          const d = createNewPlayer(userId);
+          const d = createNewPlayer(cleanId);
           playerState.families = d.families;
           playerState.government = d.government;
           modified = true;
         }
         if (playerState.families) {
-          const defaultFam = createNewPlayer(userId).families;
-          for (const requiredId of ["house_maritime", "hostel_refinery", "house_merchant", "hostel_central"]) {
-            if (!playerState.families.some(f => f.id === requiredId)) {
-              const toAdd = defaultFam.find(f => f.id === requiredId);
-              if (toAdd) {
-                playerState.families.push(toAdd);
-                modified = true;
-              }
-            }
-          }
           for (const fam of playerState.families) {
             if (!fam.type) {
               fam.type = fam.id.startsWith("hostel_") ? "hostel" : "house";
@@ -634,11 +656,22 @@ export async function loadPlayer(userId: string): Promise<PlayerState> {
             if (fam.members) {
               fam.members.forEach((m, idx) => {
                 if (!m.vehicle) {
-                  if (m.role === "father" || m.role === "captain") m.vehicle = idx === 0 ? "car" : "tractor";
+                  if (m.role === "father" || m.role === "captain")
+                    m.vehicle = idx === 0 ? "car" : "tractor";
                   else if (m.role === "mother" || m.role === "navigator") m.vehicle = "scooter";
-                  else if (m.role === "engineer" || m.role === "deck_officer" || m.role === "grocer") m.vehicle = "truck";
+                  else if (
+                    m.role === "engineer" ||
+                    m.role === "deck_officer" ||
+                    m.role === "grocer"
+                  )
+                    m.vehicle = "truck";
                   else if (m.role === "merchant" || m.role === "inspector") m.vehicle = "car";
-                  else if (m.role === "chemist" || m.role === "technician" || m.role === "cashier") m.vehicle = "scooter";
+                  else if (
+                    m.role === "chemist" ||
+                    m.role === "technician" ||
+                    m.role === "cashier"
+                  )
+                    m.vehicle = "scooter";
                   else if (m.role === "son") m.vehicle = "car";
                   else if (m.role === "daughter") m.vehicle = "bicycle";
                   else if (m.role === "worker") m.vehicle = "truck";
@@ -650,7 +683,7 @@ export async function loadPlayer(userId: string): Promise<PlayerState> {
           }
         }
         if (!playerState.cabinet) {
-          const d = createNewPlayer(userId);
+          const d = createNewPlayer(cleanId);
           playerState.cabinet = d.cabinet;
           playerState.news_feed = d.news_feed;
           playerState.city_manager_enabled = d.city_manager_enabled;
@@ -658,232 +691,273 @@ export async function loadPlayer(userId: string): Promise<PlayerState> {
         }
 
         const userPrivateHome = playerState.zone_locations?.my_home;
-        // Always enforce fixed canonical world locations for all users while preserving personal home
         playerState.zone_locations = {
           ...DEFAULT_WORLD_LOCATIONS,
           ...worldLocations,
           ...(playerState.zone_locations || {}),
-          ...(userPrivateHome ? { my_home: userPrivateHome } : {})
+          ...(userPrivateHome ? { my_home: userPrivateHome } : {}),
         };
 
         if (modified) {
           await savePlayer(playerState);
         }
+        inMemoryCache[cleanId] = playerState;
         return playerState;
       } else {
-        const fresh = createNewPlayer(userId);
+        // Check if citizen registered in civilization_auth.users
+        let authUser: any = null;
+        try {
+          const authCol = await getAuthCollection("users");
+          if (authCol) {
+            authUser = await authCol.findOne({ user_id: cleanId });
+          }
+        } catch {}
+
+        const fresh = createNewPlayer(
+          cleanId,
+          authUser
+            ? {
+                name: authUser.name,
+                address: authUser.address,
+                lat: authUser.lat,
+                lng: authUser.lng,
+                members: authUser.members,
+              }
+            : undefined
+        );
+
         fresh.zone_locations = {
           ...DEFAULT_WORLD_LOCATIONS,
           ...worldLocations,
-          ...(fresh.zone_locations || {})
+          ...(fresh.zone_locations || {}),
+          ...(authUser?.lat && authUser?.lng ? { my_home: [authUser.lat, authUser.lng] } : {}),
         };
         await savePlayer(fresh);
+        inMemoryCache[cleanId] = fresh;
         return fresh;
       }
     }
   } catch (err) {
-    console.warn("[MongoDB Connection Standby] Falling back to file system storage:", err);
+    console.warn("[MongoDB loadPlayer Standby]:", err);
   }
 
-  if (inMemoryCache[userId]) {
-    inMemoryCache[userId].zone_locations = {
+  if (inMemoryCache[cleanId]) {
+    inMemoryCache[cleanId].zone_locations = {
       ...DEFAULT_WORLD_LOCATIONS,
-      ...(inMemoryCache[userId].zone_locations || {}),
-      ...worldLocations
-    };
-    return inMemoryCache[userId];
-  }
-
-  ensureDirs();
-  const filePath = path.join(PLAYERS_DIR, `${safeName}.json`);
-
-  if (!fs.existsSync(filePath)) {
-    const fresh = createNewPlayer(userId);
-    fresh.zone_locations = {
-      ...DEFAULT_WORLD_LOCATIONS,
+      ...(inMemoryCache[cleanId].zone_locations || {}),
       ...worldLocations,
-      ...(fresh.zone_locations || {})
     };
-    await savePlayer(fresh);
-    return fresh;
+    return inMemoryCache[cleanId];
   }
 
+  // If not found in world, check auth DB for citizen registration options
+  let citizenOptions: CitizenRegistrationOptions | undefined = undefined;
   try {
-    const content = fs.readFileSync(filePath, "utf-8");
-    const data = JSON.parse(content) as PlayerState;
-    const userPrivateHome = data.zone_locations?.my_home;
-    data.zone_locations = {
-      ...DEFAULT_WORLD_LOCATIONS,
-      ...worldLocations,
-      ...(data.zone_locations || {}),
-      ...(userPrivateHome ? { my_home: userPrivateHome } : {})
-    };
-
-    if (!data.shops) {
-      data.shops = createNewPlayer(userId).shops;
-    } else if (!data.shops.some(s => s.id === "farmers_market")) {
-      const fm = createNewPlayer(userId).shops.find(s => s.id === "farmers_market");
-      if (fm) data.shops.unshift(fm);
-    }
-
-    // Normalize bloated shop inventories to realistic store capacities (max 40)
-    if (data.shops) {
-      for (const shop of data.shops) {
-        if (shop.inventory) {
-          for (const [key, count] of Object.entries(shop.inventory)) {
-            if (Number(count) > 40) {
-              shop.inventory[key] = Math.min(40, Math.max(15, Math.floor(Math.random() * 15) + 20));
-            }
-          }
-        }
+    const authCol = await getAuthCollection("users");
+    if (authCol) {
+      const uDoc = await authCol.findOne({
+        $or: [{ user_id: cleanId }, { email: cleanId }],
+      });
+      if (uDoc) {
+        citizenOptions = {
+          name: uDoc.home_name || uDoc.name || `${cleanId.split(/[@_]/)[0]}'s Residence`,
+          address: uDoc.address || uDoc.city_name || "Civilization Citizen Zone",
+          lat: uDoc.lat ? Number(uDoc.lat) : 20.9472,
+          lng: uDoc.lng ? Number(uDoc.lng) : 72.9515,
+          members: Array.isArray(uDoc.members) ? uDoc.members : undefined,
+        };
       }
     }
+  } catch {}
 
-    if (!data.industry) {
-      data.industry = createNewPlayer(userId).industry;
-    }
-
-    if (data.families) {
-      const defaultFam = createNewPlayer(userId).families;
-      for (const requiredId of ["house_maritime", "hostel_refinery", "house_merchant", "hostel_central"]) {
-        if (!data.families.some(f => f.id === requiredId)) {
-          const toAdd = defaultFam.find(f => f.id === requiredId);
-          if (toAdd) {
-            data.families.push(toAdd);
-          }
-        }
-      }
-      for (const fam of data.families) {
-        if (!fam.type) {
-          fam.type = fam.id.startsWith("hostel_") ? "hostel" : "house";
-        }
-        if (fam.members) {
-          fam.members.forEach((m, idx) => {
-            if (!m.vehicle) {
-              if (m.role === "father" || m.role === "captain") m.vehicle = idx === 0 ? "car" : "tractor";
-              else if (m.role === "mother" || m.role === "navigator") m.vehicle = "scooter";
-              else if (m.role === "engineer" || m.role === "deck_officer" || m.role === "grocer") m.vehicle = "truck";
-              else if (m.role === "merchant" || m.role === "inspector") m.vehicle = "car";
-              else if (m.role === "chemist" || m.role === "technician" || m.role === "cashier") m.vehicle = "scooter";
-              else if (m.role === "son") m.vehicle = "car";
-              else if (m.role === "daughter") m.vehicle = "bicycle";
-              else if (m.role === "worker") m.vehicle = "truck";
-              else m.vehicle = "bicycle";
-            }
-          });
-        }
-      }
-    }
-    return data;
-  } catch {
-    const fresh = createNewPlayer(userId);
-    fresh.zone_locations = {
-      ...DEFAULT_WORLD_LOCATIONS,
-      ...worldLocations,
-      ...(fresh.zone_locations || {})
-    };
-    inMemoryCache[userId] = fresh;
-    return fresh;
-  }
+  const fresh = createNewPlayer(cleanId, citizenOptions);
+  fresh.zone_locations = {
+    ...DEFAULT_WORLD_LOCATIONS,
+    ...worldLocations,
+    ...(fresh.zone_locations || {}),
+  };
+  await savePlayer(fresh);
+  inMemoryCache[cleanId] = fresh;
+  return fresh;
 }
 
-// Save player (attempts MongoDB, falls back to in-memory/disk)
+// Save player exclusively to MongoDB civilization_world.players + civilization_auth.users
 export async function savePlayer(player: PlayerState): Promise<void> {
-  const safeName = player.user_id.replace(/[^a-zA-Z0-9_-]/g, "");
-  
-  const myHomeFam = player.families?.find(f => f.id === "my_home" || f.id === `house_${player.user_id.replace(/[^a-zA-Z0-9_-]/g, "")}`) || player.families?.[0];
+  const cleanId = String(player.user_id || "citizen").trim().toLowerCase();
+  player.user_id = cleanId;
+  const safeName = cleanId.replace(/[^a-zA-Z0-9_-]/g, "");
+
+  const myHomeFam =
+    player.families?.find((f) => f.id === "my_home" || f.id === `house_${safeName}`) ||
+    player.families?.[0];
   const myHomeCoords = player.zone_locations?.my_home || [20.9472, 72.9515];
 
   const extended = {
     ...player,
-    home_name: myHomeFam?.name || `${player.user_id.split(/[@_]/)[0]}'s Residence`,
+    home_name: myHomeFam?.name || `${cleanId.split(/[@_]/)[0]}'s Residence`,
     address: myHomeFam?.address || player.city_name || "Civilization Citizen Zone",
     coords: myHomeCoords,
     members_count: myHomeFam?.members?.length || 0,
-    members_list: myHomeFam?.members?.map(m => m.name) || [],
-    last_saved_at: new Date().toISOString()
+    members_list: myHomeFam?.members?.map((m) => m.name) || [],
+    last_saved_at: new Date().toISOString(),
   };
 
-  inMemoryCache[player.user_id] = extended as PlayerState;
+  inMemoryCache[cleanId] = extended as PlayerState;
 
+  // 1. Save to MongoDB civilization_world.players
   try {
-    const collection = await getCollection("players");
+    const collection = await getWorldCollection("players");
     if (collection) {
       const { _id, ...cleanData } = extended as any;
-      await collection.replaceOne({ user_id: player.user_id }, cleanData, { upsert: true });
+      await collection.replaceOne({ user_id: cleanId }, cleanData, { upsert: true });
     }
   } catch (err) {
-    console.warn("[MongoDB Connection Standby] Failed to save in Mongo, falling back to storage:", err);
+    console.warn("[MongoDB Save Player World Warning]:", err);
   }
 
-  try {
-    ensureDirs();
-    const filePath = path.join(PLAYERS_DIR, `${safeName}.json`);
-    fs.writeFileSync(filePath, JSON.stringify(extended, null, 2), "utf-8");
-  } catch {}
+  // 2. Sync credentials to MongoDB civilization_auth.users if password hash present
+  if (player.password_hash) {
+    try {
+      const authCol = await getAuthCollection("users");
+      if (authCol) {
+        await authCol.updateOne(
+          { user_id: cleanId },
+          {
+            $set: {
+              password_hash: player.password_hash,
+              name: extended.home_name,
+              address: extended.address,
+              lat: myHomeCoords[0],
+              lng: myHomeCoords[1],
+              members: extended.members_list,
+              last_login_at: new Date().toISOString(),
+            },
+          },
+          { upsert: true }
+        );
+      }
+    } catch {}
+  }
 }
 
-// Fetch all registered players & their home residences for Admin Census
+// Fetch all registered players & their home residences for Admin Census exclusively from MongoDB
 export async function listAllPlayers(): Promise<any[]> {
   const playersMap = new Map<string, any>();
 
-  // 1. Try MongoDB Atlas
+  const getCanonicalId = (rawId: string): string => {
+    const clean = String(rawId || "").trim().toLowerCase();
+    if (clean === "vandan_11" || clean === "vandan11patel@gmail.com") {
+      return "vandan11patel@gmail.com";
+    }
+    return clean;
+  };
+
+  const normalizeMembers = (members: any[]): any[] => {
+    if (!Array.isArray(members)) return [];
+    return members.map((m: any, idx: number) => {
+      if (typeof m === "string") {
+        return {
+          name: m,
+          role: idx === 0 ? "Head of Family" : idx === 1 ? "Spouse" : "Family Member",
+          vehicle: idx === 0 ? "car" : idx === 1 ? "scooter" : "bicycle",
+        };
+      }
+      return {
+        name: m?.name || `Member #${idx + 1}`,
+        role: m?.role || (idx === 0 ? "Head of Family" : "Resident"),
+        age: m?.age || (idx === 0 ? 35 : 25),
+        vehicle: m?.vehicle || (idx === 0 ? "car" : idx === 1 ? "scooter" : "bicycle"),
+      };
+    });
+  };
+
+  // 1. Fetch from MongoDB civilization_world.players
   try {
-    const collection = await getCollection("players");
+    const collection = await getWorldCollection("players");
     if (collection) {
       const docs = await collection.find({}).toArray();
       for (const doc of docs) {
         if (!doc.user_id) continue;
-        const myHomeFam = doc.families?.find((f: any) => f.id === "my_home" || f.id === `house_${doc.user_id.replace(/[^a-zA-Z0-9_-]/g, "")}`) || doc.families?.[0];
-        const myHomeCoords = doc.zone_locations?.my_home || doc.zone_locations?.[myHomeFam?.id] || [20.9472, 72.9515];
-        playersMap.set(doc.user_id, {
-          user_id: doc.user_id,
-          city_name: doc.city_name || "AI Civilization",
+        const cId = getCanonicalId(doc.user_id);
+        const myHomeFam =
+          doc.families?.find(
+            (f: any) =>
+              f.id === "my_home" || f.id === `house_${cId.replace(/[^a-zA-Z0-9_-]/g, "")}`
+          ) || doc.families?.[0];
+
+        let myHomeCoords: [number, number] = [20.9472, 72.9515];
+        if (doc.lat && doc.lng) {
+          myHomeCoords = [Number(doc.lat), Number(doc.lng)];
+        } else if (doc.zone_locations?.my_home) {
+          myHomeCoords = doc.zone_locations.my_home;
+        } else if (myHomeFam?.coords && Array.isArray(myHomeFam.coords)) {
+          myHomeCoords = myHomeFam.coords;
+        } else if (doc.zone_locations?.[myHomeFam?.id]) {
+          myHomeCoords = doc.zone_locations[myHomeFam.id];
+        }
+
+        const rawMembers = myHomeFam?.members || doc.members || [];
+        const normMembers = normalizeMembers(rawMembers);
+
+        playersMap.set(cId, {
+          user_id: cId,
+          city_name: doc.city_name || doc.address || "AI Civilization",
           money: doc.money || 500,
-          home_name: myHomeFam?.name || `${doc.user_id.split(/[@_]/)[0]}'s Residence`,
-          address: myHomeFam?.address || "Civilization Citizen Zone",
+          home_name: myHomeFam?.name || doc.home_name || doc.name || `${cId.split(/[@_]/)[0]}'s Residence`,
+          address: doc.address || doc.city_name || myHomeFam?.address || "Civilization Citizen Zone",
           coords: myHomeCoords,
           budget: myHomeFam?.budget || 150,
-          members: myHomeFam?.members || [],
-          member_count: myHomeFam?.members?.length || 0,
+          members: normMembers,
+          member_count: normMembers.length,
           all_families_count: doc.families?.length || 1,
-          last_saved_at: doc.last_saved_at || doc.clock?.formatted || "Active"
+          last_saved_at: doc.last_saved_at || doc.clock?.formatted || "Active",
         });
       }
     }
   } catch (err) {
-    console.warn("[MongoDB List Players Standby]:", err);
+    console.warn("[MongoDB List Players World]:", err);
   }
 
-  // 2. Fall back / Merge with local disk saves
+  // 2. Also check MongoDB civilization_auth.users to include and enrich registered citizens
   try {
-    ensureDirs();
-    if (fs.existsSync(PLAYERS_DIR)) {
-      const files = fs.readdirSync(PLAYERS_DIR);
-      for (const file of files) {
-        if (!file.endsWith(".json")) continue;
-        try {
-          const filePath = path.join(PLAYERS_DIR, file);
-          const content = fs.readFileSync(filePath, "utf-8");
-          const doc = JSON.parse(content);
-          if (doc.user_id && !playersMap.has(doc.user_id)) {
-            const myHomeFam = doc.families?.find((f: any) => f.id === "my_home" || f.id === `house_${doc.user_id.replace(/[^a-zA-Z0-9_-]/g, "")}`) || doc.families?.[0];
-            const myHomeCoords = doc.zone_locations?.my_home || doc.zone_locations?.[myHomeFam?.id] || [20.9472, 72.9515];
-            playersMap.set(doc.user_id, {
-              user_id: doc.user_id,
-              city_name: doc.city_name || "AI Civilization",
-              money: doc.money || 500,
-              home_name: myHomeFam?.name || `${doc.user_id.split(/[@_]/)[0]}'s Residence`,
-              address: myHomeFam?.address || "Civilization Citizen Zone",
-              coords: myHomeCoords,
-              budget: myHomeFam?.budget || 150,
-              members: myHomeFam?.members || [],
-              member_count: myHomeFam?.members?.length || 0,
-              all_families_count: doc.families?.length || 1,
-              last_saved_at: doc.last_saved_at || doc.clock?.formatted || "Active"
-            });
+    const authCol = await getAuthCollection("users");
+    if (authCol) {
+      const authDocs = await authCol.find({}).toArray();
+      for (const u of authDocs) {
+        if (!u.user_id) continue;
+        const cId = getCanonicalId(u.user_id);
+        const normMembers = normalizeMembers(u.members || []);
+        const coords: [number, number] = [
+          u.lat ? Number(u.lat) : 20.9472,
+          u.lng ? Number(u.lng) : 72.9515,
+        ];
+        const address = u.address || u.city_name || "Civilization Citizen Zone";
+
+        if (playersMap.has(cId)) {
+          const existing = playersMap.get(cId);
+          if (u.lat && u.lng) existing.coords = coords;
+          if (u.address) existing.address = address;
+          if (u.home_name) existing.home_name = u.home_name;
+          else if (u.name) existing.home_name = `${u.name}'s Residence`;
+          if (normMembers.length > 0) {
+            existing.members = normMembers;
+            existing.member_count = normMembers.length;
           }
-        } catch {}
+        } else {
+          playersMap.set(cId, {
+            user_id: cId,
+            city_name: u.city_name || address,
+            money: 500,
+            home_name: u.home_name || (u.name ? `${u.name}'s Residence` : `${cId.split(/[@_]/)[0]}'s Residence`),
+            address: address,
+            coords: coords,
+            budget: 150,
+            members: normMembers,
+            member_count: normMembers.length,
+            all_families_count: 1,
+            last_saved_at: u.last_login || u.registered_at || u.created_at || "Active",
+          });
+        }
       }
     }
   } catch {}
@@ -891,39 +965,36 @@ export async function listAllPlayers(): Promise<any[]> {
   return Array.from(playersMap.values());
 }
 
-// Permanently delete a citizen from MongoDB Atlas, memory cache, and local disk
+// Permanently delete a citizen exclusively from MongoDB Atlas (civilization_world + civilization_auth) and memory
 export async function deletePlayer(userId: string): Promise<boolean> {
-  const safeName = userId.replace(/[^a-zA-Z0-9_-]/g, "");
+  const cleanId = String(userId || "").trim().toLowerCase();
 
   // 1. Delete from in-memory cache
-  if (inMemoryCache[userId]) {
-    delete inMemoryCache[userId];
+  if (inMemoryCache[cleanId]) {
+    delete inMemoryCache[cleanId];
   }
 
-  // 2. Delete from MongoDB Atlas
+  // 2. Delete from MongoDB civilization_world.players
   try {
-    const collection = await getCollection("players");
+    const collection = await getWorldCollection("players");
     if (collection) {
-      await collection.deleteOne({ user_id: userId });
-      console.log(`[MongoDB Deleted] Citizen '${userId}' expunged from collection 'players'.`);
+      await collection.deleteOne({ user_id: cleanId });
     }
   } catch (err) {
-    console.warn("[MongoDB Delete Standby]:", err);
+    console.warn("[MongoDB Delete World Standby]:", err);
   }
 
-  // 3. Delete from local disk
+  // 3. Delete from MongoDB civilization_auth.users
   try {
-    ensureDirs();
-    const filePath = path.join(PLAYERS_DIR, `${safeName}.json`);
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
+    const authCol = await getAuthCollection("users");
+    if (authCol) {
+      await authCol.deleteOne({ $or: [{ user_id: cleanId }, { email: cleanId }] });
     }
-    const summariesPath = path.join(PLAYERS_DIR, `${safeName}_daily_summaries.json`);
-    if (fs.existsSync(summariesPath)) {
-      fs.unlinkSync(summariesPath);
-    }
-  } catch {}
+  } catch (err) {
+    console.warn("[MongoDB Delete Auth Standby]:", err);
+  }
 
   return true;
 }
+
 
