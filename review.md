@@ -65,3 +65,15 @@ Welcome to the real-time community review hub for the **Navsari AI Civilization 
 **📋 Feedback Type:** 💡 Feature Suggestion  
 **⭐ Experience Rating:** ⭐⭐⭐⭐⭐ (5/5)
 
+
+
+---
+
+## 🏛️ Citizen Feedback
+
+**📅 Submitted:** `20/08/2026 18:55:06`  
+**👤 Citizen:** Devang  
+**📧 Email:** pateldevang301@gmail.com  
+**📋 Feedback Type:** 💡 Feature Suggestion  
+**⭐ Experience Rating:** ⭐⭐⭐⭐⭐ (5/5)
+
