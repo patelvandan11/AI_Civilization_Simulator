@@ -8,7 +8,10 @@ import {
   createUser,
   recordUserLogin,
   updateUserPassword,
+  storeOtpInDb,
+  verifyOtpInDb,
 } from "@/lib/auth";
+import { generateAndStoreOtp, verifyStoredOtp, sendOtpEmail } from "@/lib/email";
 
 export async function POST(req: NextRequest) {
   try {
@@ -22,6 +25,105 @@ export async function POST(req: NextRequest) {
         { ok: false, message: "Email address or username is required." },
         { status: 400 }
       );
+    }
+
+    // =========================================================================
+    // 1. FORGOT PASSWORD: SEND OTP TO EMAIL
+    // =========================================================================
+    if (action === "forgot_password_send_otp") {
+      const existsInAuth = await userExists(email);
+      const existsInWorld = await playerExists(email);
+
+      if (!existsInAuth && !existsInWorld) {
+        return NextResponse.json(
+          {
+            ok: false,
+            message: `No citizen account found for "${email}". Please verify your email or sign up first.`,
+            notFound: true,
+          },
+          { status: 404 }
+        );
+      }
+
+      const existingUser = await findUser(email);
+      const existingPlayer = await getPlayer(email);
+      const citizenName = existingUser?.name || existingPlayer?.household?.name || email.split(/[@_]/)[0];
+
+      const code = generateAndStoreOtp(email);
+      await storeOtpInDb(email, code, 10);
+
+      try {
+        await sendOtpEmail(email, code, citizenName);
+        return NextResponse.json({
+          ok: true,
+          message: `Password reset verification code sent to ${email}. Please check your inbox.`,
+          devCode: process.env.NODE_ENV !== "production" ? code : undefined,
+        });
+      } catch (err: any) {
+        console.error("Failed to send OTP via SMTP:", err);
+        return NextResponse.json({
+          ok: true,
+          message: `Password reset code generated: ${code} (SMTP notice: ${err.message})`,
+          devCode: code,
+        });
+      }
+    }
+
+    // =========================================================================
+    // 2. FORGOT PASSWORD: VERIFY OTP AND RESET PASSWORD
+    // =========================================================================
+    if (action === "forgot_password_verify_and_reset") {
+      const otpCode = String(body.otp || body.code || "").trim();
+      const newPassword = String(body.new_password || password || "").trim();
+
+      if (!otpCode) {
+        return NextResponse.json(
+          { ok: false, message: "OTP verification code is required." },
+          { status: 400 }
+        );
+      }
+
+      if (!newPassword || newPassword.length < 4) {
+        return NextResponse.json(
+          { ok: false, message: "New password must be at least 4 characters long." },
+          { status: 400 }
+        );
+      }
+
+      const isValidMemory = verifyStoredOtp(email, otpCode);
+      const isValidDb = await verifyOtpInDb(email, otpCode);
+
+      if (!isValidMemory && !isValidDb) {
+        return NextResponse.json(
+          { ok: false, message: "Invalid or expired OTP code. Please request a new one." },
+          { status: 400 }
+        );
+      }
+
+      const newHash = hashPassword(newPassword);
+
+      // Update in civilization_auth.users
+      await updateUserPassword(email, newHash);
+
+      // Update in civilization_world.players
+      const existingPlayer = await getPlayer(email);
+      if (existingPlayer) {
+        existingPlayer.password_hash = newHash;
+        await savePlayer(existingPlayer);
+      } else {
+        const existingUser = await findUser(email);
+        const newPlayer = createNewPlayer(email, {
+          name: existingUser?.name || email.split(/[@_]/)[0],
+        });
+        newPlayer.password_hash = newHash;
+        await savePlayer(newPlayer);
+      }
+
+      return NextResponse.json({
+        ok: true,
+        message: "Your password has been successfully reset! You can now sign in with your new password.",
+        user_id: email,
+      });
     }
 
     if (!password) {
@@ -38,7 +140,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 1. LOGIN WITH PASSWORD
+    // 3. LOGIN WITH PASSWORD
     if (action === "login_password") {
       const existingUser = await findUser(email);
       const existingPlayer = await getPlayer(email);

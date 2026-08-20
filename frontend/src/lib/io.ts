@@ -3,7 +3,7 @@ import {
   getWorldCollection,
   getAuthCollection,
   getCatalogCollection,
-  getMongoClient,
+  resetMongoConnection,
   DB_NAMES,
 } from "./db";
 
@@ -17,6 +17,19 @@ import buildingsCatalog from "@/data/buildings.json";
 export const inMemoryCache: Record<string, PlayerState> = {};
 let inMemoryWorldLocations: Record<string, [number, number]> | null = null;
 let catalogsSeeded = false;
+
+// In-Memory cache for listAllPlayers with 10-second TTL
+let cachedAllPlayersList: any[] | null = null;
+let cachedAllPlayersExpiry = 0;
+
+export function invalidatePlayersListCache(): void {
+  cachedAllPlayersList = null;
+  cachedAllPlayersExpiry = 0;
+}
+
+// Write-behind debouncing for tick updates to prevent hammering MongoDB on every sub-second tick
+const lastSavedToDbTime: Record<string, number> = {};
+const pendingSaveTimers: Record<string, NodeJS.Timeout> = {};
 
 // Canonical default coordinates for all civilization landmarks & residences (Navsari / Civilization standard)
 export const DEFAULT_WORLD_LOCATIONS: Record<string, [number, number]> = {
@@ -84,6 +97,19 @@ export async function seedCatalogsToMongo(): Promise<void> {
   }
 }
 
+// Generate unique residency coordinates for every user near Navsari base
+export function generateUserResidencyCoords(userId: string): [number, number] {
+  const cleanId = String(userId || "").trim().toLowerCase();
+  let hash = 0;
+  for (let i = 0; i < cleanId.length; i++) {
+    hash = (hash << 5) - hash + cleanId.charCodeAt(i);
+    hash |= 0;
+  }
+  const latOffset = (((Math.abs(hash) % 120) - 60) * 0.0003); // approx ±0.018 deg
+  const lngOffset = (((Math.abs(hash >> 3) % 120) - 60) * 0.0003);
+  return [20.9472 + latOffset, 72.9515 + lngOffset];
+}
+
 // Load canonical world locations exclusively from MongoDB civilization_world.world_locations
 export async function loadWorldLocations(): Promise<Record<string, [number, number]>> {
   if (inMemoryWorldLocations) {
@@ -96,7 +122,8 @@ export async function loadWorldLocations(): Promise<Record<string, [number, numb
     if (col) {
       const doc = await col.findOne({ _id: "canonical_world_locations" as any });
       if (doc && (doc as any).locations) {
-        inMemoryWorldLocations = (doc as any).locations;
+        const { my_home, ...clean } = (doc as any).locations;
+        inMemoryWorldLocations = clean;
         return { ...DEFAULT_WORLD_LOCATIONS, ...inMemoryWorldLocations };
       }
     }
@@ -109,15 +136,18 @@ export async function loadWorldLocations(): Promise<Record<string, [number, numb
   return { ...inMemoryWorldLocations };
 }
 
-// Save canonical world locations permanently to MongoDB civilization_world
+// Save canonical world locations permanently to MongoDB civilization_world (excl user private home)
 export async function saveWorldLocations(locations: Record<string, [number, number]>): Promise<void> {
-  inMemoryWorldLocations = { ...locations };
+  const { my_home, ...cleanLocations } = locations;
+  inMemoryWorldLocations = { ...cleanLocations };
 
   for (const uid of Object.keys(inMemoryCache)) {
     if (inMemoryCache[uid]) {
+      const userHome = inMemoryCache[uid].zone_locations?.my_home;
       inMemoryCache[uid].zone_locations = {
         ...inMemoryCache[uid].zone_locations,
-        ...locations
+        ...cleanLocations,
+        ...(userHome ? { my_home: userHome } : {})
       };
     }
   }
@@ -127,7 +157,7 @@ export async function saveWorldLocations(locations: Record<string, [number, numb
     if (col) {
       await col.replaceOne(
         { _id: "canonical_world_locations" as any },
-        { _id: "canonical_world_locations", locations, updated_at: new Date().toISOString() } as any,
+        { _id: "canonical_world_locations", locations: cleanLocations, updated_at: new Date().toISOString() } as any,
         { upsert: true }
       );
     }
@@ -262,37 +292,67 @@ export function createNewPlayer(userId: string, citizenOptions?: CitizenRegistra
     }
   };
 
+  const cleanId = String(userId || "").trim().toLowerCase();
+  const isAdminAcc = cleanId === "vandan11patel@gmail.com" || cleanId === "vandan_11";
+  const isVPatelAcc = cleanId === "vpatelcode@gmail.com";
+
   const customFamilyId = `house_${safeName}`;
-  const rawMems = (citizenOptions?.members && citizenOptions.members.length > 0)
-    ? citizenOptions.members
-    : [citizenOptions?.name || safeName];
+  const userHomeCoords: [number, number] = (citizenOptions?.lat && citizenOptions?.lng)
+    ? [citizenOptions.lat, citizenOptions.lng]
+    : generateUserResidencyCoords(userId);
+
+  let formattedMembers: any[] = [];
+  let homeName = citizenOptions?.name ? (citizenOptions.name.endsWith("Residence") || citizenOptions.name.endsWith("Villa") || citizenOptions.name.endsWith("Home") ? citizenOptions.name : `${citizenOptions.name}'s Residence`) : `${safeName}'s Residence`;
+
+  if (isAdminAcc) {
+    homeName = "Vandan_Home";
+    formattedMembers = [
+      { id: "mem_1", name: "Thakorbhai", role: "Senior Agricultural Head", relation: "Household Head", vehicle: "car", age: 62, health: 100, happiness: 95, state: "At Home" },
+      { id: "mem_2", name: "Vasantiben", role: "District Magistrate", relation: "Spouse", vehicle: "scooter", age: 58, health: 100, happiness: 95, state: "At Home" },
+      { id: "mem_3", name: "Vandan", role: "Finance Minister", relation: "Son", vehicle: "car", age: 28, health: 100, happiness: 95, state: "At Home" },
+      { id: "mem_4", name: "Hetvi", role: "Education Lead", relation: "Daughter", vehicle: "scooter", age: 22, health: 100, happiness: 95, state: "At Home" }
+    ];
+  } else if (isVPatelAcc) {
+    homeName = "Vpatel Residence";
+    formattedMembers = [
+      { id: "mem_1", name: "V1", role: "Civilization Engineer", relation: "Household Head", vehicle: "car", age: 30, health: 100, happiness: 95, state: "At Home" },
+      { id: "mem_2", name: "V2", role: "Urban Logistics Coordinator", relation: "Spouse", vehicle: "scooter", age: 26, health: 100, happiness: 95, state: "At Home" }
+    ];
+  } else {
+    const rawMems = (citizenOptions?.members && citizenOptions.members.length > 0)
+      ? citizenOptions.members
+      : [citizenOptions?.name || safeName];
+    formattedMembers = rawMems.map((mName, idx) => ({
+      id: `mem_${idx + 1}`,
+      name: mName.trim() || `Citizen ${idx + 1}`,
+      role: idx === 0 ? "head" : idx === 1 ? "spouse" : "child",
+      relation: idx === 0 ? "Household Head" : "Family Member",
+      vehicle: idx === 0 ? "car" : idx === 1 ? "scooter" : "bicycle",
+      age: idx === 0 ? 35 : idx === 1 ? 32 : 12,
+      health: 100,
+      happiness: 95,
+      state: "At Home"
+    }));
+  }
 
   const defaultFamilies: any[] = [
     {
       id: "my_home",
-      name: citizenOptions?.name ? (citizenOptions.name.endsWith("Residence") || citizenOptions.name.endsWith("Villa") ? citizenOptions.name : `${citizenOptions.name}'s Residence`) : `${safeName}'s Residence`,
-      address: citizenOptions?.address || "Civilization Citizen Zone",
+      name: homeName,
+      address: citizenOptions?.address || (isAdminAcc ? "Civilization Central Zone, Navsari" : isVPatelAcc ? "West Coast Zone, Navsari" : "Civilization Citizen Zone"),
       type: "house",
       budget: 150,
       inventory: { milk: 8, wheat: 10, apple: 8, carrot: 6, bread: 5 },
-      coords: (citizenOptions?.lat && citizenOptions?.lng) ? [citizenOptions.lat, citizenOptions.lng] : [20.9472, 72.9515],
-      members: rawMems.map((mName, idx) => ({
-        id: `mem_${idx + 1}`,
-        name: mName.trim() || `Citizen ${idx + 1}`,
-        role: idx === 0 ? "head" : idx === 1 ? "spouse" : "child",
-        relation: idx === 0 ? "Household Head" : "Family Member",
-        vehicle: idx === 0 ? "car" : idx === 1 ? "scooter" : "bicycle",
-        age: idx === 0 ? 35 : 25,
-        health: 100,
-        happiness: 95,
-        state: "At Home"
-      }))
+      coords: userHomeCoords,
+      members: formattedMembers
     }
   ];
 
   const initialLocations: Record<string, [number, number]> = {
     ...DEFAULT_WORLD_LOCATIONS,
-    ...(inMemoryWorldLocations || {})
+    ...(inMemoryWorldLocations || {}),
+    my_home: userHomeCoords,
+    [customFamilyId]: userHomeCoords
   };
 
   if (citizenOptions?.lat && citizenOptions?.lng) {
@@ -342,17 +402,17 @@ export function createNewPlayer(userId: string, citizenOptions?: CitizenRegistra
       name: `${citizenOptions?.name || userId} Household`,
       budget: 50,
       inventory: { milk: 5, wheat: 5, apple: 5 },
-      members: rawMems.map((mName, idx) => ({
-        name: mName.trim() || `Citizen ${idx + 1}`,
-        role: idx === 0 ? "head" : idx === 1 ? "spouse" : "child",
-        relation: idx === 0 ? "Household Head" : "Family Member",
-        vehicle: idx === 0 ? "car" : idx === 1 ? "scooter" : "bicycle",
-        state: "At Home"
+      members: formattedMembers.map((m: any) => ({
+        name: m.name,
+        role: m.role,
+        relation: m.relation,
+        vehicle: m.vehicle,
+        state: m.state || "At Home"
       }))
     },
     families: defaultFamilies as any,
     government: {
-      mayor: "Thakorbhai",
+      mayor: formattedMembers[1]?.name || "V2",
       income_tax: 10,
       sales_tax: 5,
       welfare_threshold: 15,
@@ -360,12 +420,12 @@ export function createNewPlayer(userId: string, citizenOptions?: CitizenRegistra
       welfare_checks_payouts: 0
     },
     cabinet: {
-      prime_minister: rawMems[0] || "Thakorbhai",
-      district_magistrate: rawMems[1] || "Vasantiben",
+      prime_minister: formattedMembers[0]?.name || "Thakorbhai",
+      district_magistrate: formattedMembers[1]?.name || "Vasantiben",
       ministers: {
-        finance: rawMems[2] || "Vandan",
-        education: rawMems[3] || "Hetvi",
-        infrastructure: rawMems[0] || "v"
+        finance: formattedMembers[2]?.name || "Vandan",
+        education: formattedMembers[3]?.name || "Hetvi",
+        infrastructure: formattedMembers[4]?.name || "V1"
       }
     },
     news_feed: [
@@ -548,11 +608,23 @@ export async function getPlayer(userId: string): Promise<PlayerState | null> {
   return null;
 }
 
-// Load player save for active gameplay (fetches from MongoDB civilization_world, creates new if first play)
+// Load player save for active gameplay (fetches from memory cache first, or MongoDB civilization_world)
 export async function loadPlayer(userId: string): Promise<PlayerState> {
   const cleanId = String(userId || "citizen").trim().toLowerCase();
-  const safeName = cleanId.replace(/[^a-zA-Z0-9_-]/g, "");
   const worldLocations = await loadWorldLocations();
+
+  // Fast cache hit - return immediately without hitting MongoDB Atlas
+  if (inMemoryCache[cleanId]) {
+    const cached = inMemoryCache[cleanId];
+    const userPrivateHome = cached.zone_locations?.my_home;
+    cached.zone_locations = {
+      ...DEFAULT_WORLD_LOCATIONS,
+      ...worldLocations,
+      ...(cached.zone_locations || {}),
+      ...(userPrivateHome ? { my_home: userPrivateHome } : {}),
+    };
+    return cached;
+  }
 
   try {
     const collection = await getWorldCollection("players");
@@ -699,7 +771,7 @@ export async function loadPlayer(userId: string): Promise<PlayerState> {
         };
 
         if (modified) {
-          await savePlayer(playerState);
+          await savePlayer(playerState, true);
         }
         inMemoryCache[cleanId] = playerState;
         return playerState;
@@ -732,7 +804,7 @@ export async function loadPlayer(userId: string): Promise<PlayerState> {
           ...(fresh.zone_locations || {}),
           ...(authUser?.lat && authUser?.lng ? { my_home: [authUser.lat, authUser.lng] } : {}),
         };
-        await savePlayer(fresh);
+        await savePlayer(fresh, true);
         inMemoryCache[cleanId] = fresh;
         return fresh;
       }
@@ -741,52 +813,23 @@ export async function loadPlayer(userId: string): Promise<PlayerState> {
     console.warn("[MongoDB loadPlayer Standby]:", err);
   }
 
-  if (inMemoryCache[cleanId]) {
-    inMemoryCache[cleanId].zone_locations = {
-      ...DEFAULT_WORLD_LOCATIONS,
-      ...(inMemoryCache[cleanId].zone_locations || {}),
-      ...worldLocations,
-    };
-    return inMemoryCache[cleanId];
-  }
-
-  // If not found in world, check auth DB for citizen registration options
-  let citizenOptions: CitizenRegistrationOptions | undefined = undefined;
-  try {
-    const authCol = await getAuthCollection("users");
-    if (authCol) {
-      const uDoc = await authCol.findOne({
-        $or: [{ user_id: cleanId }, { email: cleanId }],
-      });
-      if (uDoc) {
-        citizenOptions = {
-          name: uDoc.home_name || uDoc.name || `${cleanId.split(/[@_]/)[0]}'s Residence`,
-          address: uDoc.address || uDoc.city_name || "Civilization Citizen Zone",
-          lat: uDoc.lat ? Number(uDoc.lat) : 20.9472,
-          lng: uDoc.lng ? Number(uDoc.lng) : 72.9515,
-          members: Array.isArray(uDoc.members) ? uDoc.members : undefined,
-        };
-      }
-    }
-  } catch {}
-
-  const fresh = createNewPlayer(cleanId, citizenOptions);
+  // Fallback to fresh player
+  const fresh = createNewPlayer(cleanId);
   fresh.zone_locations = {
     ...DEFAULT_WORLD_LOCATIONS,
     ...worldLocations,
     ...(fresh.zone_locations || {}),
   };
-  await savePlayer(fresh);
+  await savePlayer(fresh, true);
   inMemoryCache[cleanId] = fresh;
   return fresh;
 }
 
-// Save player exclusively to MongoDB civilization_world.players + civilization_auth.users
-export async function savePlayer(player: PlayerState): Promise<void> {
-  const cleanId = String(player.user_id || "citizen").trim().toLowerCase();
-  player.user_id = cleanId;
+/**
+ * Execute actual write operation to MongoDB
+ */
+async function writePlayerToDb(cleanId: string, player: PlayerState): Promise<void> {
   const safeName = cleanId.replace(/[^a-zA-Z0-9_-]/g, "");
-
   const myHomeFam =
     player.families?.find((f) => f.id === "my_home" || f.id === `house_${safeName}`) ||
     player.families?.[0];
@@ -802,20 +845,18 @@ export async function savePlayer(player: PlayerState): Promise<void> {
     last_saved_at: new Date().toISOString(),
   };
 
-  inMemoryCache[cleanId] = extended as PlayerState;
-
-  // 1. Save to MongoDB civilization_world.players
   try {
     const collection = await getWorldCollection("players");
     if (collection) {
       const { _id, ...cleanData } = extended as any;
       await collection.replaceOne({ user_id: cleanId }, cleanData, { upsert: true });
+      lastSavedToDbTime[cleanId] = Date.now();
     }
   } catch (err) {
     console.warn("[MongoDB Save Player World Warning]:", err);
+    await resetMongoConnection();
   }
 
-  // 2. Sync credentials to MongoDB civilization_auth.users if password hash present
   if (player.password_hash) {
     try {
       const authCol = await getAuthCollection("users");
@@ -840,8 +881,51 @@ export async function savePlayer(player: PlayerState): Promise<void> {
   }
 }
 
-// Fetch all registered players & their home residences for Admin Census exclusively from MongoDB
+// Save player with in-memory write-behind and smart debouncing
+export async function savePlayer(player: PlayerState, forceImmediate: boolean = true): Promise<void> {
+  const cleanId = String(player.user_id || "citizen").trim().toLowerCase();
+  player.user_id = cleanId;
+
+  // 1. Instantly update in-memory state
+  inMemoryCache[cleanId] = player;
+
+  // 2. If force immediate (user initiated actions), write directly now
+  if (forceImmediate) {
+    if (pendingSaveTimers[cleanId]) {
+      clearTimeout(pendingSaveTimers[cleanId]);
+      delete pendingSaveTimers[cleanId];
+    }
+    await writePlayerToDb(cleanId, player);
+    return;
+  }
+
+  // 3. Debounced write-behind for simulation ticks (at most once every 4 seconds)
+  const now = Date.now();
+  const lastSaved = lastSavedToDbTime[cleanId] || 0;
+  if (now - lastSaved >= 4000) {
+    if (pendingSaveTimers[cleanId]) {
+      clearTimeout(pendingSaveTimers[cleanId]);
+      delete pendingSaveTimers[cleanId];
+    }
+    await writePlayerToDb(cleanId, player);
+  } else if (!pendingSaveTimers[cleanId]) {
+    // Schedule trailing debounced save
+    pendingSaveTimers[cleanId] = setTimeout(async () => {
+      delete pendingSaveTimers[cleanId];
+      if (inMemoryCache[cleanId]) {
+        await writePlayerToDb(cleanId, inMemoryCache[cleanId]);
+      }
+    }, 4000);
+  }
+}
+
+// Fetch all registered players & their home residences with in-memory TTL caching
 export async function listAllPlayers(): Promise<any[]> {
+  const now = Date.now();
+  if (cachedAllPlayersList && now < cachedAllPlayersExpiry) {
+    return cachedAllPlayersList;
+  }
+
   const playersMap = new Map<string, any>();
 
   const getCanonicalId = (rawId: string): string => {
@@ -871,11 +955,30 @@ export async function listAllPlayers(): Promise<any[]> {
     });
   };
 
-  // 1. Fetch from MongoDB civilization_world.players
+  // 1. Fetch from MongoDB civilization_world.players with projection
   try {
     const collection = await getWorldCollection("players");
     if (collection) {
-      const docs = await collection.find({}).toArray();
+      const docs = await collection
+        .find({}, {
+          projection: {
+            user_id: 1,
+            city_name: 1,
+            address: 1,
+            money: 1,
+            home_name: 1,
+            name: 1,
+            lat: 1,
+            lng: 1,
+            zone_locations: 1,
+            families: 1,
+            members: 1,
+            last_saved_at: 1,
+            clock: 1,
+          },
+        })
+        .toArray();
+
       for (const doc of docs) {
         if (!doc.user_id) continue;
         const cId = getCanonicalId(doc.user_id);
@@ -885,7 +988,7 @@ export async function listAllPlayers(): Promise<any[]> {
               f.id === "my_home" || f.id === `house_${cId.replace(/[^a-zA-Z0-9_-]/g, "")}`
           ) || doc.families?.[0];
 
-        let myHomeCoords: [number, number] = [20.9472, 72.9515];
+        let myHomeCoords: [number, number] = generateUserResidencyCoords(cId);
         if (doc.lat && doc.lng) {
           myHomeCoords = [Number(doc.lat), Number(doc.lng)];
         } else if (doc.zone_locations?.my_home) {
@@ -918,18 +1021,37 @@ export async function listAllPlayers(): Promise<any[]> {
     console.warn("[MongoDB List Players World]:", err);
   }
 
-  // 2. Also check MongoDB civilization_auth.users to include and enrich registered citizens
+  // 2. Also check MongoDB civilization_auth.users
   try {
     const authCol = await getAuthCollection("users");
     if (authCol) {
-      const authDocs = await authCol.find({}).toArray();
+      const authDocs = await authCol
+        .find({}, {
+          projection: {
+            user_id: 1,
+            email: 1,
+            name: 1,
+            home_name: 1,
+            address: 1,
+            city_name: 1,
+            lat: 1,
+            lng: 1,
+            members: 1,
+            last_login: 1,
+            registered_at: 1,
+            created_at: 1,
+          },
+        })
+        .toArray();
+
       for (const u of authDocs) {
         if (!u.user_id) continue;
         const cId = getCanonicalId(u.user_id);
         const normMembers = normalizeMembers(u.members || []);
+        const defaultCoords = generateUserResidencyCoords(cId);
         const coords: [number, number] = [
-          u.lat ? Number(u.lat) : 20.9472,
-          u.lng ? Number(u.lng) : 72.9515,
+          u.lat ? Number(u.lat) : defaultCoords[0],
+          u.lng ? Number(u.lng) : defaultCoords[1],
         ];
         const address = u.address || u.city_name || "Civilization Citizen Zone";
 
@@ -962,7 +1084,10 @@ export async function listAllPlayers(): Promise<any[]> {
     }
   } catch {}
 
-  return Array.from(playersMap.values());
+  const result = Array.from(playersMap.values());
+  cachedAllPlayersList = result;
+  cachedAllPlayersExpiry = Date.now() + 10000; // 10 seconds TTL
+  return result;
 }
 
 // Permanently delete a citizen exclusively from MongoDB Atlas (civilization_world + civilization_auth) and memory
@@ -973,6 +1098,12 @@ export async function deletePlayer(userId: string): Promise<boolean> {
   if (inMemoryCache[cleanId]) {
     delete inMemoryCache[cleanId];
   }
+  if (pendingSaveTimers[cleanId]) {
+    clearTimeout(pendingSaveTimers[cleanId]);
+    delete pendingSaveTimers[cleanId];
+  }
+
+  invalidatePlayersListCache();
 
   // 2. Delete from MongoDB civilization_world.players
   try {
@@ -994,6 +1125,110 @@ export async function deletePlayer(userId: string): Promise<boolean> {
     console.warn("[MongoDB Delete Auth Standby]:", err);
   }
 
+  return true;
+}
+
+// Complete database reset and initial seed matching 6 citizens architecture
+export async function resetAndSeedDatabase(): Promise<boolean> {
+  // Clear memory cache
+  for (const key of Object.keys(inMemoryCache)) {
+    delete inMemoryCache[key];
+  }
+  invalidatePlayersListCache();
+
+  try {
+    const worldCol = await getWorldCollection("players");
+    if (worldCol) {
+      await worldCol.deleteMany({});
+    }
+  } catch (err) {
+    console.warn("[Reset DB World Warning]:", err);
+  }
+
+  try {
+    const authCol = await getAuthCollection("users");
+    if (authCol) {
+      await authCol.deleteMany({});
+    }
+  } catch (err) {
+    console.warn("[Reset DB Auth Warning]:", err);
+  }
+
+  const { createUser, hashPassword } = require("./auth");
+  const defaultPass = hashPassword("1234");
+
+  // 1. Seed Admin Account: vandan11patel@gmail.com (Admin)
+  const adminEmail = "vandan11patel@gmail.com";
+  await createUser({
+    user_id: adminEmail,
+    email: adminEmail,
+    name: "Vandan Patel",
+    password_hash: defaultPass,
+    role: "admin",
+    address: "Civilization Central Zone, Navsari",
+    lat: 20.9472,
+    lng: 72.9515,
+    members: ["Thakorbhai", "Vasantiben", "Vandan", "Hetvi"]
+  });
+
+  const adminPlayer = createNewPlayer(adminEmail, {
+    name: "Vandan Patel",
+    address: "Civilization Central Zone, Navsari",
+    lat: 20.9472,
+    lng: 72.9515,
+    members: ["Thakorbhai", "Vasantiben", "Vandan", "Hetvi"]
+  });
+  adminPlayer.password_hash = defaultPass;
+  await savePlayer(adminPlayer, true);
+
+  // Also register canonical vandan_11 admin alias
+  const adminAlias = "vandan_11";
+  await createUser({
+    user_id: adminAlias,
+    email: adminEmail,
+    name: "Vandan Patel",
+    password_hash: defaultPass,
+    role: "admin",
+    address: "Civilization Central Zone, Navsari",
+    lat: 20.9472,
+    lng: 72.9515,
+    members: ["Thakorbhai", "Vasantiben", "Vandan", "Hetvi"]
+  });
+  const aliasPlayer = createNewPlayer(adminAlias, {
+    name: "Vandan Patel",
+    address: "Civilization Central Zone, Navsari",
+    lat: 20.9472,
+    lng: 72.9515,
+    members: ["Thakorbhai", "Vasantiben", "Vandan", "Hetvi"]
+  });
+  aliasPlayer.password_hash = defaultPass;
+  await savePlayer(aliasPlayer, true);
+
+  // 2. Seed User Account: vpatelcode@gmail.com (User)
+  const userEmail = "vpatelcode@gmail.com";
+  await createUser({
+    user_id: userEmail,
+    email: userEmail,
+    name: "VPatel Code",
+    password_hash: defaultPass,
+    role: "citizen",
+    address: "West Coast Zone, Navsari",
+    lat: 20.9460,
+    lng: 72.9530,
+    members: ["V1", "V2"]
+  });
+
+  const userPlayer = createNewPlayer(userEmail, {
+    name: "VPatel Code",
+    address: "West Coast Zone, Navsari",
+    lat: 20.9460,
+    lng: 72.9530,
+    members: ["V1", "V2"]
+  });
+  userPlayer.password_hash = defaultPass;
+  await savePlayer(userPlayer, true);
+
+  invalidatePlayersListCache();
   return true;
 }
 
